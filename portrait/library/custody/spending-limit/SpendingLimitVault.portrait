@@ -1,0 +1,106 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  SpendingLimitVault — a single-owner custody vault with a per-transaction
+//  spending cap.
+//
+//  THE POINT OF THIS FILE: a vault UTXO controlled by ONE committed owner key,
+//  whose `withdraw` transition may only move an `amount` that is at or below a
+//  committed per-transaction `limit`. This is the on-chain capability pattern
+//  (committed-key authorisation, exactly as MultisigTreasury) composed with a
+//  committed-state BOUND on each withdrawal:
+//
+//    · owner authorisation — withdraw is authorised against the COMMITTED owner
+//                 key (prev state), never a caller-supplied pubkey, so an
+//                 attacker who supplies their own key cannot move the balance;
+//    · per-tx spending cap — `amount <= limit`, where `limit` is committed state
+//                 carried unchanged across every withdrawal, so no single
+//                 transaction can drain more than the committed cap;
+//    · value conservation — `balance` is decreased by a single additive
+//                 subtraction (`balance: balance - amount`), the only mutation
+//                 the hardened value_conserved invariant permits for a
+//                 non-mint/burn entrypoint; the committed owner key and the
+//                 committed limit are carried unchanged, so neither the spend
+//                 authority nor the cap can be silently rotated by a withdrawal.
+//
+//  HONEST SCOPE — PER-TRANSACTION CAP, NOT A TIME-WINDOWED RATE LIMIT. The cap
+//  this covenant enforces is per-transaction: each individual `withdraw` is
+//  bounded by `limit`. It is NOT a windowed rate limit (e.g. "at most X per
+//  day"), because expressing a sliding window would require committing and
+//  advancing a period/epoch counter and a per-period spent accumulator, and
+//  comparing the caller-asserted period against committed state — period
+//  tracking the current Portrait surface does not make trivial to express
+//  honestly. The committed `limit` therefore bounds each spend, not the
+//  aggregate flow over time; an owner can still issue many withdrawals in
+//  sequence. The honest, compileable property today is the per-tx cap.
+//
+//  HONEST SCOPE (M1): `amount` is a caller-asserted integer compared against
+//  committed state (`limit`, `balance`) and conserved against `balance`; the
+//  actual coin movement is the spending wallet's responsibility, complemented
+//  here by the structural invariants the covenant rejects on (committed-key
+//  authorisation + per-tx bound + conservation). The covenant does NOT itself
+//  read UTXO coin values.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param in the same position, so the constructor declares owner, balance,
+//  limit in state-field order. `portrait engrave` lowers this to a
+//  single-transition singleton covenant that `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app SpendingLimitVault {
+  role vault {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey owner;     // committed owner key (the withdraw authority)
+    param int    balance;   // vault balance (value-conserved by field name)
+    param int    limit;     // committed per-transaction spending cap
+
+    state {
+      pubkey owner;
+      int    balance;
+      int    limit;
+    }
+
+    // Withdraw from the vault. Authorised against the COMMITTED owner key, and
+    // bounded by the committed per-transaction `limit`. The balance is decreased
+    // by a single additive subtraction (value_conserved); the owner key and the
+    // limit are carried unchanged.
+    #[covenant(mode = transition)]
+    entrypoint function withdraw(
+      sig auth,
+      int amount
+    ) : (pubkey owner, int balance, int limit) {
+      requires checkSig(auth, owner);    // committed-owner authorisation (C2)
+      requires amount >= 0;              // non-negative withdrawal (non_negative_amount)
+      requires amount <= limit;          // per-transaction spending cap
+      requires amount <= balance;        // cannot overspend the vault balance
+      return SpendingLimitVault {
+        owner:   owner,                  // owner key carried unchanged
+        balance: balance - amount,       // single additive subtraction
+        limit:   limit                   // committed cap carried unchanged
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via vault.withdraw;
+  }
+
+  invariant value_conserved;
+  // Capability invariant (C2): withdraw authority is checked against the
+  // COMMITTED owner key. Declaring `authorized` makes the no-auth fail-safe a
+  // stated, enforced property: any state-mutating transition added here that
+  // omits a committed-key checkSig is rejected by `portrait check`.
+  invariant authorized;
+  // Refinement (C3): the withdraw `amount` is bounded non-negative. The
+  // `requires amount >= 0;` guard above is an enforced invariant — a future
+  // edit that drops it fails the checker.
+  invariant non_negative_amount;
+  // Refinement (D3, spending_cap): the withdraw `amount` is bounded by the
+  // committed per-tx `limit`. The `requires amount <= limit;` guard above is an
+  // enforced invariant — a future edit that drops it fails the checker. This is
+  // a STRUCTURAL shape match on the cap require, NOT a proof the cap is sound.
+  invariant spending_cap;
+  invariant no_undeclared_state;
+}

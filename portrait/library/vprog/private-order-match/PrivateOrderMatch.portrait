@@ -1,0 +1,129 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  PrivateOrderMatch — a CROSS-LAYER (vProg) DARK-POOL matching engine.
+//
+//  THE POINT OF THIS FILE: prove a buy/sell match (or batch of matches) is valid
+//  under PRICE-TIME PRIORITY over a set of HIDDEN resting orders, WITHOUT
+//  revealing the order book. The guest opens the committed orders PRIVATELY and
+//  proves the executed match respects: price-crossing (buy_price >= sell_price),
+//  priority (best price / earliest time first), and quantity conservation. Only
+//  the matched fills' commitments (plus the advanced book-commitment + seq) enter
+//  the journal — the resting book stays confidential.
+//
+//  WHY A COVENANT CANNOT DO THIS: matching is a RELATIONAL predicate over the
+//  WHOLE hidden order book (which orders cross, which has priority). A covenant
+//  cannot hold the book or prove a match is the priority-correct one without
+//  revealing competing orders — which would defeat the dark-pool confidentiality
+//  and invite front-running. The matching-correctness-over-a-private-book
+//  predicate lives in the guest; the chain only sees the committed book
+//  transition.
+//
+//  WHY THIS IS DISTINCT:
+//    · ConfidentialTransfer hides the AMOUNT of a SINGLE transfer and proves
+//      conservation only — no two-sided matching, no priority, no counterparty.
+//    · PrivateVickreyAuction is a ONE-SHOT single-winner second-price clearing
+//      of bids for ONE item. PrivateOrderMatch is CONTINUOUS, two-sided
+//      order-book matching with price-time priority and PARTIAL fills across many
+//      maker/taker pairs.
+//    · BatchRollup / ZkExecutionRollup prove generic state advancement but NOT
+//      the specific price-time-priority matching invariants.
+//
+//  FOLLOWS THE PROVEN CSCI SHAPE (see ../../state/CsciInstrument):
+//    • a `#[covenant]` settlement role (`settle`) self-enforcing the STRUCTURAL
+//      state machine on chain, and
+//    • a NonCovenant companion (`match_rule`) → vProg → Atelier emits its
+//      RISC Zero guest main. Its presence flips `has_vprog`, emitting the
+//      covenant-id binding require() into `settle`.
+//
+//  ON-CHAIN, the emitted .sil enforces:
+//    (a) monotonic seq          — CSCI sequence advances by one
+//    (b) covenant-id binding    — STARK journal covenant_id == this covenant's
+//                                 on-chain id (emitted by has_vprog)
+//    (c) operator authorization — `settle` authorized against the COMMITTED venue
+//                                 operator key, never a caller arg
+//    (d) the book-commitment advances to the proven next book state
+//
+//  OFF-CHAIN (the vProg guest), `match_rule` is the predicate proven by the
+//  STARK: open the resting orders under the prior book-commitment, prove the
+//  executed `fills` cross on price, respect price-time priority, and conserve
+//  quantity; commit the advanced book-commitment + fills + seq into the journal's
+//  new_state_hash. The resting book is NEVER disclosed.
+//
+//  STATUS — EMIT-VERIFIED template (NOT settled live). Compiles via silverc
+//  (exit 0); `portrait atelier-build` emits a RISC Zero guest. The price-time-
+//  priority matching over the hidden book is developer-authored in the guest, NOT
+//  synthesized by the compiler. Only CSCI has settled live on TN10.
+//
+//  HONEST SCOPE: tag-0x21 ZK *verification* of the STARK is an ENGINE op
+//  (OpZkPrecompile / kcp-pq-anchor), NOT silverscript. silverscript enforces the
+//  state-machine + covenant-id binding only; the matching-correctness soundness
+//  rests on the RISC Zero guest + the tag-0x21 verifier, NOT on Portrait.
+// ─────────────────────────────────────────────────────────────────────────
+
+app PrivateOrderMatch {
+  role venue {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey  operator;        // committed venue operator key (the settle authority)
+    param bytes32 book_commitment; // committed resting-order-book commitment (hidden book)
+    param bytes32 fills;           // last batch of matched-fill commitments (public outputs)
+    param int     seq;             // monotonic CSCI sequence number (genesis = 0)
+
+    state {
+      pubkey  operator;
+      bytes32 book_commitment;
+      bytes32 fills;
+      int     seq;
+    }
+
+    // L1 covenant: settles ONE matching round on chain.
+    //   · operator auth against committed venue key   (committed-operator auth)
+    //   · book_commitment advances to the proven next  (state progress)
+    //   · fills adopt the proven matched-fill batch     (the only public outputs)
+    //   · seq advances by exactly one                   (monotonic_seq)
+    //   · covenant-id binding require()                  (emitted by has_vprog)
+    #[covenant(mode = transition)]
+    entrypoint function settle(
+      sig auth,
+      bytes32 next_book_commitment,
+      bytes32 next_fills
+    ) : (pubkey operator, bytes32 book_commitment, bytes32 fills, int seq) {
+      requires checkSig(auth, operator);          // committed-operator authorization
+      return PrivateOrderMatch {
+        operator:        operator,                 // venue key carried unchanged
+        book_commitment: next_book_commitment,     // adopt the proven next book commitment
+        fills:           next_fills,               // adopt the proven matched fills
+        seq:             seq + 1                   // CSCI sequence advances by one
+      };
+    }
+
+    // vProg (off-L1): the PRICE-TIME-PRIORITY MATCHING predicate, proven via a
+    // STARK. No #[covenant] attribute → NonCovenant → Atelier emits the guest
+    // main. The body MIRRORS `settle`: consumes next_book_commitment + next_fills
+    // and advances book_commitment/fills/seq, so the M3 guest hashes the NEW state
+    // into the journal's new_state_hash. Its presence flips `has_vprog`, emitting
+    // the covenant-id binding into `settle` above.
+    //
+    // WHAT STAYS MANUAL (developer guest code): opening the HIDDEN resting book
+    // under `book_commitment` and proving the executed `next_fills` cross on price
+    // (buy_price >= sell_price), respect price-time priority, and conserve
+    // quantity — a relational predicate over the whole private book. Not
+    // expressible in the Portrait body; remains hand-written in the guest.
+    entrypoint function match_rule(
+      bytes32 next_book_commitment,
+      bytes32 next_fills
+    ) {
+      return PrivateOrderMatch {
+        operator:        operator,
+        book_commitment: next_book_commitment,
+        fills:           next_fills,
+        seq:             seq + 1
+      };
+    }
+  }
+
+  lifecycle { live -> live via venue.settle; }
+
+  invariant monotonic_seq;          // seq must advance by exactly one
+  invariant no_undeclared_state;
+}

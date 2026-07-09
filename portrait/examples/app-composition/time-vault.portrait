@@ -1,0 +1,24 @@
+// time-vault.portrait — using library/custody/TimeVault in an app.
+// The Composer generates: the bound .sil, the covenant-ID genesis tx,
+// a per-entrypoint transaction template, and verifies the lifecycle below
+// against the covenant transitions in TimeVault.sil.
+
+pragma portrait ^0.1.0;
+
+use custody::TimeVault;
+
+app PersonalVault {
+    contract vault = TimeVault {
+        owner    = param pubkey,   // supplied at deployment
+        recovery = param pubkey,   // cold key, supplied at deployment
+        delay    = 1440,           // relative-age units — see docs/LANGUAGE.md §5
+    }
+
+    // Declared legal lifecycle. If any covenant entrypoint in TimeVault.sil could
+    // drive the UTXO into a state not listed here, `portrait build` fails.
+    lifecycle {
+        idle    -> pending  via vault.schedule
+        pending -> settled  via vault.settle      // terminal: funds leave the covenant
+        pending -> idle     via vault.cancel
+    }
+}

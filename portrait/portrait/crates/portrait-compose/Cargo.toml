@@ -1,0 +1,19 @@
+[package]
+name = "portrait-compose"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Composer M1/M2 (type-level): a global protocol type (Score), projection to per-role local types, a non-vacuous projectability/duality/linearity checker, and (M2) a faithful front-end lift from a parsed Portrait App-flow to a Score plus per-role covenant skeleton emission. Proves SAFETY of the protocol model only — NOT liveness on a UTXO/DAG, and NOT the deployed covenants; emitted covenants are skeletons, not deployable .sil."
+
+[dependencies]
+# Path dep only (workspace-internal). The core checker stays self-contained; this
+# is consumed solely by the M2 front-end lift (`lift` module), which maps a parsed
+# Portrait surface App into the dep-free Score grammar.
+portrait-syntax = { path = "../portrait-syntax" }
+
+[dev-dependencies]
+# Test-only. The M5 real-emission tests prove that an emitted per-role .portrait
+# covenant genuinely round-trips: `portrait_syntax::parse` is Ok AND
+# `portrait_sema::check` passes. The default build (lib) does NOT depend on sema —
+# emission produces a String and the round-trip assertion lives in the tests.
+portrait-sema = { path = "../portrait-sema" }

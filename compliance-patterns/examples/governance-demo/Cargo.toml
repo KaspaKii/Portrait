@@ -1,0 +1,16 @@
+[package]
+name = "governance-demo"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[[bin]]
+name = "governance-demo"
+path = "src/main.rs"
+
+[dependencies]
+kcp-governance = { path = "../../crates/kcp-governance" }
+kcp-vault       = { path = "../../crates/kcp-vault", features = ["wrpc"] }
+hex = "0.4"

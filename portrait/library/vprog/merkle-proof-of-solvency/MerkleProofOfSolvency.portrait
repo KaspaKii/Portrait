@@ -1,0 +1,135 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  MerkleProofOfSolvency — a CROSS-LAYER (vProg) EXCHANGE-GRADE solvency
+//  attestation (proof-of-reserves-AND-liabilities).
+//
+//  THE POINT OF THIS FILE: a custodian/exchange periodically attests TWO things
+//  over PRIVATE data that a covenant cannot recompute on chain:
+//    (a) AGGREGATE solvency: sum(reserves) >= sum(liabilities), AND
+//    (b) PER-USER inclusion: every user's liability is correctly committed as a
+//        leaf under the published `liabilities_root`, so each user can later
+//        verify their own balance is in the attested set.
+//  Both predicates live in a RISC Zero zk-STARK guest (the vProg); the covenant
+//  records a monotonic-epoch attestation BOUND to that proof.
+//
+//  WHY THIS IS NOT ProofOfReserves: the existing ProofOfReserves vProg proves
+//  ONLY the aggregate sum over a flat `accounts_root`. It does NOT prove that
+//  each user's liability is individually included — the classic Mt.-Gox /
+//  Proof-of-Liabilities failure mode where an exchange passes a sum check while
+//  omitting user liabilities. MerkleProofOfSolvency is the strictly STRONGER
+//  variant: aggregate solvency PLUS auditable per-user liability inclusion.
+//  It carries TWO roots (liabilities_root + reserves_root), not one.
+//
+//  FOLLOWS THE PROVEN CSCI SHAPE (see ../../state/CsciInstrument):
+//    • a `#[covenant]` settlement role (`attest`) self-enforcing the STRUCTURAL
+//      state machine on chain, and
+//    • a NonCovenant companion (`solvency_rule`) carrying NO #[covenant]
+//      attribute → portrait-ir lowers it as a vProg transition → Atelier emits
+//      its RISC Zero guest main. Its presence flips `has_vprog`, emitting the
+//      covenant-id binding require() into `attest`.
+//
+//  ON-CHAIN, the emitted .sil enforces:
+//    (a) monotonic epoch        — attested reporting epoch advances by one
+//    (b) monotonic seq          — CSCI sequence advances by one
+//    (c) covenant-id binding    — STARK journal covenant_id == this covenant's
+//                                 on-chain id (emitted by has_vprog)
+//    (d) attestor authorization — `attest` authorized against the COMMITTED
+//                                 attestor key, never a caller arg
+//
+//  OFF-CHAIN (the vProg guest), `solvency_rule` is the predicate proven by the
+//  STARK: fold the PRIVATE reserve set and the PRIVATE liabilities Merkle tree,
+//  assert sum(reserves) >= sum(liabilities), AND assert each user leaf is
+//  included under `next_liabilities_root`; commit the advanced epoch + both
+//  roots + verdict + seq into the journal's new_state_hash.
+//
+//  STATUS — EMIT-VERIFIED template (NOT settled live). The covenant compiles via
+//  silverc (exit 0) and `portrait atelier-build` emits a RISC Zero guest. The
+//  heavy predicate (the two-sided sum + per-user inclusion over the private
+//  trees) is developer-authored in the guest, NOT synthesized by the compiler.
+//  Only CSCI has settled live on TN10; this pattern reuses that proven harness.
+//
+//  HONEST SCOPE: the tag-0x21 ZK *verification* of the STARK proof is an
+//  ENGINE-level operation (OpZkPrecompile / kcp-pq-anchor), NOT a silverscript
+//  op. silverscript here enforces the STATE-MACHINE rules + the covenant-id
+//  binding only; the proof-bytes verification is layered by the settlement
+//  harness. The solvency claim's soundness rests on the RISC Zero guest + the
+//  tag-0x21 verifier, NOT on Portrait.
+// ─────────────────────────────────────────────────────────────────────────
+
+app MerkleProofOfSolvency {
+  role custodian {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey  attestor;          // committed attestor key (the attest authority)
+    param int     epoch;             // monotonic reporting epoch (genesis = 0)
+    param bool    solvent;           // attested verdict for `epoch`
+    param bytes32 liabilities_root;  // Merkle root of the per-user liability leaves
+    param bytes32 reserves_root;     // Merkle root of the attested reserve set
+    param int     seq;               // monotonic CSCI sequence number (genesis = 0)
+
+    state {
+      pubkey  attestor;
+      int     epoch;
+      bool    solvent;
+      bytes32 liabilities_root;
+      bytes32 reserves_root;
+      int     seq;
+    }
+
+    // L1 covenant: records ONE solvency-and-liabilities attestation on chain.
+    //   · epoch advances by exactly one          (monotonic reporting period)
+    //   · attestor auth against committed key     (committed-attestor auth)
+    //   · seq advances by exactly one             (monotonic_seq)
+    //   · covenant-id binding require()            (emitted by has_vprog)
+    #[covenant(mode = transition)]
+    entrypoint function attest(
+      sig auth,
+      bool next_solvent,
+      bytes32 next_liabilities_root,
+      bytes32 next_reserves_root
+    ) : (pubkey attestor, int epoch, bool solvent, bytes32 liabilities_root, bytes32 reserves_root, int seq) {
+      requires checkSig(auth, attestor);          // committed-attestor authorization
+      return MerkleProofOfSolvency {
+        attestor:         attestor,                // attestor key carried unchanged
+        epoch:            epoch + 1,               // reporting epoch advances by one
+        solvent:          next_solvent,            // adopt the attested verdict
+        liabilities_root: next_liabilities_root,   // adopt the per-user liabilities root
+        reserves_root:    next_reserves_root,      // adopt the reserve-set root
+        seq:              seq + 1                  // CSCI sequence advances by one
+      };
+    }
+
+    // vProg (off-L1): the EXCHANGE-GRADE solvency predicate, proven via a STARK.
+    // No #[covenant] attribute → NonCovenant → Atelier emits the guest main.
+    // The body MIRRORS `attest`: consumes the next verdict + both next roots and
+    // advances epoch/solvent/liabilities_root/reserves_root/seq, so the M3 guest
+    // hashes the NEW state into the journal's new_state_hash. Its presence flips
+    // `has_vprog`, emitting the covenant-id binding into `attest` above.
+    //
+    // WHAT STAYS MANUAL (developer guest code): folding the PRIVATE reserve set
+    // and the PRIVATE liabilities tree to prove BOTH
+    // `sum(reserves) >= sum(liabilities)` AND that every user leaf is included
+    // under `next_liabilities_root`. Neither the two-sided sum nor the per-user
+    // Merkle inclusion is expressible in the Portrait body — both remain
+    // hand-written in the guest.
+    entrypoint function solvency_rule(
+      bool next_solvent,
+      bytes32 next_liabilities_root,
+      bytes32 next_reserves_root
+    ) {
+      return MerkleProofOfSolvency {
+        attestor:         attestor,
+        epoch:            epoch + 1,
+        solvent:          next_solvent,
+        liabilities_root: next_liabilities_root,
+        reserves_root:    next_reserves_root,
+        seq:              seq + 1
+      };
+    }
+  }
+
+  lifecycle { live -> live via custodian.attest; }
+
+  invariant monotonic_seq;          // seq must advance by exactly one
+  invariant no_undeclared_state;
+}

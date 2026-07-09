@@ -1,0 +1,54 @@
+// HeavyAirdrop — Tier 3 allocation demo: one source, two layers, where the vProg
+// body holds a REAL out-of-subset construct (a `for` loop).
+//
+// This is the companion to ComplianceToken.portrait. ComplianceToken proves that
+// one source emits both a covenant `.sil` and a vProg guest, but its vProg body
+// uses only covenant-legal expressions. HeavyAirdrop goes further: its vProg
+// entrypoint `tally` contains a `for` loop — a construct the REJECTION_SET forbids
+// for COVENANTS (no general iteration in script). Before the allocation-aware
+// change, that loop was rejected at PARSE even though it sits in a vProg
+// entrypoint where loops legitimately belong. Now it is accepted as a recorded
+// vProg hole, while the SAME loop inside a `#[covenant]` entrypoint stays rejected.
+//
+// Pipeline:
+//   portrait engrave HeavyAirdrop.portrait
+//     → [pounce] settle → Covenant
+//     → [pounce] tally  → VProg
+//     → [allocate] r.tally (VProg): vProg entrypoint uses `for` ... correctly allocated
+//     → [emit]   HeavyAirdrop.sil + HeavyAirdrop_ctor.json
+//     → [silverc] ok
+//
+//   portrait atelier-build HeavyAirdrop.portrait
+//     → emits the vProg guest for `tally`.
+//
+// HONEST SCOPE: the `for` loop is carried as an untyped vProg hole — the compiler
+// does NOT yet synthesize loop semantics into the guest. This example exists to
+// prove that allocation is now LAYER-AWARE: a heavy construct is a covenant
+// rejection but an accepted vProg body. It is an advisor/checker improvement, not
+// a full automatic allocator.
+
+pragma portrait ^0.1.0;
+
+app HeavyAirdrop {
+  role r {
+    param int start;
+    state { int v; }
+
+    // L1 covenant: enforces the UTXO state transition on-chain.
+    #[covenant(mode = transition)]
+    entrypoint function settle(int amount) : (int v) {
+      return v - amount;
+    }
+
+    // vProg (off-L1): no #[covenant] attribute → NonCovenant → Atelier handles it.
+    // Its body contains a `for` loop, which is forbidden for covenants but is
+    // exactly the kind of heavy computation the vProgs (Tier-3) layer exists for.
+    entrypoint function tally(int n) {
+      for (i = 0; i < n; i = i + 1) { x = x + 1 };
+      return v;
+    }
+  }
+
+  lifecycle { live -> live via r.settle; }
+  invariant no_undeclared_state;
+}

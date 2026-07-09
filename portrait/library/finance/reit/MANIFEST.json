@@ -1,0 +1,11 @@
+{
+  "app": "DigitalReit",
+  "deploy_order": ["DigitalReitToken", "DigitalReitSplitter"],
+  "covenants": [
+    { "name": "DigitalReitToken", "role": "token", "kov_id": null },
+    { "name": "DigitalReitSplitter", "role": "splitter", "kov_id": null }
+  ],
+  "lineage": [
+    { "parent": "DigitalReitToken", "child": "DigitalReitSplitter", "binding_field": "parent_kov_id" }
+  ]
+}

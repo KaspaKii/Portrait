@@ -1,0 +1,2391 @@
+{
+  "contract_name": "SealedLineage",
+  "compiler_version": "0.1.0",
+  "script": [
+    107,
+    32,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    8,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    8,
+    0,
+    241,
+    83,
+    101,
+    0,
+    0,
+    0,
+    0,
+    32,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    108,
+    118,
+    0,
+    156,
+    99,
+    117,
+    185,
+    207,
+    118,
+    0,
+    209,
+    185,
+    156,
+    105,
+    118,
+    208,
+    118,
+    81,
+    161,
+    105,
+    120,
+    210,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    87,
+    121,
+    0,
+    148,
+    81,
+    161,
+    105,
+    118,
+    88,
+    121,
+    159,
+    99,
+    118,
+    89,
+    121,
+    120,
+    209,
+    90,
+    121,
+    82,
+    121,
+    209,
+    201,
+    2,
+    44,
+    3,
+    148,
+    82,
+    147,
+    91,
+    121,
+    83,
+    121,
+    209,
+    201,
+    2,
+    44,
+    3,
+    148,
+    82,
+    147,
+    1,
+    32,
+    147,
+    188,
+    90,
+    121,
+    82,
+    121,
+    209,
+    91,
+    121,
+    83,
+    121,
+    209,
+    201,
+    2,
+    44,
+    3,
+    148,
+    1,
+    35,
+    147,
+    92,
+    121,
+    84,
+    121,
+    209,
+    201,
+    2,
+    44,
+    3,
+    148,
+    1,
+    35,
+    147,
+    88,
+    147,
+    188,
+    91,
+    121,
+    83,
+    121,
+    209,
+    92,
+    121,
+    84,
+    121,
+    209,
+    201,
+    2,
+    44,
+    3,
+    148,
+    1,
+    44,
+    147,
+    93,
+    121,
+    85,
+    121,
+    209,
+    201,
+    2,
+    44,
+    3,
+    148,
+    1,
+    44,
+    147,
+    81,
+    147,
+    188,
+    92,
+    121,
+    84,
+    121,
+    209,
+    93,
+    121,
+    85,
+    121,
+    209,
+    201,
+    2,
+    44,
+    3,
+    148,
+    1,
+    46,
+    147,
+    94,
+    121,
+    86,
+    121,
+    209,
+    201,
+    2,
+    44,
+    3,
+    148,
+    1,
+    46,
+    147,
+    88,
+    147,
+    188,
+    93,
+    121,
+    85,
+    121,
+    209,
+    94,
+    121,
+    86,
+    121,
+    209,
+    201,
+    2,
+    44,
+    3,
+    148,
+    1,
+    55,
+    147,
+    95,
+    121,
+    87,
+    121,
+    209,
+    201,
+    2,
+    44,
+    3,
+    148,
+    1,
+    55,
+    147,
+    1,
+    32,
+    147,
+    188,
+    91,
+    121,
+    85,
+    121,
+    126,
+    92,
+    122,
+    117,
+    91,
+    121,
+    85,
+    121,
+    88,
+    205,
+    126,
+    92,
+    122,
+    117,
+    91,
+    121,
+    85,
+    121,
+    126,
+    92,
+    122,
+    117,
+    91,
+    121,
+    85,
+    121,
+    88,
+    205,
+    126,
+    92,
+    122,
+    117,
+    91,
+    121,
+    85,
+    121,
+    126,
+    92,
+    122,
+    117,
+    90,
+    121,
+    81,
+    147,
+    92,
+    122,
+    117,
+    86,
+    122,
+    117,
+    86,
+    122,
+    117,
+    86,
+    122,
+    117,
+    86,
+    122,
+    117,
+    86,
+    122,
+    117,
+    86,
+    122,
+    117,
+    104,
+    85,
+    121,
+    85,
+    121,
+    85,
+    121,
+    85,
+    121,
+    85,
+    121,
+    1,
+    24,
+    121,
+    1,
+    24,
+    121,
+    1,
+    24,
+    121,
+    1,
+    24,
+    121,
+    1,
+    24,
+    121,
+    1,
+    24,
+    121,
+    86,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    172,
+    105,
+    83,
+    121,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    89,
+    121,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    81,
+    147,
+    156,
+    105,
+    84,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    90,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    135,
+    105,
+    87,
+    121,
+    0,
+    81,
+    149,
+    118,
+    81,
+    147,
+    127,
+    1,
+    2,
+    135,
+    145,
+    105,
+    82,
+    121,
+    0,
+    81,
+    149,
+    118,
+    81,
+    147,
+    127,
+    1,
+    0,
+    135,
+    145,
+    105,
+    86,
+    121,
+    82,
+    121,
+    118,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    82,
+    121,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    162,
+    105,
+    118,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    82,
+    121,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    3,
+    0,
+    167,
+    118,
+    147,
+    161,
+    105,
+    1,
+    18,
+    121,
+    81,
+    161,
+    105,
+    1,
+    18,
+    121,
+    1,
+    32,
+    121,
+    130,
+    124,
+    117,
+    1,
+    32,
+    150,
+    156,
+    105,
+    0,
+    1,
+    19,
+    121,
+    0,
+    148,
+    81,
+    161,
+    105,
+    118,
+    1,
+    20,
+    121,
+    159,
+    99,
+    118,
+    1,
+    33,
+    121,
+    120,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    1,
+    33,
+    121,
+    82,
+    121,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    88,
+    205,
+    1,
+    8,
+    124,
+    126,
+    1,
+    33,
+    121,
+    83,
+    121,
+    81,
+    149,
+    118,
+    81,
+    147,
+    127,
+    1,
+    1,
+    124,
+    126,
+    1,
+    33,
+    121,
+    84,
+    121,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    88,
+    205,
+    1,
+    8,
+    124,
+    126,
+    1,
+    33,
+    121,
+    85,
+    121,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    126,
+    126,
+    126,
+    126,
+    185,
+    118,
+    201,
+    2,
+    44,
+    3,
+    148,
+    118,
+    81,
+    147,
+    188,
+    124,
+    126,
+    185,
+    118,
+    201,
+    118,
+    2,
+    44,
+    3,
+    148,
+    1,
+    87,
+    147,
+    124,
+    188,
+    126,
+    170,
+    2,
+    0,
+    0,
+    1,
+    170,
+    126,
+    1,
+    32,
+    126,
+    124,
+    126,
+    1,
+    135,
+    126,
+    1,
+    23,
+    121,
+    82,
+    121,
+    211,
+    195,
+    135,
+    105,
+    118,
+    81,
+    147,
+    123,
+    117,
+    119,
+    104,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    81,
+    103,
+    118,
+    81,
+    156,
+    99,
+    117,
+    185,
+    207,
+    0,
+    209,
+    185,
+    158,
+    105,
+    117,
+    117,
+    117,
+    117,
+    117,
+    81,
+    103,
+    117,
+    0,
+    105,
+    104,
+    104
+  ],
+  "ast": {
+    "name": "SealedLineage",
+    "params": [
+      {
+        "type_ref": {
+          "base": "byte",
+          "array_dims": [
+            {
+              "kind": "fixed",
+              "value": 32
+            }
+          ]
+        },
+        "name": "genesisLineageId",
+        "span": "byte[32] genesisLineageId",
+        "type_span": "byte[32]",
+        "name_span": "genesisLineageId"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "genesisSeq",
+        "span": "int      genesisSeq",
+        "type_span": "int      ",
+        "name_span": "genesisSeq"
+      },
+      {
+        "type_ref": {
+          "base": "byte"
+        },
+        "name": "genesisEventClass",
+        "span": "byte     genesisEventClass",
+        "type_span": "byte     ",
+        "name_span": "genesisEventClass"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "genesisTBucket",
+        "span": "int      genesisTBucket",
+        "type_span": "int      ",
+        "name_span": "genesisTBucket"
+      },
+      {
+        "type_ref": {
+          "base": "byte",
+          "array_dims": [
+            {
+              "kind": "fixed",
+              "value": 32
+            }
+          ]
+        },
+        "name": "genesisPublisherPk",
+        "span": "byte[32] genesisPublisherPk",
+        "type_span": "byte[32]",
+        "name_span": "genesisPublisherPk"
+      }
+    ],
+    "fields": [
+      {
+        "type_ref": {
+          "base": "byte",
+          "array_dims": [
+            {
+              "kind": "fixed",
+              "value": 32
+            }
+          ]
+        },
+        "name": "lineage_id",
+        "expr": {
+          "kind": "identifier",
+          "data": "genesisLineageId",
+          "span": "genesisLineageId"
+        },
+        "span": "byte[32] lineage_id  = genesisLineageId;",
+        "type_span": "byte[32]",
+        "name_span": "lineage_id"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "seq",
+        "expr": {
+          "kind": "identifier",
+          "data": "genesisSeq",
+          "span": "genesisSeq"
+        },
+        "span": "int      seq         = genesisSeq;",
+        "type_span": "int      ",
+        "name_span": "seq"
+      },
+      {
+        "type_ref": {
+          "base": "byte"
+        },
+        "name": "event_class",
+        "expr": {
+          "kind": "identifier",
+          "data": "genesisEventClass",
+          "span": "genesisEventClass"
+        },
+        "span": "byte     event_class = genesisEventClass;",
+        "type_span": "byte     ",
+        "name_span": "event_class"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "t_bucket",
+        "expr": {
+          "kind": "identifier",
+          "data": "genesisTBucket",
+          "span": "genesisTBucket"
+        },
+        "span": "int      t_bucket    = genesisTBucket;",
+        "type_span": "int      ",
+        "name_span": "t_bucket"
+      },
+      {
+        "type_ref": {
+          "base": "byte",
+          "array_dims": [
+            {
+              "kind": "fixed",
+              "value": 32
+            }
+          ]
+        },
+        "name": "publisherPk",
+        "expr": {
+          "kind": "identifier",
+          "data": "genesisPublisherPk",
+          "span": "genesisPublisherPk"
+        },
+        "span": "byte[32] publisherPk = genesisPublisherPk;",
+        "type_span": "byte[32]",
+        "name_span": "publisherPk"
+      }
+    ],
+    "constants": [
+      {
+        "type_ref": {
+          "base": "byte"
+        },
+        "name": "GENESIS_CLASS",
+        "expr": {
+          "kind": "array",
+          "data": [
+            {
+              "kind": "byte",
+              "data": 0,
+              "span": "0x00"
+            }
+          ],
+          "span": "0x00"
+        },
+        "span": "byte constant GENESIS_CLASS  = 0x00;",
+        "type_span": "byte ",
+        "name_span": "GENESIS_CLASS"
+      },
+      {
+        "type_ref": {
+          "base": "byte"
+        },
+        "name": "APPEND_CLASS",
+        "expr": {
+          "kind": "array",
+          "data": [
+            {
+              "kind": "byte",
+              "data": 1,
+              "span": "0x01"
+            }
+          ],
+          "span": "0x01"
+        },
+        "span": "byte constant APPEND_CLASS   = 0x01;",
+        "type_span": "byte ",
+        "name_span": "APPEND_CLASS"
+      },
+      {
+        "type_ref": {
+          "base": "byte"
+        },
+        "name": "CLOSE_CLASS",
+        "expr": {
+          "kind": "array",
+          "data": [
+            {
+              "kind": "byte",
+              "data": 2,
+              "span": "0x02"
+            }
+          ],
+          "span": "0x02"
+        },
+        "span": "byte constant CLOSE_CLASS    = 0x02;",
+        "type_span": "byte ",
+        "name_span": "CLOSE_CLASS"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "T_BUCKET_MAX_STEP",
+        "expr": {
+          "kind": "int",
+          "data": 7776000,
+          "span": "7776000"
+        },
+        "span": "int constant T_BUCKET_MAX_STEP = 7776000;",
+        "type_span": "int ",
+        "name_span": "T_BUCKET_MAX_STEP"
+      }
+    ],
+    "functions": [
+      {
+        "name": "checkOwnership",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prevStates",
+            "span": "State[] prevStates",
+            "type_span": "State[]",
+            "name_span": "prevStates"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "s",
+            "span": "sig s",
+            "type_span": "sig ",
+            "name_span": "s"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "checkSig",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "s",
+                      "span": "s"
+                    },
+                    {
+                      "kind": "field_access",
+                      "data": {
+                        "source": {
+                          "kind": "array_index",
+                          "data": {
+                            "source": {
+                              "kind": "identifier",
+                              "data": "prevStates",
+                              "span": "prevStates"
+                            },
+                            "index": {
+                              "kind": "int",
+                              "data": 0,
+                              "span": "0"
+                            }
+                          },
+                          "span": "prevStates[0]"
+                        },
+                        "field": "publisherPk",
+                        "field_span": "publisherPk"
+                      },
+                      "span": "prevStates[0].publisherPk"
+                    }
+                  ],
+                  "name_span": "checkSig"
+                },
+                "span": "checkSig(s, prevStates[0].publisherPk)"
+              },
+              "message": null,
+              "span": "require(checkSig(s, prevStates[0].publisherPk));",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "function checkOwnership(State[] prevStates, sig s) {\n        require(checkSig(s, prevStates[0].publisherPk));\n    }",
+        "name_span": "checkOwnership",
+        "body_span": "require(checkSig(s, prevStates[0].publisherPk));"
+      },
+      {
+        "name": "checkSeq",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prevStates",
+            "span": "State[] prevStates",
+            "type_span": "State[]",
+            "name_span": "prevStates"
+          },
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "newStates",
+            "span": "State[] newStates",
+            "type_span": "State[]",
+            "name_span": "newStates"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "newStates",
+                            "span": "newStates"
+                          },
+                          "index": {
+                            "kind": "int",
+                            "data": 0,
+                            "span": "0"
+                          }
+                        },
+                        "span": "newStates[0]"
+                      },
+                      "field": "seq",
+                      "field_span": "seq"
+                    },
+                    "span": "newStates[0].seq"
+                  },
+                  "right": {
+                    "kind": "binary",
+                    "data": {
+                      "op": "add",
+                      "left": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prevStates",
+                                "span": "prevStates"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prevStates[0]"
+                          },
+                          "field": "seq",
+                          "field_span": "seq"
+                        },
+                        "span": "prevStates[0].seq"
+                      },
+                      "right": {
+                        "kind": "int",
+                        "data": 1,
+                        "span": "1"
+                      }
+                    },
+                    "span": "prevStates[0].seq + 1"
+                  }
+                },
+                "span": "newStates[0].seq == prevStates[0].seq + 1"
+              },
+              "message": null,
+              "span": "require(newStates[0].seq == prevStates[0].seq + 1);",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "function checkSeq(State[] prevStates, State[] newStates) {\n        require(newStates[0].seq == prevStates[0].seq + 1);\n    }",
+        "name_span": "checkSeq",
+        "body_span": "require(newStates[0].seq == prevStates[0].seq + 1);"
+      },
+      {
+        "name": "checkLineageId",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prevStates",
+            "span": "State[] prevStates",
+            "type_span": "State[]",
+            "name_span": "prevStates"
+          },
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "newStates",
+            "span": "State[] newStates",
+            "type_span": "State[]",
+            "name_span": "newStates"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "newStates",
+                            "span": "newStates"
+                          },
+                          "index": {
+                            "kind": "int",
+                            "data": 0,
+                            "span": "0"
+                          }
+                        },
+                        "span": "newStates[0]"
+                      },
+                      "field": "lineage_id",
+                      "field_span": "lineage_id"
+                    },
+                    "span": "newStates[0].lineage_id"
+                  },
+                  "right": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "prevStates",
+                            "span": "prevStates"
+                          },
+                          "index": {
+                            "kind": "int",
+                            "data": 0,
+                            "span": "0"
+                          }
+                        },
+                        "span": "prevStates[0]"
+                      },
+                      "field": "lineage_id",
+                      "field_span": "lineage_id"
+                    },
+                    "span": "prevStates[0].lineage_id"
+                  }
+                },
+                "span": "newStates[0].lineage_id == prevStates[0].lineage_id"
+              },
+              "message": null,
+              "span": "require(newStates[0].lineage_id == prevStates[0].lineage_id);",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "function checkLineageId(State[] prevStates, State[] newStates) {\n        require(newStates[0].lineage_id == prevStates[0].lineage_id);\n    }",
+        "name_span": "checkLineageId",
+        "body_span": "require(newStates[0].lineage_id == prevStates[0].lineage_id);"
+      },
+      {
+        "name": "checkEventClass",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prevStates",
+            "span": "State[] prevStates",
+            "type_span": "State[]",
+            "name_span": "prevStates"
+          },
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "newStates",
+            "span": "State[] newStates",
+            "type_span": "State[]",
+            "name_span": "newStates"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "ne",
+                  "left": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "prevStates",
+                            "span": "prevStates"
+                          },
+                          "index": {
+                            "kind": "int",
+                            "data": 0,
+                            "span": "0"
+                          }
+                        },
+                        "span": "prevStates[0]"
+                      },
+                      "field": "event_class",
+                      "field_span": "event_class"
+                    },
+                    "span": "prevStates[0].event_class"
+                  },
+                  "right": {
+                    "kind": "identifier",
+                    "data": "CLOSE_CLASS",
+                    "span": "CLOSE_CLASS"
+                  }
+                },
+                "span": "prevStates[0].event_class != CLOSE_CLASS"
+              },
+              "message": null,
+              "span": "require(prevStates[0].event_class != CLOSE_CLASS);",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "ne",
+                  "left": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "newStates",
+                            "span": "newStates"
+                          },
+                          "index": {
+                            "kind": "int",
+                            "data": 0,
+                            "span": "0"
+                          }
+                        },
+                        "span": "newStates[0]"
+                      },
+                      "field": "event_class",
+                      "field_span": "event_class"
+                    },
+                    "span": "newStates[0].event_class"
+                  },
+                  "right": {
+                    "kind": "identifier",
+                    "data": "GENESIS_CLASS",
+                    "span": "GENESIS_CLASS"
+                  }
+                },
+                "span": "newStates[0].event_class != GENESIS_CLASS"
+              },
+              "message": null,
+              "span": "require(newStates[0].event_class != GENESIS_CLASS);",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "function checkEventClass(State[] prevStates, State[] newStates) {\n        require(prevStates[0].event_class != CLOSE_CLASS);\n        require(newStates[0].event_class != GENESIS_CLASS);\n    }",
+        "name_span": "checkEventClass",
+        "body_span": "require(prevStates[0].event_class != CLOSE_CLASS);\n        require(newStates[0].event_class != GENESIS_CLASS);"
+      },
+      {
+        "name": "checkTBucket",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prevStates",
+            "span": "State[] prevStates",
+            "type_span": "State[]",
+            "name_span": "prevStates"
+          },
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "newStates",
+            "span": "State[] newStates",
+            "type_span": "State[]",
+            "name_span": "newStates"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "ge",
+                  "left": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "newStates",
+                            "span": "newStates"
+                          },
+                          "index": {
+                            "kind": "int",
+                            "data": 0,
+                            "span": "0"
+                          }
+                        },
+                        "span": "newStates[0]"
+                      },
+                      "field": "t_bucket",
+                      "field_span": "t_bucket"
+                    },
+                    "span": "newStates[0].t_bucket"
+                  },
+                  "right": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "prevStates",
+                            "span": "prevStates"
+                          },
+                          "index": {
+                            "kind": "int",
+                            "data": 0,
+                            "span": "0"
+                          }
+                        },
+                        "span": "prevStates[0]"
+                      },
+                      "field": "t_bucket",
+                      "field_span": "t_bucket"
+                    },
+                    "span": "prevStates[0].t_bucket"
+                  }
+                },
+                "span": "newStates[0].t_bucket >= prevStates[0].t_bucket"
+              },
+              "message": null,
+              "span": "require(newStates[0].t_bucket >= prevStates[0].t_bucket);",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "le",
+                  "left": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "newStates",
+                            "span": "newStates"
+                          },
+                          "index": {
+                            "kind": "int",
+                            "data": 0,
+                            "span": "0"
+                          }
+                        },
+                        "span": "newStates[0]"
+                      },
+                      "field": "t_bucket",
+                      "field_span": "t_bucket"
+                    },
+                    "span": "newStates[0].t_bucket"
+                  },
+                  "right": {
+                    "kind": "binary",
+                    "data": {
+                      "op": "add",
+                      "left": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prevStates",
+                                "span": "prevStates"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prevStates[0]"
+                          },
+                          "field": "t_bucket",
+                          "field_span": "t_bucket"
+                        },
+                        "span": "prevStates[0].t_bucket"
+                      },
+                      "right": {
+                        "kind": "identifier",
+                        "data": "T_BUCKET_MAX_STEP",
+                        "span": "T_BUCKET_MAX_STEP"
+                      }
+                    },
+                    "span": "prevStates[0].t_bucket + T_BUCKET_MAX_STEP"
+                  }
+                },
+                "span": "newStates[0].t_bucket <= prevStates[0].t_bucket + T_BUCKET_MAX_STEP"
+              },
+              "message": null,
+              "span": "require(newStates[0].t_bucket <= prevStates[0].t_bucket + T_BUCKET_MAX_STEP);",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "function checkTBucket(State[] prevStates, State[] newStates) {\n        require(newStates[0].t_bucket >= prevStates[0].t_bucket);\n        require(newStates[0].t_bucket <= prevStates[0].t_bucket + T_BUCKET_MAX_STEP);\n    }",
+        "name_span": "checkTBucket",
+        "body_span": "require(newStates[0].t_bucket >= prevStates[0].t_bucket);\n        require(newStates[0].t_bucket <= prevStates[0].t_bucket + T_BUCKET_MAX_STEP);"
+      },
+      {
+        "name": "__covenant_policy_append",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prevStates",
+            "span": "State[] prevStates",
+            "type_span": "State[]",
+            "name_span": "prevStates"
+          },
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "newStates",
+            "span": "State[] newStates",
+            "type_span": "State[]",
+            "name_span": "newStates"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "s",
+            "span": "sig s",
+            "type_span": "sig ",
+            "name_span": "s"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "checkOwnership",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prevStates",
+                  "span": "prevStates"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "s",
+                  "span": "s"
+                }
+              ],
+              "span": "checkOwnership(prevStates, s);",
+              "name_span": "checkOwnership"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "checkSeq",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prevStates",
+                  "span": "prevStates"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "newStates",
+                  "span": "newStates"
+                }
+              ],
+              "span": "checkSeq(prevStates, newStates);",
+              "name_span": "checkSeq"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "checkLineageId",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prevStates",
+                  "span": "prevStates"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "newStates",
+                  "span": "newStates"
+                }
+              ],
+              "span": "checkLineageId(prevStates, newStates);",
+              "name_span": "checkLineageId"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "checkEventClass",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prevStates",
+                  "span": "prevStates"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "newStates",
+                  "span": "newStates"
+                }
+              ],
+              "span": "checkEventClass(prevStates, newStates);",
+              "name_span": "checkEventClass"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "checkTBucket",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prevStates",
+                  "span": "prevStates"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "newStates",
+                  "span": "newStates"
+                }
+              ],
+              "span": "checkTBucket(prevStates, newStates);",
+              "name_span": "checkTBucket"
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = cov, from = 1, to = 1)]\n    function append(State[] prevStates, State[] newStates, sig s) {\n        checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkLineageId(prevStates, newStates);\n        checkEventClass(prevStates, newStates);\n        checkTBucket(prevStates, newStates);\n    }",
+        "name_span": "append",
+        "body_span": "checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkLineageId(prevStates, newStates);\n        checkEventClass(prevStates, newStates);\n        checkTBucket(prevStates, newStates);"
+      },
+      {
+        "name": "__leader_append",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "newStates",
+            "span": "State[] newStates",
+            "type_span": "State[]",
+            "name_span": "newStates"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "s",
+            "span": "sig s",
+            "type_span": "sig ",
+            "name_span": "s"
+          }
+        ],
+        "entrypoint": true,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "byte",
+                "array_dims": [
+                  {
+                    "kind": "fixed",
+                    "value": 32
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "__cov_id",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpInputCovenantId",
+                  "args": [
+                    {
+                      "kind": "nullary",
+                      "data": "active_input_index",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "call",
+                    "data": {
+                      "name": "OpCovInputIdx",
+                      "args": [
+                        {
+                          "kind": "identifier",
+                          "data": "__cov_id",
+                          "span": "<synthetic>"
+                        },
+                        {
+                          "kind": "int",
+                          "data": 0,
+                          "span": "<synthetic>"
+                        }
+                      ],
+                      "name_span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "nullary",
+                    "data": "active_input_index",
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_in_count",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovInputCount",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "le",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__cov_in_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "int",
+                    "data": 1,
+                    "span": "1"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_out_count",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovOutputCount",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "State",
+                "array_dims": [
+                  {
+                    "kind": "dynamic"
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "prevStates",
+              "expr": null,
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "for",
+            "data": {
+              "ident": "__cov_in_k",
+              "start": {
+                "kind": "int",
+                "data": 0,
+                "span": "<synthetic>"
+              },
+              "end": {
+                "kind": "identifier",
+                "data": "__cov_in_count",
+                "span": "<synthetic>"
+              },
+              "max_iterations": {
+                "kind": "int",
+                "data": 1,
+                "span": "1"
+              },
+              "body": [
+                {
+                  "kind": "assign",
+                  "data": {
+                    "name": "prevStates",
+                    "expr": {
+                      "kind": "append",
+                      "data": {
+                        "source": {
+                          "kind": "identifier",
+                          "data": "prevStates",
+                          "span": "<synthetic>"
+                        },
+                        "args": [
+                          {
+                            "kind": "call",
+                            "data": {
+                              "name": "readInputState",
+                              "args": [
+                                {
+                                  "kind": "call",
+                                  "data": {
+                                    "name": "OpCovInputIdx",
+                                    "args": [
+                                      {
+                                        "kind": "identifier",
+                                        "data": "__cov_id",
+                                        "span": "<synthetic>"
+                                      },
+                                      {
+                                        "kind": "identifier",
+                                        "data": "__cov_in_k",
+                                        "span": "<synthetic>"
+                                      }
+                                    ],
+                                    "name_span": "<synthetic>"
+                                  },
+                                  "span": "<synthetic>"
+                                }
+                              ],
+                              "name_span": "<synthetic>"
+                            },
+                            "span": "<synthetic>"
+                          }
+                        ],
+                        "span": "<synthetic>"
+                      },
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  }
+                }
+              ],
+              "span": "<synthetic>",
+              "ident_span": "<synthetic>",
+              "body_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "__covenant_policy_append",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prevStates",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "newStates",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "s",
+                  "span": "<synthetic>"
+                }
+              ],
+              "span": "<synthetic>",
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "le",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__cov_out_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "int",
+                    "data": 1,
+                    "span": "1"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__cov_out_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "unary_suffix",
+                    "data": {
+                      "source": {
+                        "kind": "identifier",
+                        "data": "newStates",
+                        "span": "<synthetic>"
+                      },
+                      "kind": "length",
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "for",
+            "data": {
+              "ident": "__cov_k",
+              "start": {
+                "kind": "int",
+                "data": 0,
+                "span": "<synthetic>"
+              },
+              "end": {
+                "kind": "identifier",
+                "data": "__cov_out_count",
+                "span": "<synthetic>"
+              },
+              "max_iterations": {
+                "kind": "int",
+                "data": 1,
+                "span": "1"
+              },
+              "body": [
+                {
+                  "kind": "variable_definition",
+                  "data": {
+                    "type_ref": {
+                      "base": "int"
+                    },
+                    "modifiers": [],
+                    "name": "__cov_out_idx",
+                    "expr": {
+                      "kind": "call",
+                      "data": {
+                        "name": "OpCovOutputIdx",
+                        "args": [
+                          {
+                            "kind": "identifier",
+                            "data": "__cov_id",
+                            "span": "<synthetic>"
+                          },
+                          {
+                            "kind": "identifier",
+                            "data": "__cov_k",
+                            "span": "<synthetic>"
+                          }
+                        ],
+                        "name_span": "<synthetic>"
+                      },
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "type_span": "<synthetic>",
+                    "modifier_spans": [],
+                    "name_span": "<synthetic>"
+                  }
+                },
+                {
+                  "kind": "function_call",
+                  "data": {
+                    "name": "validateOutputState",
+                    "args": [
+                      {
+                        "kind": "identifier",
+                        "data": "__cov_out_idx",
+                        "span": "<synthetic>"
+                      },
+                      {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "newStates",
+                            "span": "<synthetic>"
+                          },
+                          "index": {
+                            "kind": "identifier",
+                            "data": "__cov_k",
+                            "span": "<synthetic>"
+                          }
+                        },
+                        "span": "<synthetic>"
+                      }
+                    ],
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  }
+                }
+              ],
+              "span": "<synthetic>",
+              "ident_span": "<synthetic>",
+              "body_span": "<synthetic>"
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = cov, from = 1, to = 1)]\n    function append(State[] prevStates, State[] newStates, sig s) {\n        checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkLineageId(prevStates, newStates);\n        checkEventClass(prevStates, newStates);\n        checkTBucket(prevStates, newStates);\n    }",
+        "name_span": "append",
+        "body_span": "checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkLineageId(prevStates, newStates);\n        checkEventClass(prevStates, newStates);\n        checkTBucket(prevStates, newStates);"
+      },
+      {
+        "name": "__delegate_append",
+        "params": [],
+        "entrypoint": true,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "byte",
+                "array_dims": [
+                  {
+                    "kind": "fixed",
+                    "value": 32
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "__cov_id",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpInputCovenantId",
+                  "args": [
+                    {
+                      "kind": "nullary",
+                      "data": "active_input_index",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "ne",
+                  "left": {
+                    "kind": "call",
+                    "data": {
+                      "name": "OpCovInputIdx",
+                      "args": [
+                        {
+                          "kind": "identifier",
+                          "data": "__cov_id",
+                          "span": "<synthetic>"
+                        },
+                        {
+                          "kind": "int",
+                          "data": 0,
+                          "span": "<synthetic>"
+                        }
+                      ],
+                      "name_span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "nullary",
+                    "data": "active_input_index",
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = cov, from = 1, to = 1)]\n    function append(State[] prevStates, State[] newStates, sig s) {\n        checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkLineageId(prevStates, newStates);\n        checkEventClass(prevStates, newStates);\n        checkTBucket(prevStates, newStates);\n    }",
+        "name_span": "append",
+        "body_span": "checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkLineageId(prevStates, newStates);\n        checkEventClass(prevStates, newStates);\n        checkTBucket(prevStates, newStates);"
+      }
+    ],
+    "span": "contract SealedLineage(\n    byte[32] genesisLineageId,\n    int      genesisSeq,\n    byte     genesisEventClass,\n    int      genesisTBucket,\n    byte[32] genesisPublisherPk\n) {\n    byte constant GENESIS_CLASS  = 0x00;\n    byte constant APPEND_CLASS   = 0x01;\n    byte constant CLOSE_CLASS    = 0x02;\n\n    // 90 days in seconds: 90 * 24 * 3600 = 7776000\n    int constant T_BUCKET_MAX_STEP = 7776000;\n\n    byte[32] lineage_id  = genesisLineageId;\n    int      seq         = genesisSeq;\n    byte     event_class = genesisEventClass;\n    int      t_bucket    = genesisTBucket;\n    byte[32] publisherPk = genesisPublisherPk;\n\n    // Ownership check: the current publisher must sign.\n    function checkOwnership(State[] prevStates, sig s) {\n        require(checkSig(s, prevStates[0].publisherPk));\n    }\n\n    // L-1: seq must increment by exactly 1.\n    function checkSeq(State[] prevStates, State[] newStates) {\n        require(newStates[0].seq == prevStates[0].seq + 1);\n    }\n\n    // L-2: lineage_id must be preserved.\n    function checkLineageId(State[] prevStates, State[] newStates) {\n        require(newStates[0].lineage_id == prevStates[0].lineage_id);\n    }\n\n    // L-3: event-class ordering.\n    //   - If the current state is CLOSE, no append is possible (terminal).\n    //   - The new event_class must not be GENESIS.\n    function checkEventClass(State[] prevStates, State[] newStates) {\n        require(prevStates[0].event_class != CLOSE_CLASS);\n        require(newStates[0].event_class != GENESIS_CLASS);\n    }\n\n    // L-4: temporal envelope.\n    //   t_bucket must be non-decreasing and within +90 days.\n    function checkTBucket(State[] prevStates, State[] newStates) {\n        require(newStates[0].t_bucket >= prevStates[0].t_bucket);\n        require(newStates[0].t_bucket <= prevStates[0].t_bucket + T_BUCKET_MAX_STEP);\n    }\n\n    // Single-input single-output append transition.\n    // from=1 to=1: exactly one covenant input and one covenant output.\n    #[covenant(binding = cov, from = 1, to = 1)]\n    function append(State[] prevStates, State[] newStates, sig s) {\n        checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkLineageId(prevStates, newStates);\n        checkEventClass(prevStates, newStates);\n        checkTBucket(prevStates, newStates);\n    }\n}",
+    "name_span": "SealedLineage"
+  },
+  "abi": [
+    {
+      "name": "__leader_append",
+      "inputs": [
+        {
+          "name": "newStates",
+          "type_name": "State[]"
+        },
+        {
+          "name": "s",
+          "type_name": "sig"
+        }
+      ]
+    },
+    {
+      "name": "__delegate_append",
+      "inputs": []
+    }
+  ],
+  "without_selector": false,
+  "state_layout": {
+    "start": 1,
+    "len": 86
+  },
+  "debug_info": null
+}

@@ -1,0 +1,46 @@
+// OwnableCounter — Green-tier onlyOwner-gated counter.
+// Solidity equivalent:
+//   contract OwnableCounter is Ownable {
+//     uint256 public count;
+//     function increment(bytes sig) external onlyOwner returns (...);
+//   }
+// The `onlyOwner` modifier maps 1:1 onto a Schnorr `checkSig(auth, owner)` guard
+// (SOLIDITY-SUBSET-V0 §2.2: Ownable.onlyOwner → Green). State is single-UTXO
+// local (owner key + counter), with no mapping, loop, event, or cross-call — so
+// it projects onto a Kaspa UTXO covenant.
+//
+// NOTE: the `checkSig` onlyOwner guard below IS lowered into the emitted
+// silverscript — OwnableCounter.sil carries
+// `require(checkSig(auth, prev_states[0].owner))`, so the covenant enforces the
+// access control, not just output-state shape. Body `requires` clauses are
+// lowered by portrait-emit; an unlowerable guard now fails engrave fail-loud
+// rather than degrading silently.
+pragma portrait ^0.1.0;
+
+app OwnableCounter {
+  role counter {
+    param pubkey owner;   // the only key permitted to increment
+    param int    count;   // current count (genesis = 0)
+
+    state {
+      pubkey owner;
+      int    count;
+    }
+
+    // onlyOwner increment: bumps the counter by one.
+    #[covenant(mode = transition)]
+    entrypoint function increment(
+      sig auth
+    ) : (pubkey owner, int count) {
+      requires checkSig(auth, owner);   // onlyOwner: only the owner may increment
+      return OwnableCounter {
+        owner: owner,
+        count: count + 1
+      };
+    }
+  }
+
+  lifecycle { live -> live via counter.increment; }
+
+  invariant no_undeclared_state;
+}

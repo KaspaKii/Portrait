@@ -1,0 +1,21 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/portrait-syntax",
+    "crates/portrait-ir",
+    "crates/portrait-sema",
+    "crates/portrait-project",
+    "crates/portrait-emit",
+    "crates/portrait-plan",
+    "crates/portrait-compose",
+    "crates/portrait-pounce",
+    "crates/portrait-atelier",
+    "crates/portrait-verify",
+    "crates/portrait-lens",
+    "crates/portrait-cli",
+]
+
+# Build acceleration: line-tables-only debuginfo (backtraces preserved, faster
+# links). Pair with the sccache rustc-wrapper in .cargo/config.toml.
+[profile.dev]
+debug = "line-tables-only"

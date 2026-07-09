@@ -1,0 +1,77 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  EvidenceLineage — the canonical covenant-anchored attestation chain.
+//
+//  This is the factored-out form of the I-1..I-5 lineage pattern that the
+//  federation currently hand-rolls in at least five places:
+//    · SCL   (Sealed Compliance Lineage — CMMC/DFARS)
+//    · PLA   (Paired Lineage Attestations — post-trade reconciliation)
+//    · Kastract (FIDIC IPA→IPC→payment chains)
+//    · KiiWORKS (Digital Product Passport lifecycle)
+//    · AssetMint (identity/claims transfer lineage)
+//
+//  One spend = one attestation. Each successor UTXO commits to an off-chain
+//  canonical record under a hiding commitment, and carries the bound subject
+//  forward. The covenant enforces the structural invariants; the commitment
+//  scheme's soundness is an off-chain responsibility, outside this covenant.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param in the same position, so the constructor declares the genesis state
+//  (seq, subject, commit, t_bucket, event_class) first, then the policy params
+//  (issuer, window). `portrait engrave` lowers this to a singleton-transition
+//  silverscript covenant that `silverc` accepts (exit 0).
+// ─────────────────────────────────────────────────────────────────────────
+
+app EvidenceLineage {
+  role lineage {
+    // Genesis state (one constructor param per state field, in field order).
+    param int     seq;          // monotonic sequence number (genesis = 0)
+    param bytes32 subject;      // bound identity (CAGE / LEI / entity hash)
+    param bytes32 commit;       // hiding commitment of the canonical record
+    param int     t_bucket;     // coarse timestamp bucket
+    param int     event_class;  // schema / event discriminator
+    // Policy params (carried in the covenant body, not used for state init).
+    param pubkey  issuer;       // trust root permitted to extend the chain
+    param int     window;       // max seconds between attestations (temporal envelope)
+
+    state {
+      int     seq;           // monotonic sequence number
+      bytes32 subject;       // bound identity (CAGE / LEI / entity hash)
+      bytes32 commit;        // hiding commitment of the canonical record
+      int     t_bucket;      // coarse timestamp bucket
+      int     event_class;   // schema / event discriminator
+    }
+
+    #[covenant(mode = transition)]
+    entrypoint function attest(
+      sig     auth,
+      bytes32 next_commit,
+      int     next_class,
+      int     next_t_bucket
+    ) : (int seq, bytes32 subject, bytes32 commit, int t_bucket, int event_class) {
+      requires checkSig(auth, issuer);                  // authorised extender
+      requires next_class >= 0;                         // I-3  schema envelope
+      requires next_t_bucket >= t_bucket;               // I-4  monotonic time
+      requires next_t_bucket <= t_bucket + window;      // I-4  temporal envelope
+      return EvidenceLineage {
+        seq:         seq + 1,        // I-1  monotonic sequence
+        subject:     subject,        // I-2  identity binding (carried unchanged)
+        commit:      next_commit,
+        t_bucket:    next_t_bucket,
+        event_class: next_class
+      };
+    }
+  }
+
+  // One spend = one attestation: the chain extends in place via `attest`.
+  // I-5 (exactly one successor UTXO, dust carried, no fork / no burn) is enforced
+  // structurally by the singleton-transition covenant mode; I-1 by seq + 1;
+  // I-2 by carrying `subject` unchanged.
+  lifecycle {
+    live -> live via lineage.attest;
+  }
+
+  invariant value_conserved;
+  invariant no_undeclared_state;
+}

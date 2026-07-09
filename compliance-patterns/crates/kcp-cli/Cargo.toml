@@ -1,0 +1,22 @@
+[package]
+name = "kcp"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Kii Wizard CLI — scaffold Kaspa covenant projects from the kaspa-compliance-patterns library"
+
+[lib]
+name = "kcp"
+path = "src/lib.rs"
+
+[[bin]]
+name = "kcp"
+path = "src/main.rs"
+
+[dependencies]
+clap = { workspace = true }
+anyhow = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

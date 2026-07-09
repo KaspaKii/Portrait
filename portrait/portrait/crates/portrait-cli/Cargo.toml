@@ -1,0 +1,22 @@
+[package]
+name = "portrait-cli"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[[bin]]
+name = "portrait"
+path = "src/main.rs"
+
+[dependencies]
+portrait-syntax = { path = "../portrait-syntax" }
+portrait-sema = { path = "../portrait-sema" }
+portrait-ir = { path = "../portrait-ir" }
+portrait-project = { path = "../portrait-project" }
+portrait-emit = { path = "../portrait-emit" }
+portrait-pounce = { path = "../portrait-pounce" }
+portrait-atelier = { path = "../portrait-atelier" }
+portrait-verify = { path = "../portrait-verify" }
+portrait-lens = { path = "../portrait-lens" }
+portrait-compose = { path = "../portrait-compose" }
+sha2 = "0.10"

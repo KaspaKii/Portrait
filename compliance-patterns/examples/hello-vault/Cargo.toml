@@ -1,0 +1,26 @@
+[package]
+name = "hello-vault"
+description = "Hello-world for kaspa-compliance-patterns: lock + spend a vault covenant offline."
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+license = "MIT"
+publish = false
+
+# Standalone — NOT part of the kaspa-compliance-patterns workspace, so that
+# downstream users can copy `examples/hello-vault/` into a new directory and
+# have it just work.
+[workspace]
+
+[dependencies]
+# Path-deps so this example tracks the repo it lives in. To use the
+# library from your own project, depend on it from crates.io once
+# published (v0.2+): `kcp-vault = "0.2"`, `kcp-common = "0.2"`.
+kcp-common = { path = "../../crates/kcp-common", features = ["wrpc"] }
+kcp-vault = { path = "../../crates/kcp-vault", features = ["wrpc"] }
+
+# Re-export the rusty-kaspa types we need to build a synthetic transaction.
+# Pin matches the workspace pin exactly (tag v2.0.0 = commit 90dbf07) to
+# avoid a multi-version-in-graph type-mismatch with kcp-common's path-dep.
+kaspa-consensus-core = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-bip32 = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }

@@ -1,0 +1,119 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  ZkExecutionRollup — a CROSS-LAYER (vProg) VALIDITY-PROOF execution layer.
+//
+//  THE POINT OF THIS FILE: prove that applying N ARBITRARY state transitions
+//  (a general, developer-authored state-transition function over HIDDEN
+//  transaction contents) to `prev_root` yields `next_root`, and settle
+//  `next_root` in ONE spend. The guest re-executes the batch's STF and proves
+//  prev_root → next_root; the covenant adopts the new world-state root BOUND to
+//  that proof and advances seq by the batch size.
+//
+//  WHY A COVENANT CANNOT DO THIS: re-executing N arbitrary transactions on chain
+//  is infeasible (cost), and the transaction contents are private. Correct
+//  execution of a GENERAL STF (account updates, balance moves, contract logic)
+//  is a heavy computation discharged off chain and attested by the STARK. The
+//  chain only ever adopts the new root bound to the proof.
+//
+//  WHY THIS IS DISTINCT from the existing BatchRollup vProg
+//  (../batch-rollup): BatchRollup proves a sha256 N-FOLD — a single FIXED
+//  associative hash accumulation (prev_root folded with N items via ONE hash
+//  rule). ZkExecutionRollup proves correctness of an ARBITRARY developer-authored
+//  state-transition function, not a single hash fold. BatchRollup answers "these
+//  N items were accumulated into this root"; ZkExecutionRollup answers "this
+//  PROGRAM executed correctly on N inputs to transform the world-state root" — a
+//  strictly more general proof obligation (a zk-rollup validity-proof execution
+//  layer vs a hash chain).
+//
+//  FOLLOWS THE PROVEN CSCI SHAPE (see ../../state/CsciInstrument):
+//    • a `#[covenant]` settlement role (`settle`) self-enforcing the STRUCTURAL
+//      state machine on chain, and
+//    • a NonCovenant companion (`execute_rule`) → vProg → Atelier emits its
+//      RISC Zero guest main. Its presence flips `has_vprog`, emitting the
+//      covenant-id binding require() into `settle`.
+//
+//  ON-CHAIN, the emitted .sil enforces:
+//    (a) operator/sequencer auth against committed key   (committed auth)
+//    (b) forward batch progress: batch_count >= 1
+//    (c) root advances to the proven `next_root`          (state progress)
+//    (d) seq advances by the batch size `batch_count`     (matches BatchRollup)
+//    (e) covenant-id binding require()                    (emitted by has_vprog)
+//
+//  OFF-CHAIN (the vProg guest), `execute_rule` is the predicate proven by the
+//  STARK: re-execute the batch's general STF over the PRIVATE transactions and
+//  prove `prev_root` transitions to `next_root`; commit the new root + advanced
+//  seq into the journal's new_state_hash. `requires batch_count >= 1` lowers to
+//  an in-guest `assert!` (proven to have held).
+//
+//  STATUS — EMIT-VERIFIED template (NOT settled live). Compiles via silverc
+//  (exit 0); `portrait atelier-build` emits a RISC Zero guest. The STF
+//  re-execution proving prev_root → next_root is developer-authored in the guest,
+//  NOT synthesized by the compiler. Only CSCI has settled live on TN10.
+//
+//  HONEST SCOPE: tag-0x21 ZK *verification* of the STARK is an ENGINE op
+//  (OpZkPrecompile / kcp-pq-anchor), NOT silverscript. silverscript enforces the
+//  state-machine + covenant-id binding only; the execution-correctness soundness
+//  rests on the RISC Zero guest + the tag-0x21 verifier, NOT on Portrait.
+// ─────────────────────────────────────────────────────────────────────────
+
+app ZkExecutionRollup {
+  role sequencer {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey  operator;      // committed sequencer key (the settle authority)
+    param bytes32 root;          // committed world-state root (the aggregate)
+    param int     seq;           // monotonic tx sequence (genesis = 0)
+
+    state {
+      pubkey  operator;
+      bytes32 root;
+      int     seq;
+    }
+
+    // L1 covenant: settles ONE executed batch on chain.
+    //   · operator auth against committed sequencer key   (committed auth)
+    //   · forward batch progress: batch_count >= 1
+    //   · root advances to the proven `next_root`
+    //   · seq advances by the batch size `batch_count`
+    //   · covenant-id binding require()                   (emitted by has_vprog)
+    #[covenant(mode = transition)]
+    entrypoint function settle(
+      sig auth,
+      bytes32 next_root,
+      int batch_count
+    ) : (pubkey operator, bytes32 root, int seq) {
+      requires checkSig(auth, operator);   // committed-sequencer authorization
+      requires batch_count >= 1;           // a batch advances the rollup forward
+      return ZkExecutionRollup {
+        operator: operator,                // sequencer key carried unchanged
+        root:     next_root,               // adopt the proven next world-state root
+        seq:      seq + batch_count        // sequence advances by the batch size
+      };
+    }
+
+    // vProg (off-L1): the EXECUTION-CORRECTNESS predicate, proven via a STARK.
+    // No #[covenant] attribute → NonCovenant → Atelier emits the guest main.
+    // The body MIRRORS `settle`: consumes next_root + batch_count and advances
+    // root/seq, so the M3 guest hashes the NEW state over the new root + advanced
+    // seq, and lowers `requires batch_count >= 1` into an in-guest `assert!`. Its
+    // presence flips `has_vprog`, emitting the covenant-id binding into `settle`.
+    //
+    // WHAT STAYS MANUAL (developer guest code): re-executing the GENERAL state-
+    // transition function over the `batch_count` PRIVATE transactions and proving
+    // applying it to `prev_root` yields `next_root`. An arbitrary STF over the
+    // batch contents is not expressible in the Portrait body; it remains
+    // hand-written in the guest.
+    entrypoint function execute_rule(bytes32 next_root, int batch_count) {
+      requires batch_count >= 1;           // forward batch progress (assertable in-guest)
+      return ZkExecutionRollup {
+        operator: operator,
+        root:     next_root,
+        seq:      seq + batch_count
+      };
+    }
+  }
+
+  lifecycle { live -> live via sequencer.settle; }
+
+  invariant no_undeclared_state;
+}

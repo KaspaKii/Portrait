@@ -1,0 +1,42 @@
+{
+  "_description": "CSCI PoC provenance record — populated by kii-csci-prover and examples/csci-demo",
+  "_status": "PARTIAL — prover guest verified (104-byte journal correct); TN10 txids pending wallet funding",
+  "_run_instructions": [
+    "1. Fund kaspatest:qqh73x8urmdp0ccy5jxq2mre0y5p974sr8xmpff4eqzdfq66eafag524n87jw from TN10 faucet (≥ 0.5 KAS)",
+    "2. KCP_NODE_URL=ws://localhost:17210 KCP_KEY_FILE=<path/to/csci-wallet.key> cargo run --manifest-path examples/csci-demo/Cargo.toml --release",
+    "3. Copy the printed txids into this file and change _status to CONFIRMED"
+  ],
+  "wallet_address": "kaspatest:qqh73x8urmdp0ccy5jxq2mre0y5p974sr8xmpff4eqzdfq66eafag524n87jw",
+  "parameters": {
+    "covenant_id_derivation": "sha256('csci-demo-v0' || wallet_pubkey)",
+    "rule_bytes": "csci-v0-allow-partial-transfer",
+    "genesis_amount_sompi": 1000000000,
+    "transfer_amount_sompi": 500000000,
+    "transfer_recipient_derivation": "sha256('csci-demo-recipient-v0')"
+  },
+  "computed_offline": {
+    "rule_hash": "8c2a6b0442db7c066e018e0873e6a5e1508052f2e74a1fc80987d788a3f11332",
+    "note": "covenant_id and genesis_hash depend on wallet pubkey — printed by demo at runtime"
+  },
+  "prover_dev_mode_evidence": {
+    "_status": "VERIFIED 2026-06-28",
+    "_note": "RISC0_DEV_MODE=1 — no real STARK; validates guest logic and journal schema only",
+    "journal_bytes": 104,
+    "journal_hex": "0101010101010101010101010101010101010101010101010101010101010101f4eb23007f461290bb0463513a352552baa9f13f603568dddd3abbb0b29c566e59edbfe782213621b0f4407c19d7bb2718729e35cf3f21b38d928ef78e83da8d0100000000000000",
+    "journal_sha256": "329baaf830ca394da010238c824243411aa1c490920f74c79fb1dd99414ccadf",
+    "image_id": "a9e7825fec6cf57465005b0af7a15592d9b03d33918f03d2fe0f4471b5350815",
+    "schema_check": {
+      "covenant_id_bytes_32": "0101...0101 (dummy)",
+      "new_state_hash_bytes_32": "f4eb...566e",
+      "rule_hash_bytes_32": "59ed...da8d",
+      "seq_le_u64_bytes_8": "0100000000000000 = seq 1",
+      "total": "32 + 32 + 32 + 8 = 104 bytes ✓"
+    }
+  },
+  "evidence": {
+    "KCP-CSCI-GEN-001_genesis_anchor": "PENDING — wallet funding required",
+    "KCP-CSCI-SETTLE-001_settlement": "PENDING — wallet funding required",
+    "KCP-CSCI-NEG-001_negative_control": "PENDING — wallet funding required"
+  },
+  "zkvm_note": "Full OpZkPrecompile (KIP-16 tag-0x21) settlement requires kii-csci-prover without DEV_MODE to generate a real RISC Zero succinct STARK (~5-15 min CPU). The prover guest logic is verified correct (journal schema confirmed 104 bytes). The two-path unlock design is in docs/FLAGSHIP-DESIGN.md §3."
+}

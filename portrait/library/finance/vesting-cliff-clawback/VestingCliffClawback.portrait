@@ -1,0 +1,165 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  VestingCliffClawback — a grant covenant with a TRUE one-shot cliff boundary
+//  plus a pre-cliff clawback path.
+//
+//  This is a CLIFF STATE MACHINE, not a linear stream. The grant does NOT release
+//  continuously; it crosses a single cliff boundary, after which the recipient may
+//  withdraw up to the committed ceiling. Before the cliff, the grantor may reclaim
+//  the entire grant (clawback). Three committed-key transitions:
+//
+//    · vest      — recipient-authorised. Fires ONLY when `now_bucket >= cliff`
+//                  AND `vested == 0`, flipping `vested` 0 → 1 (the one-shot cliff
+//                  crossing). Time-gated against the COMMITTED `cliff` bucket.
+//    · withdraw  — recipient-authorised. Requires `vested == 1` and advances the
+//                  withdrawn accumulator additively, ceiling-gated so cumulative
+//                  withdrawals never exceed the committed grant.
+//    · clawback  — grantor-authorised. Fires ONLY while `vested == 0` (pre-cliff),
+//                  reclaiming the grant (the withdrawn accumulator is zeroed-out
+//                  conceptually by reclaim; here carried as a bare carry while the
+//                  grant is returned to the grantor by the wallet/relay).
+//
+//  WHY THIS IS DISTINCT from the existing StreamingVesting covenant
+//  (../streaming): StreamingVesting is single-recipient LINEAR vesting with a
+//  withdrawn accumulator and committed-recipient auth — continuous release, no
+//  cliff boundary, no reclaim path. VestingCliffClawback's distinct contribution
+//  is (1) the one-shot cliff BOUNDARY state machine (a `vested` flag that crosses
+//  0 → 1 exactly once, time-gated against a committed cliff) and (2) the pre-cliff
+//  CLAWBACK transition — a refund/reclaim path that NO existing covenant has. It
+//  is not the linear release StreamingVesting already covers.
+//
+//  VALUE-BEARING / CEILING NAMING (honest): the withdrawn accumulator is named
+//  `supply` and the grant ceiling `total` so that BOTH the hardened
+//  `value_conserved` rule (which polices `balance`/`amount`/`supply` as a single
+//  additive) AND the `bounded_supply` refinement (which structurally requires
+//  `supply + amount <= total`) apply — exactly as the sibling StreamingVesting
+//  uses (`supply` accumulator, `total` ceiling). The hardened type checker forbids
+//  `coin` arithmetic and forbids comparing `coin` to `int`, so an advancing,
+//  comparable accumulator must be `int` with a value-bearing name.
+//
+//  Honest scope (M1): the covenant enforces committed-key authorisation
+//  (recipient for vest/withdraw, grantor for clawback), the time-gated one-shot
+//  cliff crossing against a committed bucket, the `vested == 1` precondition on
+//  withdraw, the `vested == 0` precondition on clawback, a non-negative
+//  withdrawal, conservation of the withdrawn accumulator, and the ceiling gate.
+//  The coarse `now_bucket` is caller-asserted; the real wall-clock relative
+//  timelock is enforced by the wallet/relay on the spending input's sequence.
+//
+//  `portrait engrave` lowers this to a singleton transition covenant that
+//  `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app VestingCliffClawback {
+  role grant {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey recipient;  // committed grantee — vest/withdraw authority
+    param pubkey grantor;    // committed grantor — clawback authority
+    param int    total;      // full grant ceiling (constant; comparable bare carry)
+    param int    cliff;      // committed cliff time bucket (the boundary)
+    param int    vested;     // one-shot cliff-crossed flag (genesis = 0)
+    param int    supply;     // cumulative amount withdrawn (genesis = 0)
+
+    state {
+      pubkey recipient;
+      pubkey grantor;
+      int    total;
+      int    cliff;
+      int    vested;          // one-shot 0 → 1 cliff-crossing flag
+      int    supply;          // value-bearing accumulator (the withdrawn total)
+    }
+
+    // Cross the cliff boundary (one-shot). Recipient-authorised, time-gated.
+    //   · auth bound to the COMMITTED recipient key       (authorized)
+    //   · gated on the COMMITTED cliff bucket              (temporal_guard)
+    //   · one-shot: only fires while not yet vested        (vested == 0)
+    //   · flips vested 0 → 1; supply carried unchanged      (value_conserved carry)
+    #[covenant(mode = transition)]
+    entrypoint function vest(
+      sig auth,
+      int now_bucket
+    ) : (pubkey recipient, pubkey grantor, int total, int cliff, int vested, int supply) {
+      requires checkSig(auth, recipient);        // committed-recipient authorisation
+      requires now_bucket >= cliff;               // cliff reached (committed boundary)
+      requires vested == 0;                       // one-shot: not already crossed
+      return VestingCliffClawback {
+        recipient: recipient,                      // committed keys carried unchanged
+        grantor:   grantor,
+        total:     total,                          // ceiling carried unchanged
+        cliff:     cliff,                          // boundary carried unchanged
+        vested:    1,                              // cliff crossed (one-shot 0 → 1)
+        supply:    supply                          // withdrawn total unchanged (bare carry)
+      };
+    }
+
+    // Withdraw a portion of the vested grant. Recipient-authorised, post-cliff.
+    //   · auth bound to the COMMITTED recipient key       (authorized)
+    //   · requires the cliff has been crossed              (vested == 1)
+    //   · amount non-negative                              (non_negative_amount)
+    //   · cumulative withdrawn never exceeds the ceiling    (bounded_supply)
+    //   · supply advances by exactly the amount             (value_conserved)
+    #[covenant(mode = transition)]
+    entrypoint function withdraw(
+      sig auth,
+      int amount
+    ) : (pubkey recipient, pubkey grantor, int total, int cliff, int vested, int supply) {
+      requires checkSig(auth, recipient);        // committed-recipient authorisation
+      requires vested == 1;                       // only after the cliff is crossed
+      requires amount >= 0;                       // non-negative withdrawal
+      requires supply + amount <= total;          // cumulative draw never exceeds grant
+      return VestingCliffClawback {
+        recipient: recipient,
+        grantor:   grantor,
+        total:     total,
+        cliff:     cliff,
+        vested:    vested,                         // flag carried unchanged
+        supply:    supply + amount                 // accumulate withdrawn total
+      };
+    }
+
+    // Reclaim the grant before the cliff. Grantor-authorised, pre-cliff only.
+    //   · auth bound to the COMMITTED grantor key          (authorized)
+    //   · only fires while NOT yet vested                   (vested == 0, pre-cliff)
+    //   · supply carried unchanged                          (value_conserved carry)
+    #[covenant(mode = transition)]
+    entrypoint function clawback(
+      sig auth
+    ) : (pubkey recipient, pubkey grantor, int total, int cliff, int vested, int supply) {
+      requires checkSig(auth, grantor);          // committed-grantor authorisation
+      requires vested == 0;                       // pre-cliff reclaim only
+      return VestingCliffClawback {
+        recipient: recipient,
+        grantor:   grantor,
+        total:     total,
+        cliff:     cliff,
+        vested:    vested,                         // flag carried unchanged (stays 0)
+        supply:    supply                          // withdrawn total unchanged (bare carry)
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via grant.vest;
+    live -> live via grant.withdraw;
+    live -> live via grant.clawback;
+  }
+
+  invariant value_conserved;
+  // Capability invariant: every state-mutating transition authorises against a
+  // COMMITTED key (recipient for vest/withdraw, grantor for clawback). A
+  // transition added here that omits a committed-key checkSig is rejected.
+  invariant authorized;
+  // Refinement: the withdraw `amount` is bounded non-negative.
+  invariant non_negative_amount;
+  // Refinement: the cumulative withdrawn never exceeds the committed grant ceiling
+  // (`supply + amount <= total`). A future edit dropping the envelope check fails
+  // the checker. STRUCTURAL pattern match — NOT an SMT overflow proof.
+  invariant bounded_supply;
+  // Refinement: the time-gated `vest` transition gates on the COMMITTED cliff
+  // bucket (`now_bucket >= cliff`). A future edit that reads `now_bucket` in a
+  // guard without gating on committed time is rejected. NOT a wall-clock proof.
+  invariant temporal_guard;
+  invariant no_undeclared_state;
+}

@@ -1,0 +1,134 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  TokenAllowance — the ERC-20 approve / transferFrom delegated-spend shape.
+//
+//  THE POINT OF THIS FILE: model the ERC-20 allowance pattern as an on-chain
+//  covenant. An `owner` holds a `balance` and grants a single `spender` a
+//  capped `allowance` to pull from that balance on the owner's behalf. Two
+//  transitions, each authorised against a DIFFERENT committed key:
+//
+//    · approve (owner path) — the OWNER, authorised against the COMMITTED owner
+//                 key, (re)sets the `allowance` granted to the committed
+//                 `spender`. This is the ERC-20 `approve(spender, value)` call:
+//                 the owner names the cap, the spender does not participate. The
+//                 `balance`, `owner` and `spender` are carried unchanged; only
+//                 the `allowance` cap moves.
+//    · transfer_from (spender path) — the SPENDER, authorised against the
+//                 COMMITTED spender key, pulls `amount` from the owner's
+//                 `balance`. This is the ERC-20 `transferFrom(owner, _, amount)`
+//                 call: it is gated on BOTH committed caps —
+//                 `amount <= allowance` (the spender may not exceed its grant)
+//                 and `amount <= balance` (the pull may not overdraw the owner) —
+//                 and it decrements BOTH the `allowance` and the `balance` by the
+//                 SAME `amount`, exactly as ERC-20 debits the allowance as it is
+//                 spent so a single grant cannot be drained twice.
+//
+//  CAPABILITY (C2): each transition checkSig's against a COMMITTED key in prev
+//  state — `approve` against the committed `owner`, `transfer_from` against the
+//  committed `spender` — never a caller-supplied pubkey. An attacker who controls
+//  neither key cannot move the cap or pull the funds. The `authorized` invariant
+//  makes this a stated, enforced property: any state-mutating transition added
+//  here that omits a committed-key checkSig is rejected by `portrait check`.
+//
+//  VALUE CONSERVATION (C1): `balance` is the value-bearing field (conventional
+//  balance name). `transfer_from` decreases it by a single additive subtraction
+//  (`balance: balance - amount`), the only mutation the hardened value_conserved
+//  invariant permits for a non-mint/burn entrypoint; `approve` carries it
+//  unchanged. The `allowance` is committed accounting state, not a value-bearing
+//  coin field, so it is freely (re)set by `approve` and additively debited by
+//  `transfer_from` — the cap-tracking ledger, not the coin itself.
+//
+//  HONEST SCOPE (M1): `amount` is a caller-asserted integer compared against
+//  committed state (`allowance`, `balance`) and conserved against `balance`. The
+//  actual coin movement (the spender receiving the pulled value) is the spending
+//  wallet's responsibility, complemented here by the structural invariants the
+//  covenant rejects on (committed-key authorisation per path + the two committed
+//  caps + conservation). The covenant does NOT itself read UTXO coin values, and
+//  does NOT settle a live predicate — this is a structural/relational pattern
+//  match, not an SMT proof. Like ERC-20, this covenant models a SINGLE
+//  owner→spender allowance pair (not an arbitrary allowances mapping); a second
+//  spender is a second covenant instance.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param in the same position, so the constructor declares owner, spender,
+//  allowance, balance in state-field order. Bare state-field references in the
+//  body (e.g. `owner`, `allowance`, `balance`) are lowered by the Engraver to
+//  `prev_states[0].field`. `portrait engrave` lowers this to a two-transition
+//  singleton covenant that `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app TokenAllowance {
+  role allowance {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey owner;       // committed owner key (approve authority; holds the balance)
+    param pubkey spender;     // committed spender key (transfer_from authority; the grantee)
+    param int    allowance;   // committed delegated-spend cap (accounting ledger)
+    param int    balance;     // owner's balance (value-conserved by field name)
+
+    state {
+      pubkey owner;
+      pubkey spender;
+      int    allowance;
+      int    balance;
+    }
+
+    // Owner path (ERC-20 `approve`): the owner (re)sets the spender's allowance
+    // cap. Authorised against the COMMITTED owner key; the balance and both keys
+    // are carried unchanged — only the cap moves.
+    #[covenant(mode = transition)]
+    entrypoint function approve(
+      sig auth,
+      int new_allowance
+    ) : (pubkey owner, pubkey spender, int allowance, int balance) {
+      requires checkSig(auth, owner);     // only the committed owner may approve
+      requires new_allowance >= 0;        // a cap is non-negative
+      return TokenAllowance {
+        owner:     owner,                 // owner key carried unchanged
+        spender:   spender,               // spender key carried unchanged
+        allowance: new_allowance,         // the newly-granted cap
+        balance:   balance                // balance carried unchanged (value conserved)
+      };
+    }
+
+    // Spender path (ERC-20 `transferFrom`): the spender pulls `amount` from the
+    // owner's balance. Authorised against the COMMITTED spender key; gated on
+    // BOTH committed caps (allowance and balance); decrements BOTH by the same
+    // amount so the grant is debited as it is spent.
+    #[covenant(mode = transition)]
+    entrypoint function transfer_from(
+      sig auth,
+      int amount
+    ) : (pubkey owner, pubkey spender, int allowance, int balance) {
+      requires checkSig(auth, spender);   // only the committed spender may pull
+      requires amount >= 0;               // non-negative pull (non_negative_amount)
+      requires amount <= allowance;       // may not exceed the committed grant
+      requires amount <= balance;         // may not overdraw the owner's balance
+      return TokenAllowance {
+        owner:     owner,                 // owner key carried unchanged
+        spender:   spender,               // spender key carried unchanged
+        allowance: allowance - amount,    // grant debited as it is spent
+        balance:   balance - amount       // single additive subtraction (value conserved)
+      };
+    }
+  }
+
+  // One spend = one approve OR one transfer_from: the allowance advances in place.
+  lifecycle {
+    live -> live via allowance.approve;
+    live -> live via allowance.transfer_from;
+  }
+
+  invariant value_conserved;
+  // Capability invariant (C2): each path authorises against its COMMITTED key
+  // (approve→owner, transfer_from→spender). Any state-mutating transition added
+  // here that omits a committed-key checkSig is rejected by `portrait check`.
+  invariant authorized;
+  // Refinement (C3): the pulled `amount` is bounded non-negative. The
+  // `requires amount >= 0;` guard in transfer_from is an enforced invariant — a
+  // future edit that drops it fails the checker.
+  invariant non_negative_amount;
+  invariant no_undeclared_state;
+}

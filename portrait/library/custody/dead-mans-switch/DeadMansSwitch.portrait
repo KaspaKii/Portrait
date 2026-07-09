@@ -1,0 +1,120 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  DeadMansSwitch — an inactivity-triggered inheritance covenant.
+//
+//  THE POINT OF THIS FILE: a custody UTXO that the `owner` keeps alive by
+//  periodically proving liveness; if the owner goes silent for longer than a
+//  committed `timeout`, the `heir` may claim control. This is the on-chain
+//  "dead man's switch" / inheritance pattern: liveness is a recurring, signed
+//  heartbeat, and the inheritance path opens only after a committed inactivity
+//  window has elapsed.
+//
+//  Two transitions, both authorised against COMMITTED keys (never caller args):
+//
+//    · heartbeat (liveness path) — the OWNER, authorised against the COMMITTED
+//                 owner key, re-asserts liveness. It refreshes `last_active`
+//                 to the caller-asserted `now_bucket` and carries the heir,
+//                 timeout and owner unchanged. Each heartbeat pushes the
+//                 inactivity deadline forward by `timeout`.
+//    · claim     (inheritance path) — the HEIR, authorised against the
+//                 COMMITTED heir key, takes control once the inactivity window
+//                 has elapsed (now_bucket >= last_active + timeout). Control is
+//                 transferred by promoting the heir to `owner`; `last_active`
+//                 is reset to `now_bucket` so the new owner inherits a fresh
+//                 liveness window. The heir key and timeout are carried.
+//
+//  CAPABILITY (C2): both transitions checkSig against a COMMITTED state key —
+//  heartbeat against `owner`, claim against `heir`. An attacker who controls
+//  neither committed key, or who supplies a key of their own, can fire neither
+//  transition: the heartbeat cannot be forged to keep the owner "alive", and
+//  the claim cannot be forged to steal the inheritance early. The `authorized`
+//  invariant makes the no-auth fail-safe a stated, enforced property.
+//
+//  TIMELOCK (honest scope): the inactivity gate is a caller-asserted COARSE
+//  time bucket (`now_bucket`) compared against committed
+//  `last_active + timeout`, exactly as TimeVault and Escrow express their
+//  temporal gates. The consensus relative-timelock (the real "can this be
+//  relayed yet" decision) is enforced by the engine's relative-time rule on the
+//  spending input's sequence, set by the wallet; the covenant complements it
+//  with the bucket bound. The covenant does NOT itself read wall-clock time —
+//  `now_bucket` is asserted by the caller and is therefore coarse.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param in the same position, so the constructor declares owner, heir,
+//  last_active, timeout in state-field order. `portrait engrave` lowers this to
+//  a two-transition singleton covenant that `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app DeadMansSwitch {
+  role switch {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey owner;        // committed owner key (liveness / heartbeat authority)
+    param pubkey heir;         // committed heir key (inheritance / claim authority)
+    param int    last_active;  // coarse time bucket of the last proven heartbeat
+    param int    timeout;      // inactivity window (buckets) after which heir may claim
+
+    state {
+      pubkey owner;
+      pubkey heir;
+      int    last_active;
+      int    timeout;
+    }
+
+    // Liveness path: the owner proves liveness, refreshing `last_active`.
+    // Authorised against the COMMITTED owner key, not a caller-supplied pubkey.
+    #[covenant(mode = transition)]
+    entrypoint function heartbeat(
+      sig auth,
+      int now_bucket
+    ) : (pubkey owner, pubkey heir, int last_active, int timeout) {
+      requires checkSig(auth, owner);          // only the committed owner may heartbeat
+      return DeadMansSwitch {
+        owner:       owner,                     // owner key carried unchanged
+        heir:        heir,                      // heir key carried unchanged
+        last_active: now_bucket,                // liveness refreshed to now
+        timeout:     timeout                    // inactivity window carried
+      };
+    }
+
+    // Inheritance path: the heir claims control after the inactivity window.
+    // Authorised against the COMMITTED heir key; gated on last_active + timeout.
+    // Control is transferred by promoting the heir into `owner`.
+    #[covenant(mode = transition)]
+    entrypoint function claim(
+      sig auth,
+      int now_bucket
+    ) : (pubkey owner, pubkey heir, int last_active, int timeout) {
+      requires checkSig(auth, heir);                       // only the committed heir may claim
+      requires now_bucket >= last_active + timeout;        // inactivity window elapsed
+      return DeadMansSwitch {
+        owner:       heir,                       // control transferred to the heir
+        heir:        heir,                       // heir key carried
+        last_active: now_bucket,                 // fresh liveness window for the new owner
+        timeout:     timeout                     // inactivity window carried
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via switch.heartbeat;
+    live -> live via switch.claim;
+  }
+
+  // Capability invariant (C2): both transitions authorise against a COMMITTED
+  // state key (heartbeat → owner, claim → heir). Any state-mutating transition
+  // added here that omits a committed-key checkSig is rejected by the checker.
+  invariant authorized;
+  // Refinement (D3, temporal_guard): the `claim` path gates on the committed
+  // inactivity window (`requires now_bucket >= last_active + timeout;`). Any
+  // time-gated transition (one whose guards read `now_bucket`) that omits the
+  // `now_bucket >= <committed time>` gate is rejected by the checker.
+  // `heartbeat` is untouched — it reads `now_bucket` only in its return
+  // (refreshing `last_active`), not in a guard, so it is not a gate. STRUCTURAL
+  // shape match — `now_bucket` is caller-asserted and coarse, NOT a wall-clock
+  // proof.
+  invariant temporal_guard;
+  invariant no_undeclared_state;
+}

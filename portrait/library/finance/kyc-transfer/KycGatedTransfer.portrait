@@ -1,0 +1,112 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  KycGatedTransfer — an ERC-3643 / T-REX-style permissioned transfer.
+//
+//  THE POINT OF THIS FILE: model the core of a transfer-restricted security
+//  token (the RWA "permissioned transfer" gate) as a covenant. A single
+//  holder-authorised balance move from a source leg to a destination leg may
+//  ONLY fire when a committed KYC allow-flag is set — the structural shape of
+//  ERC-3643's `canTransfer` compliance check, expressed as a covenant guard.
+//
+//  State:
+//    · holder       — committed transfer authority (the holder authorises every
+//                     move against the COMMITTED key, never a caller arg);
+//    · allowed      — committed KYC allow-flag (0 = blocked, 1 = whitelisted),
+//                     carried unchanged across the transfer. Encoded as `int`
+//                     with the 0/1 idiom (exactly Escrow.settled / Auction.closed):
+//                     NO covenant in this library uses a `bool` state field, so
+//                     `int` is the honest established idiom for a binary flag;
+//    · from_balance — source leg (value-bearing: name ends in `balance`);
+//    · to_balance   — destination leg (value-bearing).
+//
+//  Transition:
+//    · transfer(amount) — holder-auth; requires the KYC gate `allowed == 1`;
+//                     `amount >= 0`; `amount <= from_balance` (no overdraw); moves
+//                     `amount` from the source to the destination leg. The two
+//                     deltas (`-amount` on `from_balance`, `+amount` on
+//                     `to_balance`) cancel under `conservation_split` (N=2).
+//
+//  THE KYC GATE IS THE LOAD-BEARING DIFFERENCE from a plain InternalTransfer:
+//  `requires allowed == 1;`. A transfer to a context whose committed allow-flag
+//  is not 1 is rejected; dropping the gate is a VISIBLE diff to this file, not a
+//  silent regression. (The `conservation_split` / `authorized` /
+//  `non_negative_amount` invariants are the same proven trio InternalTransfer
+//  declares; the KYC require is a plain guard pinned by the gate's presence.)
+//
+//  HONEST SCOPE — STRUCTURAL SINGLE-PAIR GATE, NOT AN IDENTITY PROOF. The
+//  `allowed` flag is COMMITTED state: this covenant enforces the STRUCTURAL gate
+//  ("a move may only fire when the committed flag is set"), NOT the off-chain
+//  identity / accreditation proof that decides whether the flag should be set —
+//  that is an issuer / on-ramp concern. It models a SINGLE holder instance (one
+//  committed allow-flag), exactly as TokenAllowance models a single owner→spender
+//  pair, NOT an allowlist over MANY addresses. A real registry mapping
+//  `address → allowed` is a mapping (REJECTION_SET) and belongs in a vProg
+//  (cf. the ComplianceCredential vProg), NOT in a covenant.
+//
+//  HONEST SCOPE (M1): `amount` is a caller-asserted integer compared against
+//  committed state and folded additively into the two value-bearing legs; the
+//  actual coin movement is the spending wallet's responsibility, complemented
+//  here by the structural invariants the covenant rejects on (committed-key
+//  authorisation + the KYC gate + non-negative amount + N=2 conservation). The
+//  covenant does NOT itself read UTXO coin values.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param in the same position, so the constructor declares holder, allowed,
+//  from_balance, to_balance in state-field order. `portrait engrave` lowers this
+//  to a single-transition singleton covenant that `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app KycGatedTransfer {
+  role token {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey holder;        // committed transfer authority
+    param int    allowed;       // committed KYC allow-flag (0 = blocked, 1 = whitelisted)
+    param int    from_balance;  // source leg (value-bearing: ends in `balance`)
+    param int    to_balance;    // destination leg (value-bearing)
+
+    state {
+      pubkey holder;
+      int    allowed;
+      int    from_balance;
+      int    to_balance;
+    }
+
+    // Permissioned move. Holder-authorised against the COMMITTED holder key;
+    // gated on the committed KYC allow-flag; a single matched pair (`-amount`
+    // from the source, `+amount` to the destination) the conservation_split
+    // invariant requires.
+    #[covenant(mode = transition)]
+    entrypoint function transfer(
+      sig auth,
+      int amount
+    ) : (pubkey holder, int allowed, int from_balance, int to_balance) {
+      requires checkSig(auth, holder);   // only the committed holder may transfer
+      requires allowed == 1;             // KYC gate: the committed allow-flag must be set
+      requires amount >= 0;              // non-negative transfer (non_negative_amount)
+      requires amount <= from_balance;   // cannot overdraw the source leg
+      return KycGatedTransfer {
+        holder:       holder,                  // authority carried unchanged
+        allowed:      allowed,                 // KYC flag carried unchanged
+        from_balance: from_balance - amount,   // source leg decreases by amount
+        to_balance:   to_balance + amount      // destination leg increases by the SAME amount
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via token.transfer;
+  }
+
+  // Refinement (D4): the transfer conserves value across the two legs — the
+  // amount leaving `from_balance` is the SAME term arriving in `to_balance`.
+  // STRUCTURAL N=2 additive-delta match, NOT a general SMT conservation proof.
+  invariant conservation_split;
+  // Capability (C2): transfer authority is checked against the COMMITTED holder.
+  invariant authorized;
+  // Refinement (C3): the transferred `amount` is bounded non-negative.
+  invariant non_negative_amount;
+  invariant no_undeclared_state;
+}

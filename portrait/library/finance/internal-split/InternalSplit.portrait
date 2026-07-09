@@ -1,0 +1,90 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  InternalSplit — an N-field (3-way) internal value split (conservation_split).
+//
+//  THE POINT OF THIS FILE: exercise `conservation_split` BEYOND the paired
+//  two-field transfer that InternalTransfer demonstrates. Here ONE source leg
+//  (`pool_a_balance`) is split across TWO destination legs in a single
+//  transition: `x` flows to `pool_b_balance` and `y` flows to
+//  `pool_c_balance`, with `pool_a_balance` decreasing by the combined term
+//  `(x + y)`.
+//
+//  `conservation_split`, generalized to N fields, computes the additive delta
+//  of every value-bearing field in the return — here:
+//    · pool_a_balance:  -(x + y)
+//    · pool_b_balance:  +x
+//    · pool_c_balance:  +y
+//  flattens each delta term into its `+`-separated atoms, and requires the
+//  added atoms {x, y} to cancel the subtracted atoms {x, y}. They do, so the
+//  split conserves value across the three legs and the checker accepts it. A
+//  split whose deltas do NOT net to zero (value created or destroyed across the
+//  three fields), or a non-additive mutation on a value-bearing field, is
+//  rejected at compile time.
+//
+//  HONEST SCOPE (M2): this is STRUCTURAL N-field additive-delta arithmetic, NOT
+//  a general SMT conservation proof. It proves the multiset of added `+`-atoms
+//  equals the multiset of subtracted `+`-atoms (by `Expr` structural equality).
+//  It does NOT reason about the numeric values of `x`/`y`, does NOT prove
+//  `x >= 0` / `y >= 0` on its own (the `requires ... >= 0;` guards, enforced by
+//  `non_negative_amount`, supply that for `amount`), does NOT see arithmetic
+//  identities (e.g. that `x * 2` equals `x + x`), and — critically — models an
+//  INTERNAL split only: value moved BETWEEN the covenant's own fields. It does
+//  NOT model a SPEND that moves value OUT of the covenant to an external output
+//  (that is the `value_conserved` single-additive shape, not this one).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app InternalSplit {
+  role pool {
+    // Genesis state (one constructor param per state field, in field order).
+    param int    pool_a_balance;   // source leg (value-bearing: name ends in `balance`)
+    param int    pool_b_balance;   // destination leg one (value-bearing)
+    param int    pool_c_balance;   // destination leg two (value-bearing)
+    param pubkey owner;            // committed owner — sole rebalance authority
+
+    state {
+      int    pool_a_balance;
+      int    pool_b_balance;
+      int    pool_c_balance;
+      pubkey owner;
+    }
+
+    // Split `x + y` out of the source leg: `x` into leg b, `y` into leg c. The
+    // committed owner must authorise. The three deltas net to zero — the
+    // combined `(x + y)` leaving `pool_a_balance` equals the `x` and `y`
+    // arriving in the two destination legs — the shape `conservation_split`
+    // (generalized to N fields) requires.
+    #[covenant(mode = transition)]
+    entrypoint function rebalance(
+      sig auth,
+      int x,
+      int y
+    ) : (int pool_a_balance, int pool_b_balance, int pool_c_balance, pubkey owner) {
+      requires checkSig(auth, owner);          // only the committed owner may rebalance
+      requires x >= 0;                          // non-negative split legs
+      requires y >= 0;
+      requires x + y <= pool_a_balance;         // cannot overdraw the source leg
+      return InternalSplit {
+        pool_a_balance: pool_a_balance - (x + y),   // source leg decreases by the combined term
+        pool_b_balance: pool_b_balance + x,         // destination leg one gains x
+        pool_c_balance: pool_c_balance + y,         // destination leg two gains y
+        owner:          owner                       // owner carried unchanged
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via pool.rebalance;
+  }
+
+  // Refinement (D4): the rebalance conserves value across the three legs — the
+  // combined term leaving `pool_a_balance` is the SAME pair of atoms arriving in
+  // `pool_b_balance` and `pool_c_balance`. STRUCTURAL N-field additive-delta
+  // arithmetic, NOT a general SMT conservation proof.
+  invariant conservation_split;
+  // Capability (C2): rebalance authority is checked against the COMMITTED owner.
+  invariant authorized;
+  invariant no_undeclared_state;
+}

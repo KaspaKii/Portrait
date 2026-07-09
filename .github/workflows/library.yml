@@ -1,0 +1,33 @@
+name: library
+
+# Covenant Patterns Library (compliance-patterns/) — its own Cargo workspace.
+# Path-filtered so it only runs when the library changes.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'compliance-patterns/**'
+      - '.github/workflows/library.yml'
+  pull_request:
+    paths:
+      - 'compliance-patterns/**'
+      - '.github/workflows/library.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: compliance-patterns
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - run: cargo fmt --all --check
+      # --all-features is intentionally omitted: the `wrpc` feature pulls a
+      # transitive `cc` that currently fails to build on stable (upstream issue,
+      # not library code). Mirrors the local _harness/ci.sh gate.
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo build --workspace
+      - run: cargo test --workspace

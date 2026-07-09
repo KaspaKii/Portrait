@@ -1,0 +1,32 @@
+// ReturnCrossCallVault — REJECT fixture (out of subset, EMBEDDED in a return).
+// Solidity equivalent:
+//   contract ReturnCrossCallVault {
+//     function drain(address strategy, uint amount) external returns (uint) {
+//       return strategy.call(abi.encode(amount));  // cross-call inside a return
+//     }
+//   }
+// Regression fixture for the adversarial-verify finding: a blacklisted construct
+// embedded inside a `return ...;` previously BYPASSED the fail-loud rejection set
+// and silently degraded to Stmt::Raw (a FALSE ACCEPT), then failed later with the
+// WRONG diagnostic ("no return statement"). A synchronous cross-contract call
+// (`.call(...)`) requires an account model or vProg composition; it is not
+// UTXO-native. `portrait engrave` MUST reject this fail-loud, naming the `call`
+// construct and routing it to the vProgs layer (SUBSET-V0 §3 item 3) — identically
+// to the standalone form.
+pragma portrait ^0.1.0;
+
+app ReturnCrossCallVault {
+  role vault {
+    param int balance;
+
+    state { int balance; }
+
+    #[covenant(mode = transition)]
+    entrypoint function drain(int amount) : (int balance) {
+      return strategy.call(amount);   // cross-call embedded in return — REJECT
+    }
+  }
+
+  lifecycle { live -> live via vault.drain; }
+  invariant no_undeclared_state;
+}

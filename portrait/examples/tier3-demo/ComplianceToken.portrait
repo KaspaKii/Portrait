@@ -1,0 +1,49 @@
+// ComplianceToken — Tier 3 demo: covenant (L1) + vProg (off-L1) from one source.
+//
+// The `transfer` entrypoint compiles to a silverscript covenant (L1-enforced state
+// transition). The `verify_compliance` entrypoint has no #[covenant] attribute, so
+// portrait-ir lowers it as a NonCovenant (VProg) transition — Atelier emits a RISC
+// Zero guest main.rs for it, Engraver ignores it.
+//
+// Pipeline:
+//   portrait engrave ComplianceToken.portrait
+//     → [pounce] transfer → Covenant
+//     → [pounce] verify_compliance → VProg
+//     → [emit]   ComplianceToken.sil + ComplianceToken_ctor.json
+//     → [silverc] ok
+//
+//   portrait atelier-build ComplianceToken.portrait
+//     → [pounce] transfer → Covenant  (skipped by Atelier)
+//     → [pounce] verify_compliance → VProg
+//     → [atelier] compliancetoken_guest_main.rs
+//       (drop into kii-csci-prover/methods/csci-guest/src/main.rs to build the STARK)
+//
+// Binding: the generated covenant ID (KIP-20) is the cross-layer anchor.
+// The STARK proof commits: covenant_id || new_state_hash || rule_hash("verify_compliance") || seq
+// The L1 covenant then verifies the proof via OpZkPrecompile tag 0x21.
+
+pragma portrait ^0.1.0;
+
+app ComplianceToken {
+  role token {
+    param int start;
+    state { int balance; }
+
+    // L1 covenant: enforces the UTXO state transition on-chain.
+    #[covenant(mode = transition)]
+    entrypoint function transfer(int amount) : (int balance) {
+      return balance - amount;
+    }
+
+    // vProg (off-L1): verifies compliance rules; proven via RISC Zero STARK.
+    // No #[covenant] attribute → NonCovenant → Atelier handles this.
+    // M2: return expr lowers into `let new_balance = balance - amount;` in the
+    // RISC Zero guest, so new_state_hash = sha256(new_balance) rather than sha256(prev_balance).
+    entrypoint function verify_compliance(int amount) {
+      return balance - amount;
+    }
+  }
+
+  lifecycle { live -> live via token.transfer; }
+  invariant no_undeclared_state;
+}

@@ -1,0 +1,82 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  TimeVault — a two-key, time-gated custody covenant.
+//
+//  A vault UTXO is controlled by two keys and a release gate:
+//    · owner    may `release` the funds once the temporal gate has opened
+//               (now_bucket >= unlock_bucket);
+//    · recovery (a cold clawback key) may `claw` the funds back at any time
+//               before release — the break-glass path.
+//
+//  `released` is a one-shot flag: once set, neither transition fires again, so
+//  the vault cannot be double-spent across the two paths.
+//
+//  Scope (honest): the temporal gate is expressed as a caller-asserted coarse
+//  time bucket compared against the committed `unlock_bucket`. The *consensus*
+//  relative-timelock (the real "can this be relayed yet" decision) is enforced
+//  by the engine's relative-time rule on the spending input's sequence, set by
+//  the wallet — the covenant complements that with key-based authorisation and
+//  the bucket bound. The covenant does NOT itself read wall-clock time.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param in the same position, so the constructor declares owner, recovery,
+//  unlock_bucket, released in state-field order. `portrait engrave` lowers this
+//  to a two-transition singleton covenant that `silverc` accepts (exit 0).
+// ─────────────────────────────────────────────────────────────────────────
+
+app TimeVault {
+  role vault {
+    param pubkey owner;          // hot key permitted to release after the gate
+    param pubkey recovery;       // cold clawback key (break-glass)
+    param int    unlock_bucket;  // coarse time bucket at/after which release is allowed
+    param int    released;       // one-shot spent flag (genesis = 0)
+
+    state {
+      pubkey owner;
+      pubkey recovery;
+      int    unlock_bucket;
+      int    released;
+    }
+
+    // Owner releases the funds once the temporal gate has opened.
+    #[covenant(mode = transition)]
+    entrypoint function release(
+      sig auth,
+      int now_bucket
+    ) : (pubkey owner, pubkey recovery, int unlock_bucket, int released) {
+      requires checkSig(auth, owner);            // only the owner may release
+      requires now_bucket >= unlock_bucket;      // temporal gate has opened
+      requires released == 0;                    // one-shot: not already spent
+      return TimeVault {
+        owner:         owner,
+        recovery:      recovery,
+        unlock_bucket: unlock_bucket,
+        released:      1
+      };
+    }
+
+    // Recovery key claws the funds back (break-glass), before release.
+    #[covenant(mode = transition)]
+    entrypoint function claw(
+      sig auth
+    ) : (pubkey owner, pubkey recovery, int unlock_bucket, int released) {
+      requires checkSig(auth, recovery);         // only the recovery key may claw
+      requires released == 0;                     // one-shot: not already spent
+      return TimeVault {
+        owner:         owner,
+        recovery:      recovery,
+        unlock_bucket: unlock_bucket,
+        released:      1
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via vault.release;
+    live -> live via vault.claw;
+  }
+
+  invariant value_conserved;
+  invariant no_undeclared_state;
+}

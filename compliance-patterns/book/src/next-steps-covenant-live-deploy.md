@@ -1,0 +1,1 @@
+../../docs/NEXT-STEPS-covenant-live-deploy.md

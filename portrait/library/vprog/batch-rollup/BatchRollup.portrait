@@ -1,0 +1,121 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  BatchRollup — a vProg PATTERN: aggregate N state transitions into ONE
+//  on-chain settlement (rollup-style fold).
+//
+//  THE POINT OF THIS FILE: a rollup advances an on-chain committed state ROOT
+//  by applying many (N) transitions at once. Replaying N transitions on chain
+//  is infeasible / wasteful; instead an off-L1 RISC Zero guest PROVES that
+//  folding N transitions over `prev_root` yields `next_root`, and the covenant
+//  settles the new root in a single spend that is BOUND to that proof.
+//
+//  PAIR (the cross-layer shape, same as CsciInstrument):
+//    · settle      — the L1 settlement covenant. Advances the committed `root`
+//                    to `next_root` and the sequence `seq` by the batch size
+//                    `batch_count`, authorized against the COMMITTED operator
+//                    key (never a caller arg), and bound to the proof via the
+//                    covenant-id binding require() that `has_vprog` emits.
+//    · apply_batch — the vProg (NonCovenant) companion. Carries NO #[covenant]
+//                    attribute → portrait-ir lowers it as a VProg transition →
+//                    Atelier emits its RISC Zero guest main. Its presence flips
+//                    `has_vprog`, which is what causes the covenant-id binding
+//                    require(proof_cov_id == OpInputCovenantId(0)) to be
+//                    emitted into `settle`. The guest derives the journal's
+//                    `new_state_hash` from the new `root` committed by the
+//                    return expression below.
+//
+//  JOURNAL (the proven CSCI shape):
+//      covenant_id[32] || new_state_hash[32] || rule_hash[32] || seq[8 LE]
+//  The guest commits `new_state_hash` over the advanced `root` and `seq`.
+//
+//  STATUS — Emit-verified template; the state-machine transition is lowered into
+//    the guest (M3). The covenant compiles via silverc; `portrait atelier-build`
+//    emits a RISC Zero guest that consumes the entrypoint args the return body
+//    uses, hashes the NEW state into new_state_hash, advances seq, and asserts
+//    the assertable requires. The heavy predicate (that folding N transitions over
+//    prev_root yields next_root) is STILL developer-authored, not synthesized by
+//    the compiler. Emit-verified, not settled live (only CSCI has settled live on
+//    TN10).
+//
+//  HONEST SCOPE:
+//    · This is an EMIT-VERIFIED TEMPLATE: the covenant compiles via silverc
+//      (engrave → exit 0) and the guest is emitted (atelier-build), within the
+//      same proven harness as the live CSCI instrument. It is NOT individually
+//      settled live.
+//    · The covenant-side checks are STRUCTURAL/RELATIONAL (no SMT solver). The
+//      SOUNDNESS of "N transitions fold prev_root → next_root" rests on the
+//      RISC Zero guest + the tag-0x21 verifier, NOT on Portrait. silverc here
+//      enforces the on-chain STATE-MACHINE rules (committed-operator auth,
+//      forward batch progress, covenant-id binding); the STARK verification of
+//      the fold proof is layered by the settlement harness, which feeds the
+//      journal's covenant_id in as `proof_cov_id`.
+//    · The emitted guest's journal `seq` field advances by exactly one per
+//      Atelier's CSCI journal convention (`prev_seq + 1`); the on-chain `seq`
+//      advances by the batch size `batch_count` — the spend records that the
+//      whole batch landed in one settlement. (`monotonic_seq` is therefore NOT
+//      declared: the on-chain seq advances by N, not by one.)
+// ─────────────────────────────────────────────────────────────────────────
+
+app BatchRollup {
+  role rollup {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey  operator;      // committed operator key (the settle authority)
+    param bytes32 root;          // committed rollup state root (the aggregate)
+    param int     seq;           // monotonic batch sequence (genesis = 0)
+
+    state {
+      pubkey  operator;
+      bytes32 root;
+      int     seq;
+    }
+
+    // L1 covenant: settles ONE batch on-chain.
+    //   · operator auth against committed operator       (C2)
+    //   · forward batch progress: batch_count >= 1
+    //   · root advances to the proven `next_root`
+    //   · seq advances by the batch size `batch_count`
+    //   · covenant-id binding require()                   (emitted by has_vprog)
+    #[covenant(mode = transition)]
+    entrypoint function settle(
+      sig auth,
+      bytes32 next_root,
+      int batch_count
+    ) : (pubkey operator, bytes32 root, int seq) {
+      requires checkSig(auth, operator);   // committed-operator authorization
+      requires batch_count >= 1;           // a batch advances the rollup forward
+      return BatchRollup {
+        operator: operator,                // operator key carried unchanged
+        root:     next_root,               // adopt the proven next root
+        seq:      seq + batch_count        // sequence advances by the batch size
+      };
+    }
+
+    // vProg (off-L1): the rollup fold predicate, proven via a RISC Zero STARK.
+    // No #[covenant] attribute → NonCovenant → Atelier emits the guest main.
+    // The companion body MIRRORS `settle`: it consumes `next_root` + `batch_count`
+    // and advances `root`/`seq`, so the M3 guest hashes the NEW state over the new
+    // root + advanced seq, and lowers `requires batch_count >= 1` into an in-guest
+    // `assert!` (a non-builtin, assertable predicate — proven to have held).
+    // Its presence flips `has_vprog`, which is what causes the covenant-id
+    // binding require() to be emitted into `settle` above.
+    //
+    // WHAT STAYS MANUAL (developer guest code, NOT synthesised by the compiler):
+    // the FOLD itself — proving that applying the `batch_count` private
+    // transitions to `prev_root` actually yields `next_root`. That state-transition
+    // function over the batch contents is not expressible in the Portrait body and
+    // remains hand-written in the guest.
+    entrypoint function apply_batch(bytes32 next_root, int batch_count) {
+      requires batch_count >= 1;           // forward batch progress (assertable in-guest)
+      return BatchRollup {
+        operator: operator,
+        root:     next_root,
+        seq:      seq + batch_count
+      };
+    }
+  }
+
+  lifecycle { live -> live via rollup.settle; }
+
+  invariant no_undeclared_state;
+}

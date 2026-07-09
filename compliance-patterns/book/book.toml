@@ -1,0 +1,21 @@
+[book]
+title = "kaspa-compliance-patterns"
+description = "Covenant compliance patterns for Kaspa, targeting the Toccata hardfork (rusty-kaspa v2.0.0). Stewarded by Stichting Kii Foundation."
+authors = ["Stichting Kii Foundation"]
+language = "en"
+src = "src"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/kaspakii/portrait"
+edit-url-template = "https://github.com/kaspakii/portrait/edit/main/compliance-patterns/book/src/{path}"
+mathjax-support = false
+
+[output.html.fold]
+enable = true
+level = 1
+
+[build]
+build-dir = "site"
+create-missing = false

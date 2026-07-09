@@ -1,0 +1,111 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  Escrow — a two-party, deadline-gated conditional-payment covenant.
+//
+//  An escrow UTXO locks `amount` between a `buyer` and a `seller`, with a
+//  `deadline` and a one-shot `settled` flag:
+//
+//    · release (happy path) — the SELLER, authorised against the COMMITTED
+//                 seller key, settles the escrow once the deliverable has been
+//                 accepted off-chain. The funds flow to the seller. Fires at
+//                 any time before settlement.
+//    · refund  (timeout path) — the BUYER, authorised against the COMMITTED
+//                 buyer key, claws the funds back once the deadline has passed
+//                 (now_bucket >= deadline) — the buyer's escape hatch when the
+//                 seller never delivers.
+//
+//  `settled` is a one-shot flag (genesis = 0): once set, neither transition
+//  can fire again, so the locked amount cannot be double-spent across the two
+//  mutually-exclusive paths (release XOR refund).
+//
+//  VALUE CONSERVATION (honest scope): `amount` is carried UNCHANGED through
+//  each transition (bare carry, f: f). The covenant does NOT itself move coin
+//  — actual payout/clawback is the spending wallet's job, governed by the
+//  output script the wallet attaches. The covenant enforces the STRUCTURAL
+//  rules: who may settle (committed-key auth), when refund is allowed (the
+//  deadline gate), and that settlement is one-shot. This mirrors TimeVault:
+//  the coin field is conserved in committed state, `settled` is the spent
+//  flag, and the real coin movement is complemented — not replaced — by the
+//  covenant's authorisation + temporal bounds.
+//
+//  TIMELOCK (honest scope): the deadline gate is a caller-asserted coarse time
+//  bucket (`now_bucket`) compared against the committed `deadline`, exactly as
+//  TimeVault expresses it. The consensus relative-timelock (the real "can this
+//  be relayed yet" decision) is enforced by the engine's relative-time rule on
+//  the spending input's sequence, set by the wallet; the covenant complements
+//  it with the bucket bound. The covenant does NOT read wall-clock time.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param in the same position, so the constructor declares buyer, seller,
+//  amount, deadline, settled in state-field order. `amount` is typed `coin` — a
+//  strictly-conserved Portrait surface type: the type checker forbids arithmetic
+//  on it and forbids comparing it to an int, so it can ONLY ever be a bare carry
+//  (which is exactly what both transitions do). The Engraver lowers `coin` to
+//  silverscript's `int` representation (silverscript has no `coin` type), so the
+//  emitted .sil declares `int amount`; the conservation guarantee is enforced at
+//  the Portrait layer. `portrait engrave` lowers this to a two-transition
+//  singleton covenant that `silverc` accepts (exit 0).
+// ─────────────────────────────────────────────────────────────────────────
+
+app Escrow {
+  role escrow {
+    param pubkey buyer;     // party who funds the escrow (refund authority)
+    param pubkey seller;    // party who delivers (release authority)
+    param coin   amount;    // value locked in the escrow (coin: strictly conserved)
+    param int    deadline;  // coarse time bucket at/after which refund is allowed
+    param int    settled;   // one-shot spent flag (genesis = 0)
+
+    state {
+      pubkey buyer;
+      pubkey seller;
+      coin   amount;        // value-bearing (coin); conserved as a bare carry
+      int    deadline;
+      int    settled;
+    }
+
+    // Happy path: the seller settles the escrow (funds flow to the seller).
+    // Authorised against the COMMITTED seller key, not a caller-supplied arg.
+    #[covenant(mode = transition)]
+    entrypoint function release(
+      sig auth
+    ) : (pubkey buyer, pubkey seller, coin amount, int deadline, int settled) {
+      requires checkSig(auth, seller);     // only the committed seller may release
+      requires settled == 0;               // one-shot: not already settled
+      return Escrow {
+        buyer:    buyer,
+        seller:   seller,
+        amount:   amount,                  // value conserved (bare carry)
+        deadline: deadline,
+        settled:  1
+      };
+    }
+
+    // Timeout path: the buyer claws the funds back after the deadline.
+    // Authorised against the COMMITTED buyer key; gated on the deadline bucket.
+    #[covenant(mode = transition)]
+    entrypoint function refund(
+      sig auth,
+      int now_bucket
+    ) : (pubkey buyer, pubkey seller, coin amount, int deadline, int settled) {
+      requires checkSig(auth, buyer);      // only the committed buyer may refund
+      requires now_bucket >= deadline;     // temporal gate: deadline has passed
+      requires settled == 0;               // one-shot: not already settled
+      return Escrow {
+        buyer:    buyer,
+        seller:   seller,
+        amount:   amount,                  // value conserved (bare carry)
+        deadline: deadline,
+        settled:  1
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via escrow.release;
+    live -> live via escrow.refund;
+  }
+
+  invariant value_conserved;
+  invariant no_undeclared_state;
+}

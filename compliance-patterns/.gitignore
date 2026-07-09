@@ -1,0 +1,23 @@
+target/
+Cargo.lock.bak
+.DS_Store
+# mdBook build output
+book/site/
+# hello-vault example's standalone build artifact + lockfile (path-dep based)
+examples/hello-vault/target/
+examples/hello-vault/Cargo.lock
+
+# TN10 wallet key files — never commit
+.secrets/
+
+# local build accelerator (sccache) — not portable, keep local
+.cargo/config.toml
+
+# Netlify CLI local state (site id / auth state) — never commit
+.netlify/
+
+# Generated deploy bundle (assembled by build-publish.sh from website/ + book/)
+/publish/
+
+# never track dependency trees
+**/node_modules/

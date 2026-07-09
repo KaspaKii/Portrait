@@ -1,0 +1,34 @@
+// PausableToken — Green-tier ERC20+Pausable subset.
+// Solidity equivalent:
+//   contract PausableToken is ERC20, Pausable {
+//     uint256 public balance;
+//     bool public paused;
+//     function transfer(uint256 amount) external whenNotPaused;
+//     function setPaused(int flag) external onlyOwner;
+//   }
+// `paused` is a covenant state field; the gate check lives off-chain or in a
+// future covenant require() guard. The state transitions are covenant-enforced.
+pragma portrait ^0.1.0;
+
+app PausableToken {
+  role token {
+    param int start;
+    state { int balance; int paused; }
+
+    #[covenant(mode = transition)]
+    entrypoint function transfer(int amount) : (int balance) {
+      return balance - amount;
+    }
+
+    #[covenant(mode = transition)]
+    entrypoint function set_paused(int flag) : (int paused) {
+      return paused - paused + flag;
+    }
+  }
+
+  lifecycle {
+    live -> live via token.transfer;
+    live -> live via token.set_paused;
+  }
+  invariant no_undeclared_state;
+}

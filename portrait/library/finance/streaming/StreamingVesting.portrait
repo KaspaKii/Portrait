@@ -1,0 +1,120 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  StreamingVesting — a single-recipient linear vesting / payment-streaming
+//  covenant (Pattern B).
+//
+//  A vesting UTXO is committed to one recipient and a fixed grant. The grant
+//  unlocks linearly over a window [start, start + duration); the recipient may
+//  `withdraw` portions of the already-vested amount as the stream matures. The
+//  covenant carries the cumulative withdrawn total forward (as a value-bearing
+//  accumulator) so successive withdrawals compose without double-spending the
+//  grant.
+//
+//    · recipient   the sole party permitted to withdraw. Authorisation is bound
+//                  to the COMMITTED recipient key (prev state), never a caller
+//                  argument, so a withdrawal cannot be redirected by an arbitrary
+//                  signer (the C2 capability rule).
+//    · total       the full grant ceiling (constant — carried unchanged). Typed
+//                  `int` because it is COMPARED against the int accumulator
+//                  (`supply + amount <= total`); the hardened type checker forbids
+//                  comparing an `int` to a `coin` (operands must match type), and
+//                  forbids `coin` arithmetic outright — so a coin grant could only
+//                  ever be a bare carry, never a comparable ceiling.
+//    · start       genesis schedule anchor (coarse time bucket).
+//    · duration    length of the linear vesting window.
+//    · supply      cumulative amount already withdrawn (the "withdrawn" running
+//                  total). Named `supply` so the hardened value_conserved rule
+//                  treats it as value-bearing and polices it: it may ONLY advance
+//                  as a single additive `supply: supply + amount`.
+//
+//  TYPE-STACK NOTE (honest, why the field types/names are what they are): the
+//  hardened type checker forbids arithmetic on `coin` operands entirely —
+//  `+`/`-`/`*` require BOTH operands to be `int` (portrait-sema type_of) — and
+//  forbids comparing a `coin` to an `int` (comparison operands must match). A
+//  `coin` field can therefore ONLY ever be a bare carry; it cannot advance and
+//  cannot be a comparable ceiling. Because this pattern needs BOTH a running
+//  accumulator that advances (`supply + amount`) AND a ceiling it is compared
+//  against (`<= total`), both are typed `int`. To keep value_conserved policing
+//  the accumulator, it carries a conventional value-bearing NAME (`supply`) —
+//  exactly the pattern the sibling MultisigTreasury (`balance: balance - amount`)
+//  and Escrow (`int amount` bare carry) already use, and ComplianceToken
+//  (`int balance` value-bearing). The `coin` surface type is reserved here for
+//  fields that are pure bare carries; this covenant has none, so it uses `int`.
+//
+//  Honest scope (M1): the per-call vested-ceiling against wall-clock
+//  (`amount <= vested(now)`, vested growing linearly with the elapsed window)
+//  needs a caller-asserted `now_bucket` and a multiplicative schedule term and is
+//  NOT enforced on-chain here. The covenant enforces what it CAN without a solver:
+//  recipient authorisation against committed state, a non-negative withdrawal,
+//  conservation of the grant (`total` carried, `supply` strictly additive), and
+//  that the cumulative withdrawn never exceeds the committed grant
+//  (`supply + amount <= total`). The real linear release is enforced by the
+//  wallet/relay (relative-timelock on the spending input's sequence) and the
+//  settlement harness; the covenant complements that with the conservation +
+//  authorisation invariants it rejects on. The covenant does NOT read wall-clock.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param in the same position, so the constructor declares recipient, total,
+//  start, duration, supply in state-field order. Bare state-field references in
+//  the body (e.g. `recipient`, `total`, `supply`) are lowered by the Engraver to
+//  `prev_states[0].field`. `portrait engrave` lowers this to a singleton
+//  transition covenant that `silverc` accepts (exit 0).
+// ─────────────────────────────────────────────────────────────────────────
+
+app StreamingVesting {
+  role stream {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey recipient;   // committed payee — the only withdrawal authority
+    param int    total;       // full grant ceiling (constant; comparable bare carry)
+    param int    start;       // schedule anchor (coarse time bucket)
+    param int    duration;    // length of the linear vesting window
+    param int    supply;      // cumulative amount withdrawn (genesis = 0)
+
+    state {
+      pubkey recipient;
+      int    total;
+      int    start;
+      int    duration;
+      int    supply;          // value-bearing accumulator (the withdrawn total)
+    }
+
+    // The recipient withdraws a vested portion of the grant.
+    //   · auth bound to the COMMITTED recipient key            (C2)
+    //   · amount is non-negative                                (non_negative_amount)
+    //   · cumulative withdrawn never exceeds the committed grant (envelope)
+    //   · total carried unchanged                               (value_conserved: bare carry)
+    //   · supply advances by exactly the amount                 (value_conserved: single additive)
+    #[covenant(mode = transition)]
+    entrypoint function withdraw(
+      sig auth,
+      int amount
+    ) : (pubkey recipient, int total, int start, int duration, int supply) {
+      requires checkSig(auth, recipient);          // committed-recipient authorisation
+      requires amount >= 0;                         // non-negative withdrawal
+      requires supply + amount <= total;            // cumulative draw never exceeds grant
+      return StreamingVesting {
+        recipient: recipient,                        // payee carried unchanged
+        total:     total,                            // grant conserved (bare carry)
+        start:     start,                            // schedule anchor unchanged
+        duration:  duration,                         // window length unchanged
+        supply:    supply + amount                   // accumulate withdrawn total
+      };
+    }
+  }
+
+  // One spend = one withdrawal: the stream advances in place via `withdraw`.
+  lifecycle {
+    live -> live via stream.withdraw;
+  }
+
+  invariant value_conserved;
+  invariant non_negative_amount;
+  // Refinement (C3): the cumulative withdrawn never exceeds the committed grant
+  // ceiling. Declaring `bounded_supply` makes the `requires supply + amount <=
+  // total;` guard above an enforced property: a future edit that drops the
+  // envelope check fails `portrait check`. STRUCTURAL pattern match on the
+  // require shape — NOT an SMT proof against overflow.
+  invariant bounded_supply;
+  invariant no_undeclared_state;
+}

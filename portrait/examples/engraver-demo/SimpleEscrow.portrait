@@ -1,0 +1,48 @@
+// SimpleEscrow — Green-tier two-party escrow release.
+// Solidity equivalent:
+//   contract SimpleEscrow {
+//     address public arbiter;
+//     uint256 public released;   // one-shot release flag (0 = held, 1 = released)
+//     function release(bytes sig) external returns (...);  // arbiter releases
+//   }
+// Single-UTXO local state: the arbiter key + a one-shot flag are committed into
+// the covenant state; there is no shared mutable ledger, no mapping, no loop, and
+// no cross-contract call — so it projects cleanly onto a Kaspa UTXO covenant.
+//
+// NOTE: the `checkSig` arbiter guard + the one-shot `released == 0` guard below
+// ARE lowered into the emitted silverscript — SimpleEscrow.sil carries
+// `require(checkSig(auth, prev_states[0].arbiter))` and
+// `require(prev_states[0].released == 0)`, so the covenant enforces the release
+// rules, not just output-state shape. Body `requires` clauses are lowered by
+// portrait-emit; an unlowerable guard now fails engrave fail-loud.
+pragma portrait ^0.1.0;
+
+app SimpleEscrow {
+  role escrow {
+    param pubkey arbiter;   // the key permitted to release the escrow
+    param int    released;  // one-shot flag (genesis = 0)
+
+    state {
+      pubkey arbiter;
+      int    released;
+    }
+
+    // The arbiter releases the held funds exactly once.
+    #[covenant(mode = transition)]
+    entrypoint function release(
+      sig auth
+    ) : (pubkey arbiter, int released) {
+      requires checkSig(auth, arbiter);   // only the arbiter may release
+      requires released == 0;             // one-shot: not already released
+      return SimpleEscrow {
+        arbiter:  arbiter,
+        released: 1
+      };
+    }
+  }
+
+  lifecycle { live -> live via escrow.release; }
+
+  invariant value_conserved;
+  invariant no_undeclared_state;
+}

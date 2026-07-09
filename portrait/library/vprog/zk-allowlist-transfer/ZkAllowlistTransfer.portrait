@@ -1,0 +1,135 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  ZkAllowlistTransfer — a CROSS-LAYER (vProg) ANONYMOUS-MEMBERSHIP gate.
+//
+//  THE POINT OF THIS FILE: advance a transfer/settlement state ONLY if the actor
+//  is a member of a large committed allowlist (`allowlist_root`, a Merkle /
+//  accumulator root) — WITHOUT revealing WHICH member is acting. The guest proves
+//  Merkle membership of the actor's SECRET leaf under `allowlist_root` and burns
+//  a per-action nullifier (to bound replay / per-member use). The covenant
+//  records a monotonic state-commitment + seq advance BOUND to that proof.
+//
+//  WHY A COVENANT CANNOT DO THIS: on-chain covenant state is a single fixed-size
+//  UTXO; it cannot hold or scan a large `mapping(member => bool)` allowlist.
+//  Even if the root were committed, checking membership ON CHAIN would require
+//  revealing the member and the Merkle path publicly — defeating the privacy
+//  goal. Membership-in-a-large-set-WITHOUT-disclosure is exactly the predicate
+//  the STARK guest exists for. This is the scalable answer to the allowlist
+//  mapping that has no covenant-native form.
+//
+//  WHY THIS IS DISTINCT (orthogonal privacy axis):
+//    · ComplianceCredential proves an ATTRIBUTE predicate over ONE holder's
+//      private credential (attribute >= threshold) — not set membership.
+//    · ConfidentialTransfer hides AMOUNTS and proves value conservation —
+//      not WHO is acting.
+//    · ZkAllowlistTransfer hides WHICH member of a set is acting
+//      (identity-in-a-set anonymity) and proves authorization-by-membership.
+//  Three different axes: attribute-privacy, amount-privacy, identity-privacy.
+//
+//  FOLLOWS THE PROVEN CSCI SHAPE (see ../../state/CsciInstrument):
+//    • a `#[covenant]` settlement role (`transfer`) self-enforcing the
+//      STRUCTURAL state machine on chain, and
+//    • a NonCovenant companion (`membership_rule`) → vProg → Atelier emits its
+//      RISC Zero guest main. Its presence flips `has_vprog`, emitting the
+//      covenant-id binding require() into `transfer`.
+//
+//  ON-CHAIN, the emitted .sil enforces:
+//    (a) monotonic seq          — CSCI sequence advances by one
+//    (b) covenant-id binding    — STARK journal covenant_id == this covenant's
+//                                 on-chain id (emitted by has_vprog)
+//    (c) owner authorization    — `transfer` authorized against the COMMITTED
+//                                 owner key (the venue/operator), never a caller
+//                                 arg. (Member ANONYMITY is provided by the
+//                                 guest; the on-chain settle is still gated by a
+//                                 committed venue key so only the venue posts.)
+//    (d) the committed `allowlist_root` is carried forward unchanged (the gate
+//        set is governance-fixed for the epoch).
+//
+//  OFF-CHAIN (the vProg guest), `membership_rule` is the predicate proven by the
+//  STARK: prove the secret leaf is included under `allowlist_root`, derive +
+//  expose a fresh `next_nullifier` to prevent reuse, and advance the
+//  state-commitment; commit the advanced commitment + nullifier + seq into the
+//  journal's new_state_hash.
+//
+//  STATUS — EMIT-VERIFIED template (NOT settled live). Compiles via silverc
+//  (exit 0); `portrait atelier-build` emits a RISC Zero guest. The membership
+//  proof + nullifier freshness over the private set is developer-authored in the
+//  guest, NOT synthesized by the compiler. Only CSCI has settled live on TN10.
+//
+//  HONEST SCOPE: tag-0x21 ZK *verification* of the STARK is an ENGINE op
+//  (OpZkPrecompile / kcp-pq-anchor), NOT silverscript. silverscript enforces the
+//  state-machine + covenant-id binding only; the anonymity-membership soundness
+//  rests on the RISC Zero guest + the tag-0x21 verifier, NOT on Portrait.
+// ─────────────────────────────────────────────────────────────────────────
+
+app ZkAllowlistTransfer {
+  role venue {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey  owner;           // committed venue/operator key (the settle authority)
+    param bytes32 allowlist_root;  // committed allowlist Merkle/accumulator root
+    param bytes32 commitment;      // committed transfer-state commitment (the aggregate)
+    param bytes32 nullifier;       // last burned action nullifier (anti-replay)
+    param int     seq;             // monotonic CSCI sequence number (genesis = 0)
+
+    state {
+      pubkey  owner;
+      bytes32 allowlist_root;
+      bytes32 commitment;
+      bytes32 nullifier;
+      int     seq;
+    }
+
+    // L1 covenant: settles ONE allowlisted-anonymous transfer on chain.
+    //   · owner auth against committed venue key   (committed-owner auth)
+    //   · allowlist_root carried unchanged          (gate set fixed for the epoch)
+    //   · commitment advances to the proven next    (state progress)
+    //   · seq advances by exactly one               (monotonic_seq)
+    //   · covenant-id binding require()              (emitted by has_vprog)
+    #[covenant(mode = transition)]
+    entrypoint function transfer(
+      sig auth,
+      bytes32 next_commitment,
+      bytes32 next_nullifier
+    ) : (pubkey owner, bytes32 allowlist_root, bytes32 commitment, bytes32 nullifier, int seq) {
+      requires checkSig(auth, owner);             // committed-owner authorization
+      return ZkAllowlistTransfer {
+        owner:          owner,                     // venue key carried unchanged
+        allowlist_root: allowlist_root,            // gate set carried unchanged
+        commitment:     next_commitment,           // adopt the proven next commitment
+        nullifier:      next_nullifier,            // burn the proven fresh nullifier
+        seq:            seq + 1                    // CSCI sequence advances by one
+      };
+    }
+
+    // vProg (off-L1): the ANONYMOUS-MEMBERSHIP predicate, proven via a STARK.
+    // No #[covenant] attribute → NonCovenant → Atelier emits the guest main.
+    // The body MIRRORS `transfer`: consumes next_commitment + next_nullifier and
+    // advances commitment/nullifier/seq, so the M3 guest hashes the NEW state into
+    // the journal's new_state_hash. Its presence flips `has_vprog`, emitting the
+    // covenant-id binding into `transfer` above.
+    //
+    // WHAT STAYS MANUAL (developer guest code): proving the actor's SECRET leaf
+    // is a member under `allowlist_root` WITHOUT revealing which, and proving
+    // `next_nullifier` is the fresh, correctly-derived action nullifier (not
+    // previously burned). Set membership over a large private set + nullifier
+    // freshness is not expressible in the Portrait body — both remain hand-written.
+    entrypoint function membership_rule(
+      bytes32 next_commitment,
+      bytes32 next_nullifier
+    ) {
+      return ZkAllowlistTransfer {
+        owner:          owner,
+        allowlist_root: allowlist_root,
+        commitment:     next_commitment,
+        nullifier:      next_nullifier,
+        seq:            seq + 1
+      };
+    }
+  }
+
+  lifecycle { live -> live via venue.transfer; }
+
+  invariant monotonic_seq;          // seq must advance by exactly one
+  invariant no_undeclared_state;
+}

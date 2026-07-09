@@ -1,0 +1,2624 @@
+{
+  "contract_name": "DeadMansSwitch",
+  "compiler_version": "0.1.0",
+  "script": [
+    107,
+    32,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    32,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    8,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    8,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    108,
+    118,
+    0,
+    156,
+    99,
+    117,
+    185,
+    207,
+    118,
+    0,
+    209,
+    185,
+    156,
+    105,
+    118,
+    208,
+    118,
+    81,
+    161,
+    105,
+    0,
+    0,
+    0,
+    0,
+    0,
+    85,
+    121,
+    0,
+    148,
+    81,
+    161,
+    105,
+    118,
+    86,
+    121,
+    159,
+    99,
+    118,
+    87,
+    121,
+    120,
+    209,
+    88,
+    121,
+    82,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    82,
+    147,
+    89,
+    121,
+    83,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    82,
+    147,
+    1,
+    32,
+    147,
+    188,
+    88,
+    121,
+    82,
+    121,
+    209,
+    89,
+    121,
+    83,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    1,
+    35,
+    147,
+    90,
+    121,
+    84,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    1,
+    35,
+    147,
+    1,
+    32,
+    147,
+    188,
+    89,
+    121,
+    83,
+    121,
+    209,
+    90,
+    121,
+    84,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    1,
+    68,
+    147,
+    91,
+    121,
+    85,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    1,
+    68,
+    147,
+    88,
+    147,
+    188,
+    90,
+    121,
+    84,
+    121,
+    209,
+    91,
+    121,
+    85,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    1,
+    77,
+    147,
+    92,
+    121,
+    86,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    1,
+    77,
+    147,
+    88,
+    147,
+    188,
+    89,
+    121,
+    84,
+    121,
+    126,
+    90,
+    122,
+    117,
+    89,
+    121,
+    84,
+    121,
+    126,
+    90,
+    122,
+    117,
+    89,
+    121,
+    84,
+    121,
+    88,
+    205,
+    126,
+    90,
+    122,
+    117,
+    89,
+    121,
+    84,
+    121,
+    88,
+    205,
+    126,
+    90,
+    122,
+    117,
+    88,
+    121,
+    81,
+    147,
+    90,
+    122,
+    117,
+    85,
+    122,
+    117,
+    85,
+    122,
+    117,
+    85,
+    122,
+    117,
+    85,
+    122,
+    117,
+    85,
+    122,
+    117,
+    104,
+    84,
+    121,
+    84,
+    121,
+    84,
+    121,
+    84,
+    121,
+    96,
+    121,
+    84,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    172,
+    105,
+    90,
+    121,
+    210,
+    81,
+    156,
+    105,
+    83,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    83,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    1,
+    17,
+    121,
+    88,
+    205,
+    1,
+    8,
+    124,
+    126,
+    83,
+    121,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    88,
+    205,
+    1,
+    8,
+    124,
+    126,
+    126,
+    126,
+    126,
+    185,
+    118,
+    201,
+    2,
+    202,
+    3,
+    148,
+    118,
+    81,
+    147,
+    188,
+    124,
+    126,
+    185,
+    118,
+    201,
+    118,
+    2,
+    202,
+    3,
+    148,
+    1,
+    85,
+    147,
+    124,
+    188,
+    126,
+    170,
+    2,
+    0,
+    0,
+    1,
+    170,
+    126,
+    1,
+    32,
+    126,
+    124,
+    126,
+    1,
+    135,
+    126,
+    91,
+    121,
+    0,
+    211,
+    195,
+    135,
+    105,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    81,
+    103,
+    118,
+    81,
+    156,
+    99,
+    117,
+    185,
+    207,
+    0,
+    209,
+    185,
+    158,
+    105,
+    117,
+    117,
+    117,
+    117,
+    81,
+    103,
+    118,
+    82,
+    156,
+    99,
+    117,
+    185,
+    207,
+    118,
+    0,
+    209,
+    185,
+    156,
+    105,
+    118,
+    208,
+    118,
+    81,
+    161,
+    105,
+    0,
+    0,
+    0,
+    0,
+    0,
+    85,
+    121,
+    0,
+    148,
+    81,
+    161,
+    105,
+    118,
+    86,
+    121,
+    159,
+    99,
+    118,
+    87,
+    121,
+    120,
+    209,
+    88,
+    121,
+    82,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    82,
+    147,
+    89,
+    121,
+    83,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    82,
+    147,
+    1,
+    32,
+    147,
+    188,
+    88,
+    121,
+    82,
+    121,
+    209,
+    89,
+    121,
+    83,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    1,
+    35,
+    147,
+    90,
+    121,
+    84,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    1,
+    35,
+    147,
+    1,
+    32,
+    147,
+    188,
+    89,
+    121,
+    83,
+    121,
+    209,
+    90,
+    121,
+    84,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    1,
+    68,
+    147,
+    91,
+    121,
+    85,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    1,
+    68,
+    147,
+    88,
+    147,
+    188,
+    90,
+    121,
+    84,
+    121,
+    209,
+    91,
+    121,
+    85,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    1,
+    77,
+    147,
+    92,
+    121,
+    86,
+    121,
+    209,
+    201,
+    2,
+    202,
+    3,
+    148,
+    1,
+    77,
+    147,
+    88,
+    147,
+    188,
+    89,
+    121,
+    84,
+    121,
+    126,
+    90,
+    122,
+    117,
+    89,
+    121,
+    84,
+    121,
+    126,
+    90,
+    122,
+    117,
+    89,
+    121,
+    84,
+    121,
+    88,
+    205,
+    126,
+    90,
+    122,
+    117,
+    89,
+    121,
+    84,
+    121,
+    88,
+    205,
+    126,
+    90,
+    122,
+    117,
+    88,
+    121,
+    81,
+    147,
+    90,
+    122,
+    117,
+    85,
+    122,
+    117,
+    85,
+    122,
+    117,
+    85,
+    122,
+    117,
+    85,
+    122,
+    117,
+    85,
+    122,
+    117,
+    104,
+    84,
+    121,
+    84,
+    121,
+    84,
+    121,
+    84,
+    121,
+    95,
+    121,
+    1,
+    17,
+    121,
+    84,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    172,
+    105,
+    118,
+    83,
+    121,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    83,
+    121,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    147,
+    162,
+    105,
+    91,
+    121,
+    210,
+    81,
+    156,
+    105,
+    83,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    84,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    82,
+    121,
+    88,
+    205,
+    1,
+    8,
+    124,
+    126,
+    84,
+    121,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    88,
+    205,
+    1,
+    8,
+    124,
+    126,
+    126,
+    126,
+    126,
+    185,
+    118,
+    201,
+    2,
+    202,
+    3,
+    148,
+    118,
+    81,
+    147,
+    188,
+    124,
+    126,
+    185,
+    118,
+    201,
+    118,
+    2,
+    202,
+    3,
+    148,
+    1,
+    85,
+    147,
+    124,
+    188,
+    126,
+    170,
+    2,
+    0,
+    0,
+    1,
+    170,
+    126,
+    1,
+    32,
+    126,
+    124,
+    126,
+    1,
+    135,
+    126,
+    92,
+    121,
+    0,
+    211,
+    195,
+    135,
+    105,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    81,
+    103,
+    118,
+    83,
+    156,
+    99,
+    117,
+    185,
+    207,
+    0,
+    209,
+    185,
+    158,
+    105,
+    117,
+    117,
+    117,
+    117,
+    81,
+    103,
+    117,
+    0,
+    105,
+    104,
+    104,
+    104,
+    104
+  ],
+  "ast": {
+    "pragma": {
+      "name": "silverscript",
+      "value": "^0.1.0",
+      "span": "pragma silverscript ^0.1.0;",
+      "name_span": "silverscript",
+      "value_span": "^0.1.0"
+    },
+    "name": "DeadMansSwitch",
+    "params": [
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "max_ins",
+        "span": "int max_ins",
+        "type_span": "int ",
+        "name_span": "max_ins"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "max_outs",
+        "span": "int max_outs",
+        "type_span": "int ",
+        "name_span": "max_outs"
+      },
+      {
+        "type_ref": {
+          "base": "pubkey"
+        },
+        "name": "owner",
+        "span": "pubkey owner",
+        "type_span": "pubkey ",
+        "name_span": "owner"
+      },
+      {
+        "type_ref": {
+          "base": "pubkey"
+        },
+        "name": "heir",
+        "span": "pubkey heir",
+        "type_span": "pubkey ",
+        "name_span": "heir"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "last_active",
+        "span": "int last_active",
+        "type_span": "int ",
+        "name_span": "last_active"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "timeout",
+        "span": "int timeout",
+        "type_span": "int ",
+        "name_span": "timeout"
+      }
+    ],
+    "fields": [
+      {
+        "type_ref": {
+          "base": "pubkey"
+        },
+        "name": "owner",
+        "expr": {
+          "kind": "identifier",
+          "data": "owner",
+          "span": "owner"
+        },
+        "span": "pubkey owner = owner;",
+        "type_span": "pubkey ",
+        "name_span": "owner"
+      },
+      {
+        "type_ref": {
+          "base": "pubkey"
+        },
+        "name": "heir",
+        "expr": {
+          "kind": "identifier",
+          "data": "heir",
+          "span": "heir"
+        },
+        "span": "pubkey heir = heir;",
+        "type_span": "pubkey ",
+        "name_span": "heir"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "last_active",
+        "expr": {
+          "kind": "identifier",
+          "data": "last_active",
+          "span": "last_active"
+        },
+        "span": "int last_active = last_active;",
+        "type_span": "int ",
+        "name_span": "last_active"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "timeout",
+        "expr": {
+          "kind": "identifier",
+          "data": "timeout",
+          "span": "timeout"
+        },
+        "span": "int timeout = timeout;",
+        "type_span": "int ",
+        "name_span": "timeout"
+      }
+    ],
+    "constants": [],
+    "functions": [
+      {
+        "name": "__covenant_policy_heartbeat",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prev_states",
+            "span": "State[] prev_states",
+            "type_span": "State[]",
+            "name_span": "prev_states"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "auth",
+            "span": "sig auth",
+            "type_span": "sig ",
+            "name_span": "auth"
+          },
+          {
+            "type_ref": {
+              "base": "int"
+            },
+            "name": "now_bucket",
+            "span": "int now_bucket",
+            "type_span": "int ",
+            "name_span": "now_bucket"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [
+          {
+            "base": "State"
+          }
+        ],
+        "returns_tuple": true,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "checkSig",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "auth",
+                      "span": "auth"
+                    },
+                    {
+                      "kind": "field_access",
+                      "data": {
+                        "source": {
+                          "kind": "array_index",
+                          "data": {
+                            "source": {
+                              "kind": "identifier",
+                              "data": "prev_states",
+                              "span": "prev_states"
+                            },
+                            "index": {
+                              "kind": "int",
+                              "data": 0,
+                              "span": "0"
+                            }
+                          },
+                          "span": "prev_states[0]"
+                        },
+                        "field": "owner",
+                        "field_span": "owner"
+                      },
+                      "span": "prev_states[0].owner"
+                    }
+                  ],
+                  "name_span": "checkSig"
+                },
+                "span": "checkSig(auth, prev_states[0].owner)"
+              },
+              "message": null,
+              "span": "require(checkSig(auth, prev_states[0].owner));",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "return",
+            "data": {
+              "exprs": [
+                {
+                  "kind": "state_object",
+                  "data": [
+                    {
+                      "name": "owner",
+                      "expr": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prev_states",
+                                "span": "prev_states"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prev_states[0]"
+                          },
+                          "field": "owner",
+                          "field_span": "owner"
+                        },
+                        "span": "prev_states[0].owner"
+                      },
+                      "span": "owner: prev_states[0].owner",
+                      "name_span": "owner"
+                    },
+                    {
+                      "name": "heir",
+                      "expr": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prev_states",
+                                "span": "prev_states"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prev_states[0]"
+                          },
+                          "field": "heir",
+                          "field_span": "heir"
+                        },
+                        "span": "prev_states[0].heir"
+                      },
+                      "span": "heir: prev_states[0].heir",
+                      "name_span": "heir"
+                    },
+                    {
+                      "name": "last_active",
+                      "expr": {
+                        "kind": "identifier",
+                        "data": "now_bucket",
+                        "span": "now_bucket"
+                      },
+                      "span": "last_active: now_bucket",
+                      "name_span": "last_active"
+                    },
+                    {
+                      "name": "timeout",
+                      "expr": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prev_states",
+                                "span": "prev_states"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prev_states[0]"
+                          },
+                          "field": "timeout",
+                          "field_span": "timeout"
+                        },
+                        "span": "prev_states[0].timeout"
+                      },
+                      "span": "timeout: prev_states[0].timeout ",
+                      "name_span": "timeout"
+                    }
+                  ],
+                  "span": "{ owner: prev_states[0].owner, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout }"
+                }
+              ],
+              "span": "return({ owner: prev_states[0].owner, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });"
+            }
+          }
+        ],
+        "return_type_spans": [
+          "State"
+        ],
+        "span": "#[covenant(binding = cov, from = max_ins, to = 1, mode = transition)]\n    function heartbeat(State[] prev_states, sig auth, int now_bucket) : (State) {\n        require(checkSig(auth, prev_states[0].owner));\n        return({ owner: prev_states[0].owner, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });\n    }",
+        "name_span": "heartbeat",
+        "body_span": "require(checkSig(auth, prev_states[0].owner));\n        return({ owner: prev_states[0].owner, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });"
+      },
+      {
+        "name": "__leader_heartbeat",
+        "params": [
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "auth",
+            "span": "sig auth",
+            "type_span": "sig ",
+            "name_span": "auth"
+          },
+          {
+            "type_ref": {
+              "base": "int"
+            },
+            "name": "now_bucket",
+            "span": "int now_bucket",
+            "type_span": "int ",
+            "name_span": "now_bucket"
+          }
+        ],
+        "entrypoint": true,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "byte",
+                "array_dims": [
+                  {
+                    "kind": "fixed",
+                    "value": 32
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "__cov_id",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpInputCovenantId",
+                  "args": [
+                    {
+                      "kind": "nullary",
+                      "data": "active_input_index",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "call",
+                    "data": {
+                      "name": "OpCovInputIdx",
+                      "args": [
+                        {
+                          "kind": "identifier",
+                          "data": "__cov_id",
+                          "span": "<synthetic>"
+                        },
+                        {
+                          "kind": "int",
+                          "data": 0,
+                          "span": "<synthetic>"
+                        }
+                      ],
+                      "name_span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "nullary",
+                    "data": "active_input_index",
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_in_count",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovInputCount",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "le",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__cov_in_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "identifier",
+                    "data": "max_ins",
+                    "span": "max_ins"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_out_count",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovOutputCount",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "State",
+                "array_dims": [
+                  {
+                    "kind": "dynamic"
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "prev_states",
+              "expr": null,
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "for",
+            "data": {
+              "ident": "__cov_in_k",
+              "start": {
+                "kind": "int",
+                "data": 0,
+                "span": "<synthetic>"
+              },
+              "end": {
+                "kind": "identifier",
+                "data": "__cov_in_count",
+                "span": "<synthetic>"
+              },
+              "max_iterations": {
+                "kind": "identifier",
+                "data": "max_ins",
+                "span": "max_ins"
+              },
+              "body": [
+                {
+                  "kind": "assign",
+                  "data": {
+                    "name": "prev_states",
+                    "expr": {
+                      "kind": "append",
+                      "data": {
+                        "source": {
+                          "kind": "identifier",
+                          "data": "prev_states",
+                          "span": "<synthetic>"
+                        },
+                        "args": [
+                          {
+                            "kind": "call",
+                            "data": {
+                              "name": "readInputState",
+                              "args": [
+                                {
+                                  "kind": "call",
+                                  "data": {
+                                    "name": "OpCovInputIdx",
+                                    "args": [
+                                      {
+                                        "kind": "identifier",
+                                        "data": "__cov_id",
+                                        "span": "<synthetic>"
+                                      },
+                                      {
+                                        "kind": "identifier",
+                                        "data": "__cov_in_k",
+                                        "span": "<synthetic>"
+                                      }
+                                    ],
+                                    "name_span": "<synthetic>"
+                                  },
+                                  "span": "<synthetic>"
+                                }
+                              ],
+                              "name_span": "<synthetic>"
+                            },
+                            "span": "<synthetic>"
+                          }
+                        ],
+                        "span": "<synthetic>"
+                      },
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  }
+                }
+              ],
+              "span": "<synthetic>",
+              "ident_span": "<synthetic>",
+              "body_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "function_call_assign",
+            "data": {
+              "bindings": [
+                {
+                  "type_ref": {
+                    "base": "State"
+                  },
+                  "name": "__cov_new_state",
+                  "span": "<synthetic>",
+                  "type_span": "<synthetic>",
+                  "name_span": "<synthetic>"
+                }
+              ],
+              "name": "__covenant_policy_heartbeat",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prev_states",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "auth",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "now_bucket",
+                  "span": "<synthetic>"
+                }
+              ],
+              "span": "<synthetic>",
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__cov_out_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "int",
+                    "data": 1,
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_out_idx",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovOutputIdx",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    },
+                    {
+                      "kind": "int",
+                      "data": 0,
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "validateOutputState",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "__cov_out_idx",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "__cov_new_state",
+                  "span": "<synthetic>"
+                }
+              ],
+              "span": "<synthetic>",
+              "name_span": "<synthetic>"
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = cov, from = max_ins, to = 1, mode = transition)]\n    function heartbeat(State[] prev_states, sig auth, int now_bucket) : (State) {\n        require(checkSig(auth, prev_states[0].owner));\n        return({ owner: prev_states[0].owner, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });\n    }",
+        "name_span": "heartbeat",
+        "body_span": "require(checkSig(auth, prev_states[0].owner));\n        return({ owner: prev_states[0].owner, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });"
+      },
+      {
+        "name": "__delegate_heartbeat",
+        "params": [],
+        "entrypoint": true,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "byte",
+                "array_dims": [
+                  {
+                    "kind": "fixed",
+                    "value": 32
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "__cov_id",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpInputCovenantId",
+                  "args": [
+                    {
+                      "kind": "nullary",
+                      "data": "active_input_index",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "ne",
+                  "left": {
+                    "kind": "call",
+                    "data": {
+                      "name": "OpCovInputIdx",
+                      "args": [
+                        {
+                          "kind": "identifier",
+                          "data": "__cov_id",
+                          "span": "<synthetic>"
+                        },
+                        {
+                          "kind": "int",
+                          "data": 0,
+                          "span": "<synthetic>"
+                        }
+                      ],
+                      "name_span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "nullary",
+                    "data": "active_input_index",
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = cov, from = max_ins, to = 1, mode = transition)]\n    function heartbeat(State[] prev_states, sig auth, int now_bucket) : (State) {\n        require(checkSig(auth, prev_states[0].owner));\n        return({ owner: prev_states[0].owner, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });\n    }",
+        "name_span": "heartbeat",
+        "body_span": "require(checkSig(auth, prev_states[0].owner));\n        return({ owner: prev_states[0].owner, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });"
+      },
+      {
+        "name": "__covenant_policy_claim",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prev_states",
+            "span": "State[] prev_states",
+            "type_span": "State[]",
+            "name_span": "prev_states"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "auth",
+            "span": "sig auth",
+            "type_span": "sig ",
+            "name_span": "auth"
+          },
+          {
+            "type_ref": {
+              "base": "int"
+            },
+            "name": "now_bucket",
+            "span": "int now_bucket",
+            "type_span": "int ",
+            "name_span": "now_bucket"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [
+          {
+            "base": "State"
+          }
+        ],
+        "returns_tuple": true,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "checkSig",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "auth",
+                      "span": "auth"
+                    },
+                    {
+                      "kind": "field_access",
+                      "data": {
+                        "source": {
+                          "kind": "array_index",
+                          "data": {
+                            "source": {
+                              "kind": "identifier",
+                              "data": "prev_states",
+                              "span": "prev_states"
+                            },
+                            "index": {
+                              "kind": "int",
+                              "data": 0,
+                              "span": "0"
+                            }
+                          },
+                          "span": "prev_states[0]"
+                        },
+                        "field": "heir",
+                        "field_span": "heir"
+                      },
+                      "span": "prev_states[0].heir"
+                    }
+                  ],
+                  "name_span": "checkSig"
+                },
+                "span": "checkSig(auth, prev_states[0].heir)"
+              },
+              "message": null,
+              "span": "require(checkSig(auth, prev_states[0].heir));",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "ge",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "now_bucket",
+                    "span": "now_bucket"
+                  },
+                  "right": {
+                    "kind": "binary",
+                    "data": {
+                      "op": "add",
+                      "left": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prev_states",
+                                "span": "prev_states"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prev_states[0]"
+                          },
+                          "field": "last_active",
+                          "field_span": "last_active"
+                        },
+                        "span": "prev_states[0].last_active"
+                      },
+                      "right": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prev_states",
+                                "span": "prev_states"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prev_states[0]"
+                          },
+                          "field": "timeout",
+                          "field_span": "timeout"
+                        },
+                        "span": "prev_states[0].timeout"
+                      }
+                    },
+                    "span": "prev_states[0].last_active + prev_states[0].timeout"
+                  }
+                },
+                "span": "now_bucket >= prev_states[0].last_active + prev_states[0].timeout"
+              },
+              "message": null,
+              "span": "require(now_bucket >= prev_states[0].last_active + prev_states[0].timeout);",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "return",
+            "data": {
+              "exprs": [
+                {
+                  "kind": "state_object",
+                  "data": [
+                    {
+                      "name": "owner",
+                      "expr": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prev_states",
+                                "span": "prev_states"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prev_states[0]"
+                          },
+                          "field": "heir",
+                          "field_span": "heir"
+                        },
+                        "span": "prev_states[0].heir"
+                      },
+                      "span": "owner: prev_states[0].heir",
+                      "name_span": "owner"
+                    },
+                    {
+                      "name": "heir",
+                      "expr": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prev_states",
+                                "span": "prev_states"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prev_states[0]"
+                          },
+                          "field": "heir",
+                          "field_span": "heir"
+                        },
+                        "span": "prev_states[0].heir"
+                      },
+                      "span": "heir: prev_states[0].heir",
+                      "name_span": "heir"
+                    },
+                    {
+                      "name": "last_active",
+                      "expr": {
+                        "kind": "identifier",
+                        "data": "now_bucket",
+                        "span": "now_bucket"
+                      },
+                      "span": "last_active: now_bucket",
+                      "name_span": "last_active"
+                    },
+                    {
+                      "name": "timeout",
+                      "expr": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prev_states",
+                                "span": "prev_states"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prev_states[0]"
+                          },
+                          "field": "timeout",
+                          "field_span": "timeout"
+                        },
+                        "span": "prev_states[0].timeout"
+                      },
+                      "span": "timeout: prev_states[0].timeout ",
+                      "name_span": "timeout"
+                    }
+                  ],
+                  "span": "{ owner: prev_states[0].heir, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout }"
+                }
+              ],
+              "span": "return({ owner: prev_states[0].heir, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });"
+            }
+          }
+        ],
+        "return_type_spans": [
+          "State"
+        ],
+        "span": "#[covenant(binding = cov, from = max_ins, to = 1, mode = transition)]\n    function claim(State[] prev_states, sig auth, int now_bucket) : (State) {\n        require(checkSig(auth, prev_states[0].heir));\n        require(now_bucket >= prev_states[0].last_active + prev_states[0].timeout);\n        return({ owner: prev_states[0].heir, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });\n    }",
+        "name_span": "claim",
+        "body_span": "require(checkSig(auth, prev_states[0].heir));\n        require(now_bucket >= prev_states[0].last_active + prev_states[0].timeout);\n        return({ owner: prev_states[0].heir, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });"
+      },
+      {
+        "name": "__leader_claim",
+        "params": [
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "auth",
+            "span": "sig auth",
+            "type_span": "sig ",
+            "name_span": "auth"
+          },
+          {
+            "type_ref": {
+              "base": "int"
+            },
+            "name": "now_bucket",
+            "span": "int now_bucket",
+            "type_span": "int ",
+            "name_span": "now_bucket"
+          }
+        ],
+        "entrypoint": true,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "byte",
+                "array_dims": [
+                  {
+                    "kind": "fixed",
+                    "value": 32
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "__cov_id",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpInputCovenantId",
+                  "args": [
+                    {
+                      "kind": "nullary",
+                      "data": "active_input_index",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "call",
+                    "data": {
+                      "name": "OpCovInputIdx",
+                      "args": [
+                        {
+                          "kind": "identifier",
+                          "data": "__cov_id",
+                          "span": "<synthetic>"
+                        },
+                        {
+                          "kind": "int",
+                          "data": 0,
+                          "span": "<synthetic>"
+                        }
+                      ],
+                      "name_span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "nullary",
+                    "data": "active_input_index",
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_in_count",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovInputCount",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "le",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__cov_in_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "identifier",
+                    "data": "max_ins",
+                    "span": "max_ins"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_out_count",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovOutputCount",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "State",
+                "array_dims": [
+                  {
+                    "kind": "dynamic"
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "prev_states",
+              "expr": null,
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "for",
+            "data": {
+              "ident": "__cov_in_k",
+              "start": {
+                "kind": "int",
+                "data": 0,
+                "span": "<synthetic>"
+              },
+              "end": {
+                "kind": "identifier",
+                "data": "__cov_in_count",
+                "span": "<synthetic>"
+              },
+              "max_iterations": {
+                "kind": "identifier",
+                "data": "max_ins",
+                "span": "max_ins"
+              },
+              "body": [
+                {
+                  "kind": "assign",
+                  "data": {
+                    "name": "prev_states",
+                    "expr": {
+                      "kind": "append",
+                      "data": {
+                        "source": {
+                          "kind": "identifier",
+                          "data": "prev_states",
+                          "span": "<synthetic>"
+                        },
+                        "args": [
+                          {
+                            "kind": "call",
+                            "data": {
+                              "name": "readInputState",
+                              "args": [
+                                {
+                                  "kind": "call",
+                                  "data": {
+                                    "name": "OpCovInputIdx",
+                                    "args": [
+                                      {
+                                        "kind": "identifier",
+                                        "data": "__cov_id",
+                                        "span": "<synthetic>"
+                                      },
+                                      {
+                                        "kind": "identifier",
+                                        "data": "__cov_in_k",
+                                        "span": "<synthetic>"
+                                      }
+                                    ],
+                                    "name_span": "<synthetic>"
+                                  },
+                                  "span": "<synthetic>"
+                                }
+                              ],
+                              "name_span": "<synthetic>"
+                            },
+                            "span": "<synthetic>"
+                          }
+                        ],
+                        "span": "<synthetic>"
+                      },
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  }
+                }
+              ],
+              "span": "<synthetic>",
+              "ident_span": "<synthetic>",
+              "body_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "function_call_assign",
+            "data": {
+              "bindings": [
+                {
+                  "type_ref": {
+                    "base": "State"
+                  },
+                  "name": "__cov_new_state",
+                  "span": "<synthetic>",
+                  "type_span": "<synthetic>",
+                  "name_span": "<synthetic>"
+                }
+              ],
+              "name": "__covenant_policy_claim",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prev_states",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "auth",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "now_bucket",
+                  "span": "<synthetic>"
+                }
+              ],
+              "span": "<synthetic>",
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__cov_out_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "int",
+                    "data": 1,
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_out_idx",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovOutputIdx",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    },
+                    {
+                      "kind": "int",
+                      "data": 0,
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "validateOutputState",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "__cov_out_idx",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "__cov_new_state",
+                  "span": "<synthetic>"
+                }
+              ],
+              "span": "<synthetic>",
+              "name_span": "<synthetic>"
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = cov, from = max_ins, to = 1, mode = transition)]\n    function claim(State[] prev_states, sig auth, int now_bucket) : (State) {\n        require(checkSig(auth, prev_states[0].heir));\n        require(now_bucket >= prev_states[0].last_active + prev_states[0].timeout);\n        return({ owner: prev_states[0].heir, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });\n    }",
+        "name_span": "claim",
+        "body_span": "require(checkSig(auth, prev_states[0].heir));\n        require(now_bucket >= prev_states[0].last_active + prev_states[0].timeout);\n        return({ owner: prev_states[0].heir, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });"
+      },
+      {
+        "name": "__delegate_claim",
+        "params": [],
+        "entrypoint": true,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "byte",
+                "array_dims": [
+                  {
+                    "kind": "fixed",
+                    "value": 32
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "__cov_id",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpInputCovenantId",
+                  "args": [
+                    {
+                      "kind": "nullary",
+                      "data": "active_input_index",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "ne",
+                  "left": {
+                    "kind": "call",
+                    "data": {
+                      "name": "OpCovInputIdx",
+                      "args": [
+                        {
+                          "kind": "identifier",
+                          "data": "__cov_id",
+                          "span": "<synthetic>"
+                        },
+                        {
+                          "kind": "int",
+                          "data": 0,
+                          "span": "<synthetic>"
+                        }
+                      ],
+                      "name_span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "nullary",
+                    "data": "active_input_index",
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = cov, from = max_ins, to = 1, mode = transition)]\n    function claim(State[] prev_states, sig auth, int now_bucket) : (State) {\n        require(checkSig(auth, prev_states[0].heir));\n        require(now_bucket >= prev_states[0].last_active + prev_states[0].timeout);\n        return({ owner: prev_states[0].heir, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });\n    }",
+        "name_span": "claim",
+        "body_span": "require(checkSig(auth, prev_states[0].heir));\n        require(now_bucket >= prev_states[0].last_active + prev_states[0].timeout);\n        return({ owner: prev_states[0].heir, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });"
+      }
+    ],
+    "span": "contract DeadMansSwitch(int max_ins, int max_outs, pubkey owner, pubkey heir, int last_active, int timeout) {\n    pubkey owner = owner;\n    pubkey heir = heir;\n    int last_active = last_active;\n    int timeout = timeout;\n\n    #[covenant(binding = cov, from = max_ins, to = 1, mode = transition)]\n    function heartbeat(State[] prev_states, sig auth, int now_bucket) : (State) {\n        require(checkSig(auth, prev_states[0].owner));\n        return({ owner: prev_states[0].owner, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });\n    }\n\n    #[covenant(binding = cov, from = max_ins, to = 1, mode = transition)]\n    function claim(State[] prev_states, sig auth, int now_bucket) : (State) {\n        require(checkSig(auth, prev_states[0].heir));\n        require(now_bucket >= prev_states[0].last_active + prev_states[0].timeout);\n        return({ owner: prev_states[0].heir, heir: prev_states[0].heir, last_active: now_bucket, timeout: prev_states[0].timeout });\n    }\n}",
+    "name_span": "DeadMansSwitch"
+  },
+  "abi": [
+    {
+      "name": "__leader_heartbeat",
+      "inputs": [
+        {
+          "name": "auth",
+          "type_name": "sig"
+        },
+        {
+          "name": "now_bucket",
+          "type_name": "int"
+        }
+      ]
+    },
+    {
+      "name": "__delegate_heartbeat",
+      "inputs": []
+    },
+    {
+      "name": "__leader_claim",
+      "inputs": [
+        {
+          "name": "auth",
+          "type_name": "sig"
+        },
+        {
+          "name": "now_bucket",
+          "type_name": "int"
+        }
+      ]
+    },
+    {
+      "name": "__delegate_claim",
+      "inputs": []
+    }
+  ],
+  "without_selector": false,
+  "state_layout": {
+    "start": 1,
+    "len": 84
+  },
+  "debug_info": null
+}

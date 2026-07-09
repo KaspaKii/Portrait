@@ -1,0 +1,62 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/kcp-cli",
+    "crates/kcp-common",
+    "crates/kcp-pq-anchor",
+    "crates/kcp-governance",
+    "crates/kcp-ktt-token",
+    "crates/kcp-vault",
+    "crates/kcp-sealed-lineage",
+    "crates/kcp-paired-attestation",
+    "crates/kcp-transferable-record",
+    "crates/kcp-vesting",
+    "crates/kcp-yield-vault",
+    "crates/kii-solidity-compat",
+    "crates/kcp-csci",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+license = "MIT"
+
+[workspace.dependencies]
+# Internal crates
+kcp-common = { path = "crates/kcp-common" }
+
+# Serialisation
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Cryptography / encoding
+sha2 = "0.10"
+hex = "0.4"
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# CLI
+clap = { version = "4", features = ["derive"] }
+# dev / test helper — only referenced from dev-dependencies in kcp-cli
+tempfile = "3"
+
+# Async (sync primitives only; no runtime requirement in library code)
+tokio = { version = "1", features = ["sync"] }
+
+# Kaspa (rusty-kaspa workspace, git only — pinned by branch, matching the
+# Toccata target; same pinning scheme as the donor codebases)
+kaspa-wrpc-client = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-rpc-core = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-consensus-core = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-bip32 = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-addresses = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-txscript = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+
+# Build acceleration: line-tables-only debuginfo keeps backtraces while cutting
+# link time substantially on the large rusty-kaspa dependency tree. Pair with the
+# sccache rustc-wrapper in .cargo/config.toml. Release builds are unaffected.
+[profile.dev]
+debug = "line-tables-only"

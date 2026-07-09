@@ -1,0 +1,47 @@
+[package]
+name = "portrait-settlement"
+version = "0.1.0"
+edition = "2021"
+publish = false
+# Pre-production, unaudited, testnet-only.
+#
+# Phase A flagship — the sound cross-layer settlement: a covenant accepts a
+# spend ONLY because a valid vProg RISC Zero succinct STARK verified in-consensus
+# (KIP-16 tag 0x21, OpZkPrecompile) and bound the next state, plus a rejected
+# negative control. The verification runs through the REAL pinned engine
+# (rusty-kaspa v2.0.0 = 90dbf07), offline — no fabricated evidence.
+
+[workspace]
+
+[[bin]]
+name = "portrait-settlement"
+path = "src/main.rs"
+
+# LIVE TN10 broadcast of the P2SH(redeem) lock + STARK-verified spend + negative
+# control. Requires a synced node + funded wallet + a real (non-DEV_MODE) proof.
+[[bin]]
+name = "settle"
+path = "src/bin/settle.rs"
+
+# Derive covenant_id = blake2b256(redeem) from a proof dir's image_id + control_id.
+[[bin]]
+name = "covid"
+path = "src/bin/covid.rs"
+
+# CsciInstrument silverscript-covenant settlement (self-enforcing seq/auth layer):
+# dry-run (offline v2.0.0 engine) + live genesis+settle + silverscript negctl.
+[[bin]]
+name = "csci_settle"
+path = "src/bin/csci_settle.rs"
+
+[dependencies]
+kcp-pq-anchor         = { path = "../../crates/kcp-pq-anchor" }
+kcp-common            = { path = "../../crates/kcp-common", features = ["wrpc"] }
+kaspa-consensus-core  = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-txscript        = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-addresses       = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-rpc-core        = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-bip32           = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+hex = "0.4"
+serde_json = "1"

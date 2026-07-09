@@ -1,0 +1,84 @@
+/* =============================================================================
+   Kii brand tokens — the SINGLE source of truth for brand on this site.
+
+   Palette matched to the documents section (the covenant-patterns docs) and the
+   Kii logo: a Kaspa-adjacent TEAL. Everything else references these tokens; to
+   restyle the whole site, change values here only — never edit style.css.
+   ============================================================================= */
+
+:root {
+  /* --- Colour: brand (teal, matches the docs + logo) --------------------- */
+  --kii-color-brand:            #0a8f7a;   /* teal — primary */
+  --kii-color-brand-contrast:   #ffffff;   /* text on brand */
+  --kii-color-accent:           #0a8f5a;   /* green-teal — "proves" ticks etc. */
+
+  /* --- Colour: surfaces (light) ----------------------------------------- */
+  --kii-color-bg:               #fbfcfd;   /* page background */
+  --kii-color-surface:          #ffffff;   /* card / panel */
+  --kii-color-surface-2:        #f1f4f7;   /* nested panel / code */
+  --kii-color-border:           #dde4ea;   /* hairline border */
+
+  /* --- Colour: text ----------------------------------------------------- */
+  --kii-color-text:             #18222c;   /* body text */
+  --kii-color-text-muted:       #4a5a68;   /* secondary text */
+  --kii-color-text-faint:       #6d7d8a;   /* captions */
+  --kii-color-link:             #0a7d8f;   /* cyan-teal links */
+
+  /* --- Colour: semantic ------------------------------------------------- */
+  --kii-color-foundation:       #0a8f7a;   /* section / eyebrow hue (teal) */
+  --kii-color-product:          #0a7d8f;   /* secondary hue (cyan-teal) */
+  --kii-color-warn-bg:          #fff6e6;   /* maturity-note bg */
+  --kii-color-warn-text:        #6b4e0a;   /* maturity-note text */
+
+  /* --- Typography ------------------------------------------------------- */
+  --kii-font-sans:   system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --kii-font-mono:   ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  --kii-font-size-base:   16px;
+  --kii-line-height:      1.55;
+  --kii-font-weight-normal: 400;
+  --kii-font-weight-bold:   650;
+
+  /* --- Radius ----------------------------------------------------------- */
+  --kii-radius-sm:   6px;
+  --kii-radius-md:   10px;
+  --kii-radius-lg:   16px;
+
+  /* --- Spacing scale ---------------------------------------------------- */
+  --kii-space-1:  4px;
+  --kii-space-2:  8px;
+  --kii-space-3:  16px;
+  --kii-space-4:  24px;
+  --kii-space-5:  40px;
+  --kii-space-6:  64px;
+
+  /* --- Layout ----------------------------------------------------------- */
+  --kii-content-max:  1080px;
+
+  /* --- Elevation -------------------------------------------------------- */
+  --kii-shadow-sm:  0 1px 2px rgba(0, 0, 0, .06);
+  --kii-shadow-md:  0 4px 16px rgba(0, 0, 0, .08);
+}
+
+/* --- Colour: dark (matches the docs' dark teal; auto-applies with OS pref) - */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --kii-color-brand:          #2bd4b5;   /* brighter teal on dark */
+    --kii-color-accent:         #3ddc97;
+    --kii-color-link:           #4fd1d9;
+    --kii-color-foundation:     #2bd4b5;
+    --kii-color-product:        #4fd1d9;
+
+    --kii-color-bg:             #10171d;
+    --kii-color-surface:        #18222b;
+    --kii-color-surface-2:      #0c1217;
+    --kii-color-border:         #273440;
+
+    --kii-color-text:           #e7eef3;
+    --kii-color-text-muted:     #adbcc7;
+    --kii-color-text-faint:     #8395a1;
+
+    --kii-color-warn-bg:        #3a2f12;
+    --kii-color-warn-text:      #f0d99a;
+  }
+}

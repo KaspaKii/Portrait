@@ -1,0 +1,20 @@
+[package]
+name = "kcp-pq-anchor"
+version = "0.1.0"
+edition = "2021"
+description = "KIP-16 tag-0x21 post-quantum credential anchor — script assembly for Kaspa BlockDAG"
+license = "MIT"
+publish = false
+
+[dependencies]
+kcp-common = { path = "../kcp-common" }
+sha2 = "0.10"
+
+[dev-dependencies]
+hex = "0.4"
+# Offline engine-acceptance test (tests/engine_accept.rs): run the assembled
+# tag-0x21 redeem script through the real rusty-kaspa v2.0.0 consensus VM with a
+# real RISC Zero succinct proof — valid accepts, tampered journal rejects.
+# Pinned to the same engine reference as the rest of the workspace.
+kaspa-txscript = { workspace = true }
+kaspa-consensus-core = { workspace = true }

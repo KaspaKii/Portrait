@@ -1,0 +1,127 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  Htlc — a hash-time-locked contract (HTLC).
+//
+//  An HTLC UTXO locks value between a `sender` and a `recipient` behind a
+//  hashlock and a deadline, with a one-shot `settled` flag:
+//
+//    · claim  (hashlock path) — the RECIPIENT, authorised against the COMMITTED
+//                 recipient key, settles the contract by revealing the preimage
+//                 that matches the committed `hashlock`. Fires any time before
+//                 settlement. Revealing the preimage on-chain is what lets the
+//                 counterparty leg of a cross-chain / cross-UTXO swap also claim.
+//    · refund (timeout path) — the SENDER, authorised against the COMMITTED
+//                 sender key, claws the funds back once the deadline has passed
+//                 (now_bucket >= deadline) — the sender's escape hatch if the
+//                 recipient never reveals the preimage.
+//
+//  `settled` is a one-shot flag (genesis = 0): once set, neither transition can
+//  fire again, so the locked value cannot be double-spent across the two
+//  mutually-exclusive paths (claim XOR refund). This is the structural spine of
+//  every HTLC: reveal-XOR-timeout, never both.
+//
+//  HASHLOCK (real digest hashlock): the committed `hashlock` is a `bytes32`
+//  blake2b digest. The `claim` path requires `blake2b(preimage) == hashlock` —
+//  i.e. the spender must reveal a preimage whose blake2b digest equals the
+//  committed hashlock. This is a TRUE hashlock computed ON CHAIN by the covenant,
+//  not a committed-value equality: `blake2b()` is a Portrait surface builtin that
+//  the type checker recognises (returning bytes32) and the emitter lowers
+//  verbatim to the engine's hashing intrinsic (silverc `blake2b(_)` → OpBlake2b,
+//  0xaa). Revealing the preimage on chain is what lets the counterparty leg of a
+//  cross-chain / cross-UTXO swap claim against the same digest. The covenant
+//  enforces the digest check itself, alongside the STRUCTURAL rules (who, what
+//  value, one-shot).
+//
+//  TIMELOCK (honest scope): the deadline gate is a caller-asserted coarse time
+//  bucket (`now_bucket`) compared against the committed `deadline`, exactly as
+//  TimeVault and Escrow express it. The consensus relative-timelock (the real
+//  "can this be relayed yet" decision) is enforced by the engine's relative-time
+//  rule on the spending input's sequence, set by the wallet; the covenant
+//  complements it with the bucket bound. The covenant does NOT read wall-clock
+//  time.
+//
+//  VALUE CONSERVATION (honest scope): no value-bearing field changes across a
+//  transition; the locked value is governed by the spending wallet's output
+//  script, and the covenant enforces only the structural authorisation +
+//  hashlock / temporal gates. The state carries the hashlock, deadline, and the
+//  one-shot flag; the actual payout/clawback is complemented — not replaced — by
+//  the covenant's rules.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param in the same position, so the constructor declares sender, recipient,
+//  hashlock, deadline, settled in state-field order. `portrait engrave` lowers
+//  this to a two-transition singleton covenant that `silverc` accepts (exit 0).
+// ─────────────────────────────────────────────────────────────────────────
+
+app Htlc {
+  role htlc {
+    param pubkey  sender;     // party who funds the HTLC (refund authority)
+    param pubkey  recipient;  // party who may claim by revealing the preimage
+    param bytes32 hashlock;   // committed blake2b digest; claim must reveal a matching preimage
+    param int     deadline;   // coarse time bucket at/after which refund is allowed
+    param int     settled;    // one-shot spent flag (genesis = 0)
+
+    state {
+      pubkey  sender;
+      pubkey  recipient;
+      bytes32 hashlock;
+      int     deadline;
+      int     settled;
+    }
+
+    // Hashlock path: the recipient claims by revealing the preimage.
+    // Authorised against the COMMITTED recipient key, not a caller-supplied arg.
+    #[covenant(mode = transition)]
+    entrypoint function claim(
+      sig auth,
+      bytes32 preimage
+    ) : (pubkey sender, pubkey recipient, bytes32 hashlock, int deadline, int settled) {
+      requires checkSig(auth, recipient);            // only the committed recipient may claim
+      requires blake2b(preimage) == hashlock;        // TRUE hashlock: digest(preimage) == committed hashlock
+      requires settled == 0;                         // one-shot: not already settled
+      return Htlc {
+        sender:    sender,
+        recipient: recipient,
+        hashlock:  hashlock,
+        deadline:  deadline,
+        settled:   1
+      };
+    }
+
+    // Timeout path: the sender claws the funds back after the deadline.
+    // Authorised against the COMMITTED sender key; gated on the deadline bucket.
+    #[covenant(mode = transition)]
+    entrypoint function refund(
+      sig auth,
+      int now_bucket
+    ) : (pubkey sender, pubkey recipient, bytes32 hashlock, int deadline, int settled) {
+      requires checkSig(auth, sender);      // only the committed sender may refund
+      requires now_bucket >= deadline;      // temporal gate: deadline has passed
+      requires settled == 0;                // one-shot: not already settled
+      return Htlc {
+        sender:    sender,
+        recipient: recipient,
+        hashlock:  hashlock,
+        deadline:  deadline,
+        settled:   1
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via htlc.claim;
+    live -> live via htlc.refund;
+  }
+
+  invariant value_conserved;
+  // Refinement (D3, temporal_guard): the `refund` timeout path gates on the
+  // committed `deadline` (`requires now_bucket >= deadline;`). Any time-gated
+  // transition (one whose guards read `now_bucket`) that omits the
+  // `now_bucket >= <committed time>` gate is rejected by the checker. `claim` is
+  // untouched — it reads no `now_bucket` guard. STRUCTURAL shape match on the
+  // gate require — `now_bucket` is caller-asserted and coarse, NOT a wall-clock
+  // proof.
+  invariant temporal_guard;
+  invariant no_undeclared_state;
+}

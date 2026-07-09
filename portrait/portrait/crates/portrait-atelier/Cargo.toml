@@ -1,0 +1,10 @@
+[package]
+name = "portrait-atelier"
+version = "0.1.0"
+edition = "2021"
+description = "Atelier: vProg backend for Portrait — emit CSCI guest Rust stubs from Cartoon IR"
+
+[dependencies]
+portrait-ir = { path = "../portrait-ir" }
+portrait-pounce = { path = "../portrait-pounce" }
+portrait-syntax = { path = "../portrait-syntax" }

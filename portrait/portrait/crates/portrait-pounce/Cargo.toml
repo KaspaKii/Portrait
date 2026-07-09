@@ -1,0 +1,8 @@
+[package]
+name = "portrait-pounce"
+version = "0.1.0"
+edition = "2021"
+description = "Pounce allocation pass: classify Cartoon IR transitions into Covenant vs VProg layers"
+
+[dependencies]
+portrait-ir = { path = "../portrait-ir" }

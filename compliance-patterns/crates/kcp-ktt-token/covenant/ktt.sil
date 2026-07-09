@@ -1,0 +1,88 @@
+// KTT-Token covenant — KCC20-profile regulated token for Kaspa Toccata.
+//
+// State shape: exact KCC20 4-field layout (FACTS SS-008b).
+//   ownerIdentifier (byte[32]) — pubkey, script-hash, or covenant-id of the holder
+//   identifierType  (byte)     — 0x00 = Pubkey, 0x01 = ScriptHash, 0x02 = CovenantId
+//   amount          (int)      — token balance
+//   isMinter        (bool)     — true if this branch controls issuance
+//
+// KTT invariants enforced on-chain by this covenant:
+//   KTT-1  Supply conservation: when !isMinter, sum(outputs.amount) == sum(inputs.amount)
+//   KTT-2  No minter escalation: a non-minter input cannot produce a minter output
+//   KTT-3  Owner authorisation: checkSig / P2SH match / covenant-id match per identifierType
+//
+// Compliance-tier hook (5th state field): DEFERRED.
+// Adding a 5th field to the KCC20-shape covenant state requires all downstream
+// tooling that operates on the state array to handle a new field. The KCC20
+// compiler and the validateOutputState primitive operate on the exact 4-field
+// layout defined by the genesis state. Introducing a 5th field would change the
+// compiled script hash, requiring a new covenant-id scheme and breaking the
+// KCC20Minter composition pattern.  The compliance-tier rule is therefore
+// documented here as a TODO and enforced off-chain via the kcp-ktt-token
+// transfer_rules bitmask until the ecosystem defines a standard extension point.
+//
+// TODO(compliance-tier): once KIP-xx defines a standard covenant-state extension
+// mechanism, add `byte complianceTier` as a 5th state field and require
+// newStates[i].complianceTier == prevStates[i].complianceTier across transfer.
+//
+// silverscript@2c46231, rusty-kaspa engine v2.0.0 (tag), commit 90dbf07.
+
+contract KTT(byte[32] genesisPk, int genesisAmount, byte genesisIdentifierType, bool genesisIsMinter, int maxCovIns, int maxCovOuts) {
+    byte constant IDENTIFIER_PUBKEY = 0x00;
+    byte constant IDENTIFIER_SCRIPT_HASH = 0x01;
+    byte constant IDENTIFIER_COVENANT_ID = 0x02;
+
+    byte[32] ownerIdentifier = genesisPk;
+    byte identifierType = genesisIdentifierType;
+    int amount = genesisAmount;
+    bool isMinter = genesisIsMinter;
+
+    // KTT-3: verify authorisation for each input state.
+    function checkSigs(State[] prevStates, sig[] sigs, byte[] witnesses) {
+        for(i, 0, prevStates.length, maxCovIns) {
+            if(prevStates[i].identifierType == IDENTIFIER_PUBKEY){
+                require(checkSig(sigs[i], prevStates[i].ownerIdentifier));
+            } else if(prevStates[i].identifierType == IDENTIFIER_SCRIPT_HASH){
+                byte[] spk = new ScriptPubKeyP2SH(prevStates[i].ownerIdentifier);
+                require(tx.inputs[witnesses[i]].scriptPubKey == spk);
+            } else if(prevStates[i].identifierType == IDENTIFIER_COVENANT_ID){
+                require(OpInputCovenantId(witnesses[i]) == prevStates[i].ownerIdentifier);
+            } else {
+                require(false);
+            }
+        }
+    }
+
+    // KTT-1: supply conservation when no minter input is present.
+    function checkAmounts(State[] prevStates, State[] newStates) {
+        if(!isMinter){
+            int totalIn = 0;
+            for(i, 0, prevStates.length, maxCovIns) {
+                totalIn = totalIn + prevStates[i].amount;
+            }
+
+            int totalOut = 0;
+            for(i, 0, newStates.length, maxCovOuts) {
+                totalOut = totalOut + newStates[i].amount;
+            }
+
+            require(totalIn == totalOut);
+        }
+    }
+
+    // KTT-2: a non-minter input cannot produce a minter output.
+    function checkMintingTransfer(State[] newStates){
+        if(!isMinter){
+            for(i, 0, newStates.length, maxCovOuts) {
+                require(!newStates[i].isMinter);
+            }
+        }
+    }
+
+    #[covenant(binding = cov, from = maxCovIns, to = maxCovOuts)]
+    function transfer(State[] prevStates, State[] newStates, sig[] sigs, byte[] witnesses) {
+        checkSigs(prevStates, sigs, witnesses);
+        checkAmounts(prevStates, newStates);
+        checkMintingTransfer(newStates);
+    }
+}

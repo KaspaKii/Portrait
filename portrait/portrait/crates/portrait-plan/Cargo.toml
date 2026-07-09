@@ -1,0 +1,8 @@
+[package]
+name = "portrait-plan"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Provenance + Easel: covenant-ID lineage edges and a deploy manifest a wallet can follow to deploy a multi-role Portrait app in order."
+
+[dependencies]

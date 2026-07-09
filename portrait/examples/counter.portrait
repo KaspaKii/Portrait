@@ -1,0 +1,18 @@
+// The M0 target. `portrait build counter.portrait` must emit a Counter.sil
+// that passes `silverscript check`. See docs/BUILD_SPEC.md §3.3.
+pragma portrait ^0.1.0;
+
+app Counter {
+  role counter {
+    param int start;
+    state { int value; }
+
+    #[covenant(mode = transition)]
+    entrypoint function bump(int delta) : (int value) {
+      return value + delta;
+    }
+  }
+
+  lifecycle { live -> live via counter.bump; }
+  invariant no_undeclared_state;
+}

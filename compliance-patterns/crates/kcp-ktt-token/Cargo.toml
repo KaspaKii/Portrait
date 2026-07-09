@@ -1,0 +1,47 @@
+[package]
+name = "kcp-ktt-token"
+description = "KCC20-shape-aligned regulated-token profile (KTT) for the Kaspa Toccata covenant engine"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+kcp-common = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+thiserror = { workspace = true }
+
+kaspa-wrpc-client = { workspace = true, optional = true }
+kaspa-rpc-core = { workspace = true, optional = true }
+kaspa-consensus-core = { workspace = true, optional = true }
+kaspa-bip32 = { workspace = true, optional = true }
+kaspa-addresses = { workspace = true, optional = true }
+kaspa-txscript = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true }
+
+[dev-dependencies]
+# The example requires a tokio runtime with macros and time (confirmation-poll
+# between chained carrier txs); the workspace only enables "sync".
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "time"] }
+
+[features]
+default = []
+# Node-facing plumbing: anchor_token_op_tx, testnet evidence example.
+# Pulls the rusty-kaspa dependency tree (git, tag v2.0.0).
+wrpc = [
+    "kcp-common/wrpc",
+    "dep:kaspa-wrpc-client",
+    "dep:kaspa-rpc-core",
+    "dep:kaspa-consensus-core",
+    "dep:kaspa-bip32",
+    "dep:kaspa-addresses",
+    "dep:kaspa-txscript",
+    "dep:tokio",
+]
+
+[[example]]
+name = "testnet_evidence"
+required-features = ["wrpc"]

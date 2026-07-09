@@ -1,0 +1,24 @@
+// VestingWallet — Green-tier time-locked token release.
+// Solidity equivalent:
+//   contract VestingWallet {
+//     uint64 public released;  // amount released so far
+//     function release(uint64 amount) external returns (uint64 released);
+//   }
+// Single-UTXO local state; no global shared mappings needed.
+// The release amount guard belongs to a covenant require() in a future revision.
+pragma portrait ^0.1.0;
+
+app VestingWallet {
+  role wallet {
+    param int start;
+    state { int released; }
+
+    #[covenant(mode = transition)]
+    entrypoint function release(int amount) : (int released) {
+      return released + amount;
+    }
+  }
+
+  lifecycle { live -> live via wallet.release; }
+  invariant no_undeclared_state;
+}

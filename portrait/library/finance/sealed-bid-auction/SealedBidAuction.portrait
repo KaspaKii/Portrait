@@ -1,0 +1,143 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  SealedBidAuction — a commit-reveal sealed-bid auction covenant.
+//
+//  THE POINT OF THIS FILE: a sealed-bid auction runs in two phases — a commit
+//  phase (off-chain / prior) in which a bidder publishes only the blake2b digest
+//  of their secret bid, and a reveal phase in which the bidder opens the
+//  commitment on chain. The covenant binds the revealed bid to the committed
+//  digest using a TRUE blake2b hashlock, exactly as Htlc binds a preimage to a
+//  hashlock — the same on-chain hash intrinsic, reused for a different purpose.
+//
+//  State (one constructor param per state field, in field order):
+//    · seller       — the auctioneer; the only key that may CLOSE the auction.
+//    · bid_commit   — the committed blake2b digest of the bidder's sealed bid.
+//                     The bidder cannot change their bid after committing, and
+//                     cannot reveal anything other than the value they sealed:
+//                     the covenant enforces `blake2b(preimage) == bid_commit`.
+//    · high_bid     — the current standing high bid (genesis = 0).
+//    · high_bidder  — the committed key of the standing high bidder. This is the
+//                     bidder whose sealed commitment is `bid_commit`; it is the
+//                     committed key the REVEAL path authorises against.
+//    · revealed     — count of accepted reveals (genesis = 0). A reveal that
+//                     beats the standing high bid advances it by one.
+//    · closed       — one-shot auction-closed flag (genesis = 0). Once the seller
+//                     closes, no further reveal can fire.
+//
+//  Transitions:
+//    · reveal (commit-reveal path) — the committed bidder opens their sealed bid.
+//                 Authorised against the COMMITTED `high_bidder` key (a committed
+//                 state field, never a caller-supplied pubkey). The covenant
+//                 enforces the REAL hashlock `blake2b(preimage) == bid_commit`,
+//                 so the revealed bid must be the exact value that was sealed; the
+//                 new bid must strictly beat the standing high bid
+//                 (`bid > high_bid`); and the auction must still be open
+//                 (`closed == 0`). On success it records the new high bid.
+//    · close  (settlement path) — the SELLER, authorised against the COMMITTED
+//                 seller key, closes the auction (`closed: 1`). One-shot: once
+//                 closed, `closed == 0` fails, so no reveal or re-close can fire.
+//
+//  HASHLOCK (real digest commitment): the committed `bid_commit` is a `bytes32`
+//  blake2b digest. The `reveal` path requires `blake2b(preimage) == bid_commit`
+//  — the bidder must reveal a `preimage` whose blake2b digest equals the sealed
+//  commitment. This is a TRUE hash computed ON CHAIN by the covenant (silverc
+//  `blake2b(_)` → OpBlake2b, 0xaa), not a committed-value equality. It is the
+//  same surface builtin Htlc uses; here it binds the secret bid rather than a
+//  swap preimage. The covenant enforces the digest check itself, alongside the
+//  STRUCTURAL rules (who, monotone-improving bid, one-shot close).
+//
+//  CAPABILITY: every `checkSig` authorises against a COMMITTED key — `reveal`
+//  against the committed `high_bidder`, `close` against the committed `seller`.
+//  Neither path can be satisfied with an attacker-chosen pubkey.
+//
+//  HONEST SCOPE: this is a STRUCTURAL/relational model. The blake2b hashlock IS
+//  enforced live by the covenant. The "highest bid wins" property is expressed
+//  as the monotone-improving guard `bid > high_bid` on each accepted reveal — a
+//  structural shape check, NOT an SMT proof that the final standing bid is the
+//  global maximum over all sealed bids. No value-bearing coin field is moved by
+//  the covenant; settlement payout is the spending wallet's job, complemented —
+//  not replaced — by the covenant's authorisation + hashlock + ordering gates.
+//  Pre-production, unaudited, testnet-only.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param in the same position, so the constructor declares seller, bid_commit,
+//  high_bid, high_bidder, revealed, closed in state-field order. `portrait
+//  engrave` lowers this to a two-transition singleton covenant that `silverc`
+//  accepts (exit 0).
+// ─────────────────────────────────────────────────────────────────────────
+
+app SealedBidAuction {
+  role auction {
+    param pubkey  seller;       // auctioneer; the only key that may close
+    param bytes32 bid_commit;   // committed blake2b digest of the sealed bid
+    param int     high_bid;     // standing high bid (genesis = 0)
+    param pubkey  high_bidder;  // committed key of the standing high bidder
+    param int     revealed;     // count of accepted reveals (genesis = 0)
+    param int     closed;       // one-shot auction-closed flag (genesis = 0)
+
+    state {
+      pubkey  seller;
+      bytes32 bid_commit;
+      int     high_bid;
+      pubkey  high_bidder;
+      int     revealed;
+      int     closed;
+    }
+
+    // Commit-reveal path: the committed bidder opens their sealed bid. The REAL
+    // blake2b hashlock binds the revealed preimage to the committed digest, and
+    // the revealed bid must strictly beat the standing high bid. Authorised
+    // against the COMMITTED high_bidder key, not a caller-supplied arg.
+    #[covenant(mode = transition)]
+    entrypoint function reveal(
+      sig auth,
+      bytes32 preimage,
+      int bid
+    ) : (pubkey seller, bytes32 bid_commit, int high_bid, pubkey high_bidder, int revealed, int closed) {
+      requires checkSig(auth, high_bidder);     // only the committed bidder may reveal
+      requires blake2b(preimage) == bid_commit; // TRUE hashlock: opens the sealed commitment
+      requires bid > high_bid;                   // monotone-improving: must beat the standing bid
+      requires closed == 0;                      // auction must still be open
+      return SealedBidAuction {
+        seller:      seller,
+        bid_commit:  bid_commit,
+        high_bid:    bid,                        // record the new standing high bid
+        high_bidder: high_bidder,
+        revealed:    revealed + 1,               // count the accepted reveal
+        closed:      closed
+      };
+    }
+
+    // Settlement path: the seller closes the auction (one-shot). Authorised
+    // against the COMMITTED seller key.
+    #[covenant(mode = transition)]
+    entrypoint function close(
+      sig auth
+    ) : (pubkey seller, bytes32 bid_commit, int high_bid, pubkey high_bidder, int revealed, int closed) {
+      requires checkSig(auth, seller);   // only the committed seller may close
+      requires closed == 0;              // one-shot: not already closed
+      return SealedBidAuction {
+        seller:      seller,
+        bid_commit:  bid_commit,
+        high_bid:    high_bid,
+        high_bidder: high_bidder,
+        revealed:    revealed,
+        closed:      1                   // mark closed (one-shot)
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via auction.reveal;
+    live -> live via auction.close;
+  }
+
+  // Capability invariant: both state-mutating transitions authorise against a
+  // COMMITTED key (`high_bidder` for reveal, `seller` for close). Declaring
+  // `authorized` makes the no-auth fail-safe a stated, enforced property: any
+  // future transition that omits a committed-key checkSig is rejected by
+  // `portrait check`.
+  invariant authorized;
+  invariant no_undeclared_state;
+}

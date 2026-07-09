@@ -1,0 +1,29 @@
+[package]
+name = "csci-demo"
+version = "0.1.0"
+edition = "2021"
+publish = false
+# Pre-production, unaudited, testnet-only.
+# Demonstrates the CSCI state machine: genesis → journal → settlement → negative control.
+# On-chain evidence via OP_RETURN journal anchors on TN10.
+# Full ZK proof (OpZkPrecompile) requires the kii-csci-prover workspace (separate step).
+
+[workspace]
+
+[[bin]]
+name = "csci-demo"
+path = "src/main.rs"
+
+[dependencies]
+kcp-csci      = { path = "../../crates/kcp-csci" }
+kcp-common    = { path = "../../crates/kcp-common", features = ["wrpc"] }
+kcp-ktt-token = { path = "../../crates/kcp-ktt-token", features = ["wrpc"] }
+kcp-pq-anchor = { path = "../../crates/kcp-pq-anchor" }
+kaspa-wrpc-client      = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-consensus-core   = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-txscript         = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-hashes           = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-addresses        = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+hex   = "0.4"
+sha2  = "0.10"

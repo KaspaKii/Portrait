@@ -1,0 +1,23 @@
+// SimpleToken — Green-tier ERC20 subset.
+// Solidity equivalent:
+//   contract SimpleToken {
+//     uint256 public balance;
+//     function transfer(uint256 amount) external returns (uint256);
+//   }
+// Maps cleanly onto a Kaspa UTXO covenant (no global shared state, no mappings).
+pragma portrait ^0.1.0;
+
+app SimpleToken {
+  role token {
+    param int start;
+    state { int balance; }
+
+    #[covenant(mode = transition)]
+    entrypoint function transfer(int amount) : (int balance) {
+      return balance - amount;
+    }
+  }
+
+  lifecycle { live -> live via token.transfer; }
+  invariant no_undeclared_state;
+}

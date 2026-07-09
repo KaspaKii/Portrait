@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Covenant wizard — Portrait</title>
+  <meta name="description" content="A visual scaffolder: pick a covenant pattern and feature toggles, get a starting-point .portrait source that compiles and passes portrait check. Pre-production, unaudited, testnet-only." />
+  <link rel="stylesheet" href="brand/tokens.css" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Page-local wizard styles — reference ONLY the shared --kii-* tokens. */
+    .wizard-grid {
+      display: grid;
+      grid-template-columns: minmax(18rem, 26rem) 1fr;
+      gap: var(--kii-space-4);
+      align-items: start;
+    }
+    @media (max-width: 860px) { .wizard-grid { grid-template-columns: 1fr; } }
+    .wizard-panel {
+      background: var(--kii-color-surface);
+      border: 1px solid var(--kii-color-border);
+      border-radius: var(--kii-radius-lg);
+      box-shadow: var(--kii-shadow-sm);
+      padding: var(--kii-space-4);
+    }
+    .wizard-panel h2 { font-size: 1.05rem; margin: 0 0 var(--kii-space-3); }
+    .pattern-list, .feature-list { display: grid; gap: var(--kii-space-2); margin: 0 0 var(--kii-space-4); }
+    .pattern-option, .feature-option {
+      display: block;
+      border: 1px solid var(--kii-color-border);
+      border-radius: var(--kii-radius-sm);
+      padding: .6rem .75rem;
+      cursor: pointer;
+      background: var(--kii-color-bg);
+    }
+    .pattern-option:hover, .feature-option:hover { border-color: var(--kii-color-text-faint); }
+    .pattern-option input, .feature-option input { margin-right: var(--kii-space-2); }
+    .pattern-option .p-label { font-weight: var(--kii-font-weight-bold); }
+    .pattern-option .p-desc, .feature-option .f-desc {
+      display: block;
+      color: var(--kii-color-text-muted);
+      font-size: .85rem;
+      margin: .25rem 0 0 1.45rem;
+    }
+    .pattern-option.selected {
+      border-color: var(--kii-color-brand);
+      background: color-mix(in srgb, var(--kii-color-brand) 12%, transparent);
+    }
+    .feature-option .f-label { font-weight: var(--kii-font-weight-bold); }
+    .feature-option .f-inv {
+      font-family: var(--kii-font-mono);
+      font-size: .78rem;
+      color: var(--kii-color-brand);
+      background: color-mix(in srgb, var(--kii-color-brand) 12%, transparent);
+      border-radius: 999px;
+      padding: .05rem .5rem;
+      margin-left: .4rem;
+      white-space: nowrap;
+    }
+    .name-row label { display: block; font-weight: var(--kii-font-weight-bold); margin-bottom: .35rem; }
+    .name-row input {
+      width: 100%;
+      font: inherit;
+      padding: .5rem .65rem;
+      border: 1px solid var(--kii-color-border);
+      border-radius: var(--kii-radius-sm);
+      background: var(--kii-color-bg);
+      color: var(--kii-color-text);
+    }
+    .name-row input:focus-visible { outline: 2px solid var(--kii-color-brand); outline-offset: 1px; }
+    .name-row .hint { color: var(--kii-color-text-faint); font-size: .8rem; margin: .35rem 0 0; }
+    .output-head { display: flex; align-items: center; gap: var(--kii-space-2); flex-wrap: wrap; margin-bottom: var(--kii-space-2); }
+    .output-head h2 { margin: 0; font-size: 1.05rem; flex: 1 1 auto; }
+    .output-wrap pre { margin: 0; max-height: 42rem; overflow: auto; }
+    .copy-note { color: var(--kii-color-text-faint); font-size: .82rem; min-width: 5.5rem; }
+    .muted { color: var(--kii-color-text-muted); }
+    /* Buttons (page-local; the landing page has no buttons of its own). */
+    .btn {
+      font: inherit;
+      font-weight: var(--kii-font-weight-bold);
+      cursor: pointer;
+      border-radius: var(--kii-radius-sm);
+      padding: .4rem .8rem;
+      border: 1px solid var(--kii-color-border);
+      background: var(--kii-color-surface-2);
+      color: var(--kii-color-text);
+    }
+    .btn:hover { border-color: var(--kii-color-text-faint); }
+    .btn-primary { background: var(--kii-color-brand); color: var(--kii-color-brand-contrast); border-color: var(--kii-color-brand); }
+    .btn-primary:hover { filter: brightness(1.05); }
+    .btn:focus-visible { outline: 2px solid var(--kii-color-brand); outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-nav">
+    <nav class="container" aria-label="Primary">
+      <a class="brand-mark" href="index.html">
+        <img class="kii-logo kii-logo--light" src="kii-logo-color.png" alt="Kii" />
+        <img class="kii-logo kii-logo--dark" src="kii-logo-white.png" alt="Kii" />
+        <img class="portrait-mark" src="portrait-frame.png" alt="" aria-hidden="true" />
+        <span class="brand-word">Portrait</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html#library">Library</a>
+        <a href="wizard.html" aria-current="page">Wizard</a>
+        <a href="index.html#what-you-get">Language</a>
+        <a href="index.html#verification">Verification</a>
+        <a href="index.html#evidence">Evidence</a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="maturity-banner" role="note" aria-label="Maturity status">
+    <p class="container">
+      <strong>Pre-production &middot; unaudited &middot; testnet-only.</strong>
+      The wizard generates a <strong>starting point</strong>, not a finished product: the output
+      compiles and passes <code>portrait check</code> — a structural gate, <strong>not an audit and
+      not a security guarantee</strong>.
+    </p>
+  </div>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container">
+        <h1>Covenant wizard</h1>
+        <p>
+          Pick a pattern, turn on the invariants you want enforced, and the wizard
+          writes you a <code>.portrait</code> file from the same templates that ship
+          with <code>portrait new</code>. Every combination it can produce has been
+          run through the real <code>portrait check</code>. It's a place to start,
+          not a finished covenant.
+        </p>
+        <p class="muted" style="font-size:.95rem;">
+          These are a curated handful, not the whole catalogue. The full library has
+          <strong>35 covenant patterns</strong>, 10 of them cross-layer (vProg) &mdash;
+          <a href="index.html#library">see all of them</a>.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="builder">
+      <div class="container">
+        <h2 id="builder" class="skip-link" style="position:absolute;left:-999rem">Builder</h2>
+        <div class="wizard-grid">
+          <div class="wizard-panel">
+            <form id="wizard-form">
+              <h2 id="pattern-head">1. Pattern</h2>
+              <div class="pattern-list" id="pattern-list" role="radiogroup" aria-labelledby="pattern-head"></div>
+
+              <h2 id="feature-head">2. Features</h2>
+              <p class="muted" style="font-size:.85rem;margin:-.35rem 0 .6rem">
+                Each toggle maps to a real named invariant or guard that <code>portrait check</code>
+                enforces structurally. Only combinations that make sense for the pattern are offered.
+              </p>
+              <div class="feature-list" id="feature-list" aria-labelledby="feature-head"></div>
+
+              <h2 id="name-head">3. Name</h2>
+              <div class="name-row">
+                <label for="app-name">Covenant (app) name</label>
+                <input id="app-name" name="app-name" type="text" autocomplete="off" spellcheck="false" placeholder="MyCovenant">
+                <p class="hint">Letters, digits and underscores; must start with a letter. Invalid input falls back to the pattern default.</p>
+              </div>
+            </form>
+          </div>
+
+          <div class="wizard-panel output-wrap">
+            <div class="output-head">
+              <h2 id="output-head">Generated <code>.portrait</code> source</h2>
+              <span class="copy-note" id="copy-note" role="status" aria-live="polite"></span>
+              <button class="btn" type="button" id="copy-btn">Copy</button>
+              <button class="btn btn-primary" type="button" id="download-btn">Download</button>
+            </div>
+            <pre aria-labelledby="output-head"><code id="output"></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="onramp">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 id="onramp">This is a starting point — verify it yourself</h2>
+            <p class="lede">
+              The generated file is <strong>pre-production, unaudited, and testnet-only</strong>. Passing
+              <code>portrait check</code> means the declared invariants match the required structural
+              shapes — it does <em>not</em> mean the covenant is correct for your needs.
+            </p>
+          </div>
+        </div>
+        <pre aria-label="On-ramp commands"><code># save the generated file, then from the Portrait workspace:
+portrait check MyCovenant.portrait    # parse + typed structural invariant gate
+portrait prove MyCovenant.portrait    # invariant proof pass (reports what is and is not proven)
+portrait ship  MyCovenant.portrait    # engrave + emit the SilverScript covenant artifacts</code></pre>
+        <p class="maturity" style="margin-top: var(--kii-space-3);">
+          <strong>Honest scope.</strong> Named invariants such as <code>temporal_guard</code>,
+          <code>spending_cap</code>, <code>bounded_supply</code> and <code>multisig_threshold</code> are
+          <strong>structural shape matches</strong> on the <code>requires</code> guards — they reject
+          edits that drop the guard, but they are not SMT proofs, not wall-clock guarantees, and not
+          evidence the design is sound. Review the generated source and test on testnet before relying
+          on anything here.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        <strong>Portrait</strong> is an open-source (MIT) project of the
+        <strong>Stichting Kii Foundation</strong>, a Dutch non-profit.
+      </p>
+      <p class="firewall">
+        The Foundation publishes public goods. It does not bill, audit, or certify — commercial
+        activity of any kind belongs to separate commercial vehicles, never to the Foundation.
+      </p>
+      <p class="stamp">
+        Pre-production &middot; unaudited &middot; testnet-only. Nothing is on mainnet. Testnet
+        evidence is perishable. Wizard output is generated locally in your browser and is a starting
+        point only.
+      </p>
+    </div>
+  </footer>
+
+  <script src="wizard.js"></script>
+  <script src="wizard-init.js"></script>
+</body>
+</html>

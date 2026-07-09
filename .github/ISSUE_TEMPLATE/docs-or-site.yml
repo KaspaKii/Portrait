@@ -1,0 +1,17 @@
+name: "Docs or website"
+description: Something wrong or missing in the docs, the book, or the site.
+labels: ["area:docs"]
+body:
+  - type: input
+    id: where
+    attributes:
+      label: Where
+      placeholder: e.g. site/index.html, portrait/docs/LANGUAGE.md, compliance-patterns/book/...
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What's wrong / missing
+    validations:
+      required: true

@@ -1,0 +1,164 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  CollateralVault — a single-owner over-collateralised debt position.
+//
+//  THE POINT OF THIS FILE: model a CDP-style position (deposit collateral,
+//  draw debt against it, repay debt) as a singleton covenant whose draw is
+//  gated by a STRUCTURAL collateralisation guard. One committed `owner` key
+//  authorises every mutation; the position carries four committed-state
+//  fields:
+//
+//    · owner       — committed authority for every transition (deposit /
+//                    borrow / repay are each owner-authorised against the
+//                    COMMITTED key, never a caller-supplied pubkey);
+//    · collateral  — value-bearing collateral leg, grown by `deposit`;
+//    · debt        — value-bearing debt leg, grown by `borrow`, shrunk by
+//                    `repay`;
+//    · min_ratio   — committed collateralisation multiplier, carried unchanged
+//                    across every transition (the borrow gate's coefficient).
+//
+//  Transitions:
+//    · deposit(amount) — owner-auth; `collateral += amount`; `amount >= 0`.
+//    · borrow(amount)  — owner-auth; `debt += amount`; the structural ratio
+//                        guard `collateral >= debt * min_ratio + amount *
+//                        min_ratio` must hold on the POST-borrow debt, i.e. the
+//                        new total debt `(debt + amount)` times the committed
+//                        multiplier may not exceed the committed collateral.
+//                        `amount >= 0`. (Distributed form — see HONEST SCOPE.)
+//    · repay(amount)   — owner-auth; `debt -= amount` (a single additive
+//                        subtraction on the debt leg); value-sane via
+//                        `amount >= 0` and `amount <= debt` (cannot repay more
+//                        than is owed).
+//
+//  HONEST SCOPE — THE RATIO GUARD IS STRUCTURAL, NOT AN ECONOMIC SOUNDNESS
+//  PROOF. `collateral >= debt * min_ratio + amount * min_ratio` is a single
+//  committed-state comparison expressed with the surface's integer `*`, `+`
+//  and `>=`. It is the DISTRIBUTED form of `(debt + amount) * min_ratio`: it
+//  enforces that the post-borrow total debt times the committed multiplier may
+//  not exceed the committed collateral. The distributed form is kept here by
+//  choice; both forms are now equally safe. `portrait engrave` is
+//  precedence-correct as of the emitter precedence fix — it re-emits the
+//  parentheses an authored expression requires, so the parenthesised
+//  `(debt + amount) * min_ratio` lowers to `(debt + amount) * min_ratio`
+//  (not the precedence-weakened `debt + amount * min_ratio` the emitter used
+//  to produce). The distributed form (`debt * min_ratio + amount * min_ratio`)
+//  is additionally precedence-stable: `*` binds tighter than `+`, so it parses
+//  identically with or without parentheses. The two forms are algebraically
+//  equal (distributive law) over integers, and the emitter preserves either.
+//
+//  It is an INTEGER MULTIPLY against a committed integer multiplier — it does
+//  NOT model fractional ratios (there is no division on the surface, so a
+//  "150% ratio" must be encoded by the caller's choice of integer units and
+//  `min_ratio`), does NOT read any oracle / external price feed (collateral
+//  and debt are the covenant's own committed integers, not market values),
+//  and does NOT prove the position is liquidation-safe under price movement.
+//  It is exactly the shape the surface can express honestly: a committed-state
+//  comparison the checker carries and the engraver lowers; a future edit that
+//  drops the guard is a visible change to this file, not a silent regression.
+//
+//  HONEST SCOPE (M1): `amount` is a caller-asserted integer compared against
+//  committed state and folded additively into the value-bearing legs. The
+//  covenant does NOT itself read UTXO coin values; the actual coin movement is
+//  the spending wallet's responsibility, complemented here by the structural
+//  invariants the covenant rejects on (committed-key authorisation on every
+//  mutation + non-negative amounts + the additive leg arithmetic).
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param in the same position, so the constructor declares owner, collateral,
+//  debt, min_ratio in state-field order. `portrait engrave` lowers this to a
+//  multi-transition singleton covenant that `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app CollateralVault {
+  role vault {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey owner;        // committed owner key (sole mutation authority)
+    param int    collateral;   // value-bearing collateral leg
+    param int    debt;         // value-bearing debt leg
+    param int    min_ratio;    // committed collateralisation multiplier
+
+    state {
+      pubkey owner;
+      int    collateral;
+      int    debt;
+      int    min_ratio;
+    }
+
+    // Deposit collateral. Owner-authorised against the COMMITTED owner key.
+    // The collateral leg grows by a single additive term; debt, owner and the
+    // committed multiplier are carried unchanged.
+    #[covenant(mode = transition)]
+    entrypoint function deposit(
+      sig auth,
+      int amount
+    ) : (pubkey owner, int collateral, int debt, int min_ratio) {
+      requires checkSig(auth, owner);   // committed-owner authorisation
+      requires amount >= 0;             // non-negative deposit
+      return CollateralVault {
+        owner:      owner,              // owner carried unchanged
+        collateral: collateral + amount, // collateral leg grows
+        debt:       debt,              // debt carried unchanged
+        min_ratio:  min_ratio          // committed multiplier carried unchanged
+      };
+    }
+
+    // Draw debt against the committed collateral. Owner-authorised. The debt
+    // leg grows by `amount`, and the STRUCTURAL ratio guard must hold on the
+    // POST-borrow debt: the new total debt times the committed multiplier may
+    // not exceed the committed collateral. Structural shape only — see the
+    // HONEST SCOPE note above (integer multiply, no oracle, no fractions).
+    #[covenant(mode = transition)]
+    entrypoint function borrow(
+      sig auth,
+      int amount
+    ) : (pubkey owner, int collateral, int debt, int min_ratio) {
+      requires checkSig(auth, owner);                       // committed-owner authorisation
+      requires amount >= 0;                                  // non-negative draw
+      requires collateral >= debt * min_ratio + amount * min_ratio;   // structural ratio guard (post-borrow debt, distributed)
+      return CollateralVault {
+        owner:      owner,             // owner carried unchanged
+        collateral: collateral,        // collateral carried unchanged
+        debt:       debt + amount,     // debt leg grows by the drawn amount
+        min_ratio:  min_ratio          // committed multiplier carried unchanged
+      };
+    }
+
+    // Repay debt. Owner-authorised. The debt leg shrinks by a single additive
+    // subtraction; value-sane (`amount >= 0`, and cannot repay more than owed).
+    #[covenant(mode = transition)]
+    entrypoint function repay(
+      sig auth,
+      int amount
+    ) : (pubkey owner, int collateral, int debt, int min_ratio) {
+      requires checkSig(auth, owner);   // committed-owner authorisation
+      requires amount >= 0;             // non-negative repayment
+      requires amount <= debt;          // cannot repay more than is owed (value-sane)
+      return CollateralVault {
+        owner:      owner,             // owner carried unchanged
+        collateral: collateral,        // collateral carried unchanged
+        debt:       debt - amount,     // single additive subtraction on the debt leg
+        min_ratio:  min_ratio          // committed multiplier carried unchanged
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via vault.deposit;
+    live -> live via vault.borrow;
+    live -> live via vault.repay;
+  }
+
+  // Capability (C2): every state-mutating transition is authorised against the
+  // COMMITTED owner key. Declaring `authorized` makes the no-auth fail-safe a
+  // stated, enforced property — any mutation added here that omits a committed-
+  // key checkSig is rejected by `portrait check`.
+  invariant authorized;
+  // Refinement (C3): every transition that takes an int `amount` bounds it
+  // non-negative. The `requires amount >= 0;` guards above are enforced — a
+  // future edit that drops one fails the checker.
+  invariant non_negative_amount;
+  invariant no_undeclared_state;
+}

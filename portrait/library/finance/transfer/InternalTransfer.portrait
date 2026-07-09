@@ -1,0 +1,81 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  InternalTransfer — a paired two-field value transfer (conservation_split).
+//
+//  THE POINT OF THIS FILE: the smallest honest step beyond C1's per-field
+//  value-conservation. C1 (`value_conserved`) checks each value-bearing field
+//  in ISOLATION — it accepts `from_balance: from_balance - amount` and, quite
+//  separately, accepts `to_balance: to_balance + amount`, but it CANNOT see
+//  that those two adjustments are the two halves of ONE transfer. Nothing in
+//  C1 forces the amount leaving `from_balance` to be the same amount arriving
+//  in `to_balance`; a covenant could subtract `amount` from one leg and add an
+//  unrelated `fee` to the other and C1 would pass both.
+//
+//  `conservation_split` closes that one gap, narrowly. When declared, every
+//  state-mutating transition must take the matched-transfer shape: exactly one
+//  value-bearing field DECREASES by a term (`f: f - x`) and exactly one OTHER
+//  value-bearing field INCREASES by the SAME term (`g: g + x`). The checker
+//  verifies the `+x` and `-x` operands are the SAME expression. A mismatched
+//  `+y` / `-x`, or a single-field drain with no matching counter-change, is
+//  rejected at compile time.
+//
+//  HONEST SCOPE (M1): this is a STRUCTURAL two-field shape match, NOT a general
+//  SMT conservation proof. It proves the increase term and the decrease term
+//  are the same AST node — it does NOT reason about the numeric value of
+//  `amount` across branches, does NOT prove `amount >= 0` on its own (the
+//  `requires amount >= 0;` guard, enforced by `non_negative_amount`, supplies
+//  that), does NOT handle a one-to-many fan-out split, and does NOT read
+//  on-chain coin values (real coin movement is the wallet's job). It is the
+//  matched single-pair transfer and nothing more.
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app InternalTransfer {
+  role acct {
+    // Genesis state (one constructor param per state field, in field order).
+    param int    from_balance;   // source leg (value-bearing: name ends in `balance`)
+    param int    to_balance;     // destination leg (value-bearing)
+    param pubkey owner;          // committed owner — sole transfer authority
+
+    state {
+      int    from_balance;
+      int    to_balance;
+      pubkey owner;
+    }
+
+    // Move `amount` from the source leg to the destination leg. The committed
+    // owner must authorise. The transfer is a single matched pair: `amount` is
+    // subtracted from `from_balance` and the SAME `amount` is added to
+    // `to_balance` — the shape `conservation_split` requires.
+    #[covenant(mode = transition)]
+    entrypoint function transfer(
+      sig auth,
+      int amount
+    ) : (int from_balance, int to_balance, pubkey owner) {
+      requires checkSig(auth, owner);     // only the committed owner may transfer
+      requires amount >= 0;               // non-negative transfer (non_negative_amount)
+      requires amount <= from_balance;    // cannot overdraw the source leg
+      return InternalTransfer {
+        from_balance: from_balance - amount,   // source leg decreases by amount
+        to_balance:   to_balance + amount,     // destination leg increases by the SAME amount
+        owner:        owner                    // owner carried unchanged
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via acct.transfer;
+  }
+
+  // Refinement (D4): the transfer conserves value across the two legs — the
+  // amount leaving `from_balance` is the SAME term arriving in `to_balance`.
+  // STRUCTURAL two-field match, NOT a general SMT conservation proof.
+  invariant conservation_split;
+  // Capability (C2): transfer authority is checked against the COMMITTED owner.
+  invariant authorized;
+  // Refinement (C3): the transferred `amount` is bounded non-negative.
+  invariant non_negative_amount;
+  invariant no_undeclared_state;
+}

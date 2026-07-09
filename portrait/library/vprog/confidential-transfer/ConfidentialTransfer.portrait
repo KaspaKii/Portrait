@@ -1,0 +1,129 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  ConfidentialTransfer — a vProg (cross-layer) pattern: hidden-amount transfer.
+//
+//  THE SHAPE (generalizing the proven CSCI instrument). A confidential-transfer
+//  UTXO carries only a `commitment` (bytes32) to a hidden balance/transfer state
+//  plus a monotonic `seq`. The actual transfer amounts are NEVER on chain. A
+//  RISC Zero STARK (the `transfer_rules` vProg companion) proves OFF-L1 that a
+//  transfer is valid over those hidden amounts; the on-chain `settle` covenant
+//  advances the committed state, bound to that proof.
+//
+//  WHY CROSS-LAYER (why a pure covenant can't do this): validity of a confidential
+//  transfer is a predicate over PLAINTEXT amounts —
+//
+//    · the sender's input commitment OPENS to a balance (commitment hiding),
+//    · the transferred `amount >= 0` (no negative / no minting via underflow),
+//    · value is CONSERVED: sum(inputs) == sum(outputs)  (in == out),
+//
+//  — none of which an on-chain covenant can check without seeing the plaintext,
+//  which would defeat confidentiality. So the predicate is discharged in the
+//  guest; the chain only ever sees commitments + the verdict bound in the journal.
+//
+//  WHAT THE COVENANT (settle) ENFORCES on-chain — the STRUCTURAL spine:
+//    (a) sequence monotonicity   — seq advances by exactly one (no replay / skip)
+//    (b) covenant-id binding      — the STARK journal's covenant_id must equal
+//                                   this covenant's own on-chain ID
+//                                   (`proof_cov_id == OpInputCovenantId(0)`),
+//                                   emitted automatically because this role has a
+//                                   vProg companion (`has_vprog`)
+//    (c) owner authorization      — settle is authorized against the COMMITTED
+//                                   owner key (prev state), never a caller arg
+//    (d) state advance            — adopt the next committed state-commitment;
+//                                   the covenant never sees the amount
+//
+//  THE JOURNAL. The vProg commits, in a 104-byte RISC Zero STARK journal,
+//    covenant_id[32] || new_state_hash[32] || rule_hash[32] || seq[8 LE].
+//  Here `new_state_hash` is the NEW state-commitment after the confidential
+//  transfer — the same field `settle` adopts as `commitment` on chain. The
+//  covenant's covenant-id binding ties THIS instrument to the proof that produced
+//  that commitment.
+//
+//  STATUS — Emit-verified template; the state-machine transition is lowered into
+//  the guest (M3). The covenant compiles via silverc; `portrait atelier-build`
+//  emits a RISC Zero guest that consumes the entrypoint args the return body uses,
+//  hashes the NEW state into new_state_hash, advances seq, and asserts the
+//  assertable requires. The heavy predicate (the Pedersen-commitment opening +
+//  conservation check over hidden amounts) is STILL developer-authored, not
+//  synthesized by the compiler. Emit-verified, not settled live (only CSCI has
+//  settled live on TN10).
+//
+//  HONEST SCOPE. The tag-0x21 ZK *verification* of the STARK proof is an
+//  ENGINE-level operation (OpZkPrecompile / kcp-pq-anchor), NOT a silverscript op.
+//  silverscript here enforces the STATE-MACHINE rules + the covenant-id binding;
+//  the proof-bytes verification is layered by the settlement harness, which feeds
+//  the journal's covenant_id in as `proof_cov_id`. The confidentiality + the
+//  conservation/non-negativity SOUNDNESS rest on the RISC Zero guest + the
+//  verifier, not on Portrait. The covenant-side checks are structural/relational
+//  (no SMT). This is an emit-verified template — covenant compiles via silverc and
+//  the guest is emitted — NOT individually settled live; live settlement uses the
+//  same proven harness as the CSCI instrument.
+//
+//  The `transfer_rules` entrypoint carries NO #[covenant] attribute → portrait-ir
+//  lowers it as a NonCovenant (vProg) transition → Atelier emits its RISC Zero
+//  guest main. The Engraver ignores it, but its presence flips `has_vprog`, which
+//  is what causes the covenant-id binding require() to be emitted into `settle`.
+// ─────────────────────────────────────────────────────────────────────────
+
+app ConfidentialTransfer {
+  role instrument {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey  owner;         // committed owner key (the settle authority)
+    param bytes32 commitment;    // hiding commitment to the balance/transfer state
+    param int     seq;           // monotonic CSCI sequence number (genesis = 0)
+
+    state {
+      pubkey  owner;
+      bytes32 commitment;
+      int     seq;
+    }
+
+    // L1 covenant: settles ONE confidential-transfer transition on-chain.
+    //   · owner auth against committed owner    (C2)
+    //   · seq advances by exactly one           (monotonic_seq)
+    //   · commitment advances to next_commitment (the proven new state-commitment)
+    //   · covenant-id binding require()          (emitted by has_vprog)
+    // The amount is never an argument here — it lives only in the proof.
+    #[covenant(mode = transition)]
+    entrypoint function settle(
+      sig auth,
+      bytes32 next_commitment
+    ) : (pubkey owner, bytes32 commitment, int seq) {
+      requires checkSig(auth, owner);          // committed-owner authorization
+      return ConfidentialTransfer {
+        owner:      owner,                     // owner key carried unchanged
+        commitment: next_commitment,           // adopt the new committed state-commitment
+        seq:        seq + 1                    // CSCI sequence advances by one
+      };
+    }
+
+    // vProg (off-L1): the confidential-transfer predicate, proven via a RISC Zero
+    // STARK over HIDDEN amounts. No #[covenant] attribute → NonCovenant → Atelier
+    // emits the guest main. Its presence flips `has_vprog`, which causes the
+    // covenant-id binding require() to be emitted into `settle` above.
+    //
+    // The companion body expresses the STATE-MACHINE transition the proof
+    // attests — it MIRRORS `settle`: it consumes `next_commitment` and advances
+    // `commitment`/`seq`, so the M3 guest hashes the NEW state (the advanced
+    // commitment + seq) into the journal's new_state_hash.
+    //
+    // WHAT STAYS MANUAL (developer guest code, NOT synthesised by the compiler):
+    // opening the Pedersen commitment over the HIDDEN amount and proving value
+    // conservation (`in == out`, `amount >= 0`) over that hidden value. Those
+    // predicates are not expressible in the Portrait body and remain hand-written
+    // in the guest.
+    entrypoint function transfer_rules(bytes32 next_commitment) {
+      return ConfidentialTransfer {
+        owner:      owner,                     // owner key carried unchanged
+        commitment: next_commitment,           // adopt the new committed state-commitment
+        seq:        seq + 1                    // CSCI sequence advances by one
+      };
+    }
+  }
+
+  lifecycle { live -> live via instrument.settle; }
+
+  invariant monotonic_seq;         // C3: seq must advance by exactly one
+  invariant no_undeclared_state;
+}

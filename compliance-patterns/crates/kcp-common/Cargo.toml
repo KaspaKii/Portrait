@@ -1,0 +1,49 @@
+[package]
+name = "kcp-common"
+description = "Shared transaction and canonicalisation plumbing for the kaspa-compliance-patterns crates"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+thiserror = { workspace = true }
+
+kaspa-wrpc-client = { workspace = true, optional = true }
+kaspa-rpc-core = { workspace = true, optional = true }
+kaspa-consensus-core = { workspace = true, optional = true }
+kaspa-bip32 = { workspace = true, optional = true }
+kaspa-addresses = { workspace = true, optional = true }
+kaspa-txscript = { workspace = true, optional = true }
+tokio = { workspace = true, optional = true }
+
+[features]
+default = []
+# Node-facing plumbing: wallet derivation, wRPC client, carrier transactions.
+# Pulls the rusty-kaspa dependency tree (git, branch "toccata").
+wrpc = [
+    "dep:kaspa-wrpc-client",
+    "dep:kaspa-rpc-core",
+    "dep:kaspa-consensus-core",
+    "dep:kaspa-bip32",
+    "dep:kaspa-addresses",
+    "dep:kaspa-txscript",
+    "dep:tokio",
+]
+
+[dev-dependencies]
+# The p2sh_roundtrip example needs a tokio runtime + time for the
+# confirmation poll; the workspace only enables "sync".
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "time"] }
+
+[[example]]
+name = "p2sh_roundtrip"
+required-features = ["wrpc"]
+
+[[example]]
+name = "pubkey"
+required-features = ["wrpc"]

@@ -1,0 +1,140 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  LiquidatableLoan — a collateralised loan WITH an explicit liquidation path.
+//
+//  THE POINT OF THIS FILE: extend the CollateralVault CDP shape with the piece
+//  a real lending position needs but the base vault omits — a liquidator-
+//  triggered `liquidate` path gated on an UNDER-collateralisation ratio
+//  comparison (the structural inverse of the borrow guard). This is the
+//  liquidation half of a CDP expressed exactly as the surface permits.
+//
+//  State:
+//    · borrower    — committed; the repay authority;
+//    · liquidator  — committed; the liquidation authority (a DIFFERENT committed
+//                    key — repay and liquidate authorise against different keys,
+//                    exactly as TokenAllowance's approve/transfer_from do);
+//    · collateral  — the posted collateral leg (carried);
+//    · debt        — the outstanding debt leg, shrunk by `repay`;
+//    · min_ratio   — committed collateralisation multiplier (the guard's
+//                    coefficient, carried unchanged);
+//    · liquidated  — one-shot liquidation flag (genesis = 0; int 0/1 idiom,
+//                    exactly Escrow.settled — no covenant uses a bool field).
+//
+//  Transitions:
+//    · repay(amount)  — borrower-auth; `liquidated == 0` (cannot repay a
+//                       liquidated position); `amount >= 0`; `amount <= debt`
+//                       (cannot repay more than owed); `debt: debt - amount` is
+//                       the single additive subtraction on the debt leg.
+//    · liquidate()    — liquidator-auth; `liquidated == 0` (one-shot); the
+//                       LIQUIDATION GUARD `collateral < debt * min_ratio` —
+//                       the structural inverse of CollateralVault's borrow guard
+//                       `collateral >= debt * min_ratio` — must hold (the
+//                       position is under-collateralised). Sets `liquidated: 1`;
+//                       every other field is carried unchanged.
+//
+//  HONEST SCOPE — THE RATIO GUARD IS STRUCTURAL, NOT ORACLE-BACKED (identical to
+//  CollateralVault). `collateral < debt * min_ratio` is a single committed-state
+//  comparison using the surface's integer `*` and `<`. It is an INTEGER multiply
+//  against a committed multiplier — it does NOT model fractional ratios (no
+//  division on the surface; encode "150%" via the caller's integer units and
+//  `min_ratio`), does NOT read any oracle / external price feed (collateral and
+//  debt are the covenant's own committed integers, NOT live market values), and
+//  does NOT prove the position is economically liquidation-sound under price
+//  movement. The oracle-priced variant (reading a live price to compute real
+//  collateralisation) is a cross-call / external read the surface lacks and is a
+//  vProg, NOT this covenant. The guard is exactly the shape the surface can
+//  express honestly: a committed-state comparison the checker carries and the
+//  engraver lowers; a future edit that drops it is a VISIBLE change to this file.
+//
+//  HONEST SCOPE — `value_conserved` is deliberately NOT declared. Under C1 the
+//  value-bearing names are `balance` / `amount` / `supply` (and `coin`); `debt`
+//  and `collateral` are plain committed integers, so declaring `value_conserved`
+//  would be a NO-OP on them and dishonest. CollateralVault makes the same honest
+//  choice. The debt leg's `debt: debt - amount` shape and the ratio guard are
+//  pinned by the ACCEPT golden, not by a value-conservation invariant.
+//
+//  Emission note: the constructor declares borrower, liquidator, collateral,
+//  debt, min_ratio, liquidated in state-field order. `portrait engrave` lowers
+//  this to a two-transition singleton covenant that `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app LiquidatableLoan {
+  role loan {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey borrower;     // committed repay authority
+    param pubkey liquidator;   // committed liquidation authority (distinct key)
+    param int    collateral;   // posted collateral leg
+    param int    debt;         // outstanding debt leg
+    param int    min_ratio;    // committed collateralisation multiplier
+    param int    liquidated;   // one-shot liquidation flag (genesis = 0)
+
+    state {
+      pubkey borrower;
+      pubkey liquidator;
+      int    collateral;
+      int    debt;
+      int    min_ratio;
+      int    liquidated;
+    }
+
+    // Repay debt. Borrower-authorised against the COMMITTED borrower key; only
+    // while the position is live (`liquidated == 0`). The debt leg shrinks by a
+    // single additive subtraction; value-sane (`amount >= 0`, cannot over-repay).
+    #[covenant(mode = transition)]
+    entrypoint function repay(
+      sig auth,
+      int amount
+    ) : (pubkey borrower, pubkey liquidator, int collateral, int debt, int min_ratio, int liquidated) {
+      requires checkSig(auth, borrower);   // only the committed borrower may repay
+      requires liquidated == 0;            // cannot repay a liquidated position
+      requires amount >= 0;                // non-negative repayment (non_negative_amount)
+      requires amount <= debt;             // cannot repay more than is owed
+      return LiquidatableLoan {
+        borrower:   borrower,
+        liquidator: liquidator,
+        collateral: collateral,
+        debt:       debt - amount,         // single additive subtraction on the debt leg
+        min_ratio:  min_ratio,
+        liquidated: liquidated
+      };
+    }
+
+    // Liquidate an under-collateralised position. Liquidator-authorised against
+    // the COMMITTED liquidator key. One-shot (`liquidated == 0`). The LIQUIDATION
+    // GUARD `collateral < debt * min_ratio` (structural inverse of the borrow
+    // ratio guard) must hold. Sets the one-shot flag; everything else carried.
+    #[covenant(mode = transition)]
+    entrypoint function liquidate(
+      sig auth
+    ) : (pubkey borrower, pubkey liquidator, int collateral, int debt, int min_ratio, int liquidated) {
+      requires checkSig(auth, liquidator);          // only the committed liquidator may liquidate
+      requires liquidated == 0;                      // one-shot
+      requires collateral < debt * min_ratio;        // LIQUIDATION GUARD: position under-collateralised
+      return LiquidatableLoan {
+        borrower:   borrower,
+        liquidator: liquidator,
+        collateral: collateral,
+        debt:       debt,
+        min_ratio:  min_ratio,
+        liquidated: 1                                 // one-shot flag set
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via loan.repay;
+    live -> live via loan.liquidate;
+  }
+
+  // Capability (C2): each path authorises against its COMMITTED key (repay →
+  // borrower, liquidate → liquidator). Any state-mutating transition added here
+  // that omits a committed-key checkSig is rejected by `portrait check`.
+  invariant authorized;
+  // Refinement (C3): the repaid `amount` is bounded non-negative. The
+  // `requires amount >= 0;` guard in repay is an enforced invariant.
+  invariant non_negative_amount;
+  invariant no_undeclared_state;
+}

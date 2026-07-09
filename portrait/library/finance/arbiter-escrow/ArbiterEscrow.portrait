@@ -1,0 +1,115 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  ArbiterEscrow — a three-party, 2-of-3 conditional-payment covenant.
+//
+//  THE POINT OF THIS FILE: an escrow UTXO locks `amount` between a `buyer`
+//  and a `seller`, with a neutral `arbiter` as the dispute tie-breaker. The
+//  single `release` transition settles the escrow when ANY TWO of the three
+//  COMMITTED keys authorise the spend in the same transaction:
+//
+//    · buyer  + seller  — the cooperative happy path (no dispute);
+//    · buyer  + arbiter — dispute resolved in the buyer's favour;
+//    · seller + arbiter — dispute resolved in the seller's favour.
+//
+//  No single party can settle alone, and the arbiter alone cannot move the
+//  funds either — the arbiter only ever breaks a tie alongside one of the two
+//  principals. This is the smallest non-trivial threshold authorisation the
+//  current Portrait surface can express WITHOUT counting/selection support:
+//  a disjunction (boolean `||`) of the three conjunctive (`&&`) pairs, each
+//  pair binding two of the three COMMITTED keys via `checkSig`.
+//
+//  CAPABILITY (C2): every `checkSig` authorises against a COMMITTED key
+//  (buyer / seller / arbiter carried in state), never a caller-supplied
+//  pubkey. An attacker holding one key — or supplying keys of their own —
+//  cannot satisfy any of the three pairs. The two signature arguments
+//  `auth_x` / `auth_y` are matched to two distinct committed keys by whichever
+//  disjunct the spender chooses to satisfy.
+//
+//  ONE-SHOT: `settled` is a one-shot flag (genesis = 0). The guard
+//  `settled == 0` plus `settled: 1` means the locked amount can be released
+//  exactly once — there is no second settlement path to double-spend against.
+//
+//  VALUE CONSERVATION (honest scope): `amount` is value-bearing (by name) and
+//  is carried UNCHANGED through the transition (bare carry, amount: amount) —
+//  the only conservation-preserving shape besides a single additive ±. The
+//  covenant does NOT itself move coin; the actual payout is the spending
+//  wallet's job, governed by the output script the wallet attaches. The
+//  covenant enforces the STRUCTURAL rules: who may settle (2-of-3 committed-key
+//  auth) and that settlement is one-shot. This mirrors Escrow / TimeVault:
+//  the value field is conserved in committed state, `settled` is the spent
+//  flag, and the real coin movement is complemented — not replaced — by the
+//  covenant's authorisation bounds.
+//
+//  EMISSION NOTE: `&&` binds tighter than `||` in both the Portrait Pratt
+//  parser and silverscript, so the disjunction-of-conjunctions parses and
+//  lowers unambiguously; the emitted .sil carries the flat
+//  `checkSig(..) && checkSig(..) || …` form (semantically identical to the
+//  parenthesised source). `portrait engrave` lowers this to a single-transition
+//  singleton covenant that `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app ArbiterEscrow {
+  role escrow {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey buyer;     // principal 1 (funds the escrow)
+    param pubkey seller;    // principal 2 (delivers the goods)
+    param pubkey arbiter;   // neutral tie-breaker (only ever signs WITH a principal)
+    param int    amount;    // value locked (value-conserved by field name; bare carry)
+    param int    settled;   // one-shot spent flag (genesis = 0)
+
+    state {
+      pubkey buyer;
+      pubkey seller;
+      pubkey arbiter;
+      int    amount;        // value-bearing; conserved as a bare carry
+      int    settled;       // one-shot spent flag
+    }
+
+    // Settle the escrow. Requires ANY TWO of the three COMMITTED keys to
+    // authorise in the same transaction (2-of-3): a disjunction of the three
+    // conjunctive signer pairs. Each checkSig binds a COMMITTED key, so the
+    // capability cannot be forged with attacker-chosen pubkeys.
+    #[covenant(mode = transition)]
+    entrypoint function release(
+      sig auth_x,
+      sig auth_y
+    ) : (pubkey buyer, pubkey seller, pubkey arbiter, int amount, int settled) {
+      // 2-of-3: a disjunction of the three conjunctive signer pairs. `&&` binds
+      // tighter than `||` (Pratt parser + silverscript), so this groups as
+      // (buyer&&seller) || (buyer&&arbiter) || (seller&&arbiter) without parens.
+      // (No leading `(`: `require (` would be read as the require-wrapper paren.)
+      requires checkSig(auth_x, buyer)  && checkSig(auth_y, seller)
+            || checkSig(auth_x, buyer)  && checkSig(auth_y, arbiter)
+            || checkSig(auth_x, seller) && checkSig(auth_y, arbiter);
+      requires settled == 0;             // one-shot: not already settled
+      return ArbiterEscrow {
+        buyer:   buyer,                  // committed keys carried unchanged
+        seller:  seller,
+        arbiter: arbiter,
+        amount:  amount,                 // value conserved (bare carry)
+        settled: 1                       // mark settled (one-shot)
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via escrow.release;
+  }
+
+  invariant value_conserved;
+  // Capability invariant (C2): release authority is checked against COMMITTED
+  // keys. Declaring `authorized` makes the no-auth fail-safe a stated, enforced
+  // property: any state-mutating transition added here that omits a committed-key
+  // checkSig is rejected by `portrait check`.
+  invariant authorized;
+  // Refinement (D3, multisig_threshold): the `release` transition authorises via
+  // at least 2 DISTINCT committed-key checkSig operands (any 2-of-3 of buyer /
+  // seller / arbiter). A future edit that reduces it to a single committed-key
+  // checkSig is rejected by the checker. STRUCTURAL count of distinct committed
+  // keys signed — NOT a proof the boolean combination is a true k-of-n.
+  invariant multisig_threshold;
+  invariant no_undeclared_state;
+}

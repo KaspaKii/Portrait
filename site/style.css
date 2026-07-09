@@ -1,0 +1,296 @@
+/* =============================================================================
+   portrait.kaspa-kii.org — site styles.
+
+   This file is an adaptation of the shared Kii design system.
+   It references ONLY the tokens defined in
+   brand/tokens.css. Do not hard-code colours, fonts or radii here — add a
+   token in brand/tokens.css instead. Dropping in the real Kii brand kit
+   (replacing brand/tokens.css) restyles this page identically to the rest of
+   the Kii family.
+   ============================================================================= */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { font-size: var(--kii-font-size-base); }
+
+body {
+  margin: 0;
+  font-family: var(--kii-font-sans);
+  line-height: var(--kii-line-height);
+  color: var(--kii-color-text);
+  background: var(--kii-color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--kii-color-link);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+a:focus-visible {
+  outline: 2px solid var(--kii-color-brand);
+  outline-offset: 2px;
+  border-radius: var(--kii-radius-sm);
+}
+
+/* --- Layout --------------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: var(--kii-content-max);
+  margin-inline: auto;
+  padding-inline: var(--kii-space-4);
+}
+
+/* --- Skip link ------------------------------------------------------------ */
+.skip-link {
+  position: absolute;
+  left: var(--kii-space-3);
+  top: -3rem;
+  background: var(--kii-color-brand);
+  color: var(--kii-color-brand-contrast);
+  padding: var(--kii-space-2) var(--kii-space-3);
+  border-radius: var(--kii-radius-sm);
+  transition: top .15s ease;
+  z-index: 10;
+}
+.skip-link:focus { top: var(--kii-space-3); }
+
+/* --- Site nav ------------------------------------------------------------- */
+.site-nav {
+  border-bottom: 1px solid var(--kii-color-border);
+  background: var(--kii-color-bg);
+}
+.site-nav .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--kii-space-3);
+  padding-block: var(--kii-space-3);
+  flex-wrap: wrap;
+}
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--kii-space-2);
+  font-weight: var(--kii-font-weight-bold);
+  font-size: 1.15rem;
+  color: var(--kii-color-text);
+  letter-spacing: .2px;
+}
+.brand-mark:hover { text-decoration: none; }
+
+/* Kii brand logo (from kaspa-kii.org), theme-swapped: colour on light, white on
+   dark. Local assets — the site stays fully self-contained. */
+.kii-logo { height: 1.7rem; width: auto; display: block; }
+/* Portrait product mark — the gilded frame (a "portrait" in its frame). */
+.portrait-mark { height: 2rem; width: auto; display: block; }
+.kii-logo--dark { display: none; }
+@media (prefers-color-scheme: dark) {
+  .kii-logo--light { display: none; }
+  .kii-logo--dark { display: block; }
+}
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--kii-space-4);
+  font-size: .95rem;
+}
+.nav-links a { color: var(--kii-color-text-muted); }
+
+/* --- Hero ----------------------------------------------------------------- */
+.hero {
+  padding-block: var(--kii-space-6) var(--kii-space-5);
+  border-bottom: 1px solid var(--kii-color-border);
+}
+.hero h1 {
+  margin: 0 0 var(--kii-space-3);
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+  line-height: 1.1;
+}
+.hero p {
+  margin: 0 0 var(--kii-space-3);
+  max-width: 60ch;
+  color: var(--kii-color-text-muted);
+  font-size: 1.1rem;
+}
+.hero p:last-child { margin-bottom: 0; }
+
+/* --- Maturity banner (page-level, prominent) ------------------------------- */
+.maturity-banner {
+  background: var(--kii-color-warn-bg);
+  color: var(--kii-color-warn-text);
+  border-block: 1px solid var(--kii-color-border);
+}
+.maturity-banner .container {
+  padding-block: var(--kii-space-3);
+  font-size: .95rem;
+  font-weight: var(--kii-font-weight-bold);
+}
+.maturity-banner strong { text-transform: uppercase; letter-spacing: .04em; }
+
+/* --- Sections ------------------------------------------------------------- */
+.section { padding-block: var(--kii-space-6); }
+.section + .section { border-top: 1px solid var(--kii-color-border); }
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--kii-space-3);
+  margin-bottom: var(--kii-space-4);
+}
+.section-head h2 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+.section-head .lede {
+  margin: 0;
+  color: var(--kii-color-text-muted);
+  font-size: 1rem;
+  max-width: 70ch;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: var(--kii-font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  padding: var(--kii-space-1) var(--kii-space-2);
+  border-radius: var(--kii-radius-sm);
+  margin-bottom: var(--kii-space-2);
+  color: var(--kii-color-foundation);
+  background: color-mix(in srgb, var(--kii-color-foundation) 12%, transparent);
+}
+
+/* --- Card grid ------------------------------------------------------------ */
+.card-grid {
+  display: grid;
+  gap: var(--kii-space-4);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--kii-space-3);
+  background: var(--kii-color-surface);
+  border: 1px solid var(--kii-color-border);
+  border-radius: var(--kii-radius-lg);
+  padding: var(--kii-space-4);
+  box-shadow: var(--kii-shadow-sm);
+}
+.card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.card p { margin: 0; color: var(--kii-color-text-muted); }
+.card .card-body { flex: 1; }
+.card ul {
+  margin: 0;
+  padding-left: 1.2em;
+  color: var(--kii-color-text-muted);
+}
+.card li + li { margin-top: var(--kii-space-1); }
+
+.card code,
+.maturity code,
+p code,
+li code {
+  font-family: var(--kii-font-mono);
+  font-size: .85em;
+  background: var(--kii-color-surface-2);
+  padding: 0 .35em;
+  border-radius: var(--kii-radius-sm);
+}
+
+/* Maturity / honesty note inside a card. */
+.maturity {
+  font-size: .85rem;
+  color: var(--kii-color-warn-text);
+  background: var(--kii-color-warn-bg);
+  border-radius: var(--kii-radius-md);
+  padding: var(--kii-space-2) var(--kii-space-3);
+}
+
+/* Link row. */
+.card-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--kii-space-3);
+  font-size: .95rem;
+}
+
+/* --- Honest-scope lists (proves / does-not-prove) --------------------------- */
+.scope-list { margin: 0; padding: 0; list-style: none; }
+.scope-list li {
+  padding-left: 1.5em;
+  position: relative;
+  color: var(--kii-color-text-muted);
+}
+.scope-list li + li { margin-top: var(--kii-space-2); }
+.scope-list li::before {
+  position: absolute;
+  left: 0;
+  font-weight: var(--kii-font-weight-bold);
+}
+.scope-list--yes li::before { content: "\2713"; color: var(--kii-color-accent); }
+.scope-list--no  li::before { content: "\2717"; color: var(--kii-color-warn-text); }
+
+/* --- Code blocks ------------------------------------------------------------ */
+pre {
+  margin: 0;
+  background: var(--kii-color-surface-2);
+  border: 1px solid var(--kii-color-border);
+  border-radius: var(--kii-radius-md);
+  padding: var(--kii-space-3) var(--kii-space-4);
+  overflow-x: auto;
+  font-family: var(--kii-font-mono);
+  font-size: .88rem;
+  line-height: 1.6;
+}
+pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+.snippet-caption {
+  margin: var(--kii-space-2) 0 0;
+  font-size: .85rem;
+  color: var(--kii-color-text-faint);
+}
+
+/* --- Footer --------------------------------------------------------------- */
+.site-footer {
+  border-top: 1px solid var(--kii-color-border);
+  background: var(--kii-color-surface);
+  color: var(--kii-color-text-muted);
+  font-size: .9rem;
+}
+.site-footer .container {
+  padding-block: var(--kii-space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--kii-space-3);
+}
+.site-footer strong { color: var(--kii-color-text); }
+.site-footer .firewall {
+  border-left: 3px solid var(--kii-color-border);
+  padding-left: var(--kii-space-3);
+}
+.site-footer .stamp {
+  color: var(--kii-color-warn-text);
+  background: var(--kii-color-warn-bg);
+  border-radius: var(--kii-radius-md);
+  padding: var(--kii-space-2) var(--kii-space-3);
+  align-self: flex-start;
+}
+
+/* --- Responsive ----------------------------------------------------------- */
+@media (max-width: 600px) {
+  .nav-links { gap: var(--kii-space-3); font-size: .85rem; }
+  .section { padding-block: var(--kii-space-5); }
+}

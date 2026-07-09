@@ -1,0 +1,30 @@
+name: "New covenant pattern"
+description: Propose a new pattern for the Covenant Patterns Library.
+labels: ["area:library", "type:pattern-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For the **Covenant Patterns Library** (`compliance-patterns/`). Reminder:
+        the library is pre-production, unaudited, testnet-only.
+  - type: input
+    id: pattern
+    attributes:
+      label: Pattern
+      placeholder: e.g. streaming payment, dutch auction, role-based access
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: What covenant behaviour should it enforce, and why is it reusable?
+    validations:
+      required: true
+  - type: textarea
+    id: prior-art
+    attributes:
+      label: Prior art / analogue
+      description: Any Solidity/OpenZeppelin equivalent or existing Kaspa reference?
+    validations:
+      required: false

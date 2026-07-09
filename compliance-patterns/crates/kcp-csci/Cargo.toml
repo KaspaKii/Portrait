@@ -1,0 +1,19 @@
+[package]
+name = "kcp-csci"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Covenant-Settled Compliance Instrument (CSCI) — KTT + vProg + KIP-16 tag-0x21 binding"
+publish = false
+# Pre-production, unaudited, testnet-only.
+# The CSCI covenant locking script (.sil) has not yet been authored.
+# See docs/FLAGSHIP-DESIGN.md for the full architecture.
+
+[dependencies]
+kcp-ktt-token = { path = "../kcp-ktt-token" }
+kcp-pq-anchor = { path = "../kcp-pq-anchor" }
+sha2 = "0.10"
+thiserror = "2"
+
+[dev-dependencies]
+hex = "0.4"

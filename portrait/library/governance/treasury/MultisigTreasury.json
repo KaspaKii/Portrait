@@ -1,0 +1,1462 @@
+{
+  "contract_name": "MultisigTreasury",
+  "compiler_version": "0.1.0",
+  "script": [
+    107,
+    32,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    32,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    8,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    108,
+    118,
+    0,
+    156,
+    99,
+    117,
+    185,
+    207,
+    118,
+    0,
+    209,
+    185,
+    156,
+    105,
+    118,
+    208,
+    118,
+    81,
+    161,
+    105,
+    0,
+    0,
+    0,
+    0,
+    84,
+    121,
+    0,
+    148,
+    81,
+    161,
+    105,
+    118,
+    85,
+    121,
+    159,
+    99,
+    118,
+    86,
+    121,
+    120,
+    209,
+    87,
+    121,
+    82,
+    121,
+    209,
+    201,
+    2,
+    223,
+    1,
+    148,
+    82,
+    147,
+    88,
+    121,
+    83,
+    121,
+    209,
+    201,
+    2,
+    223,
+    1,
+    148,
+    82,
+    147,
+    1,
+    32,
+    147,
+    188,
+    87,
+    121,
+    82,
+    121,
+    209,
+    88,
+    121,
+    83,
+    121,
+    209,
+    201,
+    2,
+    223,
+    1,
+    148,
+    1,
+    35,
+    147,
+    89,
+    121,
+    84,
+    121,
+    209,
+    201,
+    2,
+    223,
+    1,
+    148,
+    1,
+    35,
+    147,
+    1,
+    32,
+    147,
+    188,
+    88,
+    121,
+    83,
+    121,
+    209,
+    89,
+    121,
+    84,
+    121,
+    209,
+    201,
+    2,
+    223,
+    1,
+    148,
+    1,
+    68,
+    147,
+    90,
+    121,
+    85,
+    121,
+    209,
+    201,
+    2,
+    223,
+    1,
+    148,
+    1,
+    68,
+    147,
+    88,
+    147,
+    188,
+    87,
+    121,
+    83,
+    121,
+    126,
+    88,
+    122,
+    117,
+    87,
+    121,
+    83,
+    121,
+    126,
+    88,
+    122,
+    117,
+    87,
+    121,
+    83,
+    121,
+    88,
+    205,
+    126,
+    88,
+    122,
+    117,
+    86,
+    121,
+    81,
+    147,
+    88,
+    122,
+    117,
+    84,
+    122,
+    117,
+    84,
+    122,
+    117,
+    84,
+    122,
+    117,
+    84,
+    122,
+    117,
+    104,
+    83,
+    121,
+    83,
+    121,
+    83,
+    121,
+    92,
+    121,
+    95,
+    121,
+    84,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    172,
+    105,
+    94,
+    121,
+    83,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    172,
+    105,
+    118,
+    0,
+    162,
+    105,
+    118,
+    82,
+    121,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    161,
+    105,
+    89,
+    121,
+    210,
+    81,
+    156,
+    105,
+    83,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    83,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    83,
+    121,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    83,
+    121,
+    148,
+    88,
+    205,
+    1,
+    8,
+    124,
+    126,
+    126,
+    126,
+    185,
+    118,
+    201,
+    2,
+    223,
+    1,
+    148,
+    118,
+    81,
+    147,
+    188,
+    124,
+    126,
+    185,
+    118,
+    201,
+    118,
+    2,
+    223,
+    1,
+    148,
+    1,
+    76,
+    147,
+    124,
+    188,
+    126,
+    170,
+    2,
+    0,
+    0,
+    1,
+    170,
+    126,
+    1,
+    32,
+    126,
+    124,
+    126,
+    1,
+    135,
+    126,
+    90,
+    121,
+    0,
+    211,
+    195,
+    135,
+    105,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    81,
+    103,
+    118,
+    81,
+    156,
+    99,
+    117,
+    185,
+    207,
+    0,
+    209,
+    185,
+    158,
+    105,
+    117,
+    117,
+    117,
+    81,
+    103,
+    117,
+    0,
+    105,
+    104,
+    104
+  ],
+  "ast": {
+    "pragma": {
+      "name": "silverscript",
+      "value": "^0.1.0",
+      "span": "pragma silverscript ^0.1.0;",
+      "name_span": "silverscript",
+      "value_span": "^0.1.0"
+    },
+    "name": "MultisigTreasury",
+    "params": [
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "max_ins",
+        "span": "int max_ins",
+        "type_span": "int ",
+        "name_span": "max_ins"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "max_outs",
+        "span": "int max_outs",
+        "type_span": "int ",
+        "name_span": "max_outs"
+      },
+      {
+        "type_ref": {
+          "base": "pubkey"
+        },
+        "name": "signer_a",
+        "span": "pubkey signer_a",
+        "type_span": "pubkey ",
+        "name_span": "signer_a"
+      },
+      {
+        "type_ref": {
+          "base": "pubkey"
+        },
+        "name": "signer_b",
+        "span": "pubkey signer_b",
+        "type_span": "pubkey ",
+        "name_span": "signer_b"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "balance",
+        "span": "int balance",
+        "type_span": "int ",
+        "name_span": "balance"
+      }
+    ],
+    "fields": [
+      {
+        "type_ref": {
+          "base": "pubkey"
+        },
+        "name": "signer_a",
+        "expr": {
+          "kind": "identifier",
+          "data": "signer_a",
+          "span": "signer_a"
+        },
+        "span": "pubkey signer_a = signer_a;",
+        "type_span": "pubkey ",
+        "name_span": "signer_a"
+      },
+      {
+        "type_ref": {
+          "base": "pubkey"
+        },
+        "name": "signer_b",
+        "expr": {
+          "kind": "identifier",
+          "data": "signer_b",
+          "span": "signer_b"
+        },
+        "span": "pubkey signer_b = signer_b;",
+        "type_span": "pubkey ",
+        "name_span": "signer_b"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "balance",
+        "expr": {
+          "kind": "identifier",
+          "data": "balance",
+          "span": "balance"
+        },
+        "span": "int balance = balance;",
+        "type_span": "int ",
+        "name_span": "balance"
+      }
+    ],
+    "constants": [],
+    "functions": [
+      {
+        "name": "__covenant_policy_spend",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prev_states",
+            "span": "State[] prev_states",
+            "type_span": "State[]",
+            "name_span": "prev_states"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "auth_a",
+            "span": "sig auth_a",
+            "type_span": "sig ",
+            "name_span": "auth_a"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "auth_b",
+            "span": "sig auth_b",
+            "type_span": "sig ",
+            "name_span": "auth_b"
+          },
+          {
+            "type_ref": {
+              "base": "int"
+            },
+            "name": "amount",
+            "span": "int amount",
+            "type_span": "int ",
+            "name_span": "amount"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [
+          {
+            "base": "State"
+          }
+        ],
+        "returns_tuple": true,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "checkSig",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "auth_a",
+                      "span": "auth_a"
+                    },
+                    {
+                      "kind": "field_access",
+                      "data": {
+                        "source": {
+                          "kind": "array_index",
+                          "data": {
+                            "source": {
+                              "kind": "identifier",
+                              "data": "prev_states",
+                              "span": "prev_states"
+                            },
+                            "index": {
+                              "kind": "int",
+                              "data": 0,
+                              "span": "0"
+                            }
+                          },
+                          "span": "prev_states[0]"
+                        },
+                        "field": "signer_a",
+                        "field_span": "signer_a"
+                      },
+                      "span": "prev_states[0].signer_a"
+                    }
+                  ],
+                  "name_span": "checkSig"
+                },
+                "span": "checkSig(auth_a, prev_states[0].signer_a)"
+              },
+              "message": null,
+              "span": "require(checkSig(auth_a, prev_states[0].signer_a));",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "checkSig",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "auth_b",
+                      "span": "auth_b"
+                    },
+                    {
+                      "kind": "field_access",
+                      "data": {
+                        "source": {
+                          "kind": "array_index",
+                          "data": {
+                            "source": {
+                              "kind": "identifier",
+                              "data": "prev_states",
+                              "span": "prev_states"
+                            },
+                            "index": {
+                              "kind": "int",
+                              "data": 0,
+                              "span": "0"
+                            }
+                          },
+                          "span": "prev_states[0]"
+                        },
+                        "field": "signer_b",
+                        "field_span": "signer_b"
+                      },
+                      "span": "prev_states[0].signer_b"
+                    }
+                  ],
+                  "name_span": "checkSig"
+                },
+                "span": "checkSig(auth_b, prev_states[0].signer_b)"
+              },
+              "message": null,
+              "span": "require(checkSig(auth_b, prev_states[0].signer_b));",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "ge",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "amount",
+                    "span": "amount"
+                  },
+                  "right": {
+                    "kind": "int",
+                    "data": 0,
+                    "span": "0"
+                  }
+                },
+                "span": "amount >= 0"
+              },
+              "message": null,
+              "span": "require(amount >= 0);",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "le",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "amount",
+                    "span": "amount"
+                  },
+                  "right": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "prev_states",
+                            "span": "prev_states"
+                          },
+                          "index": {
+                            "kind": "int",
+                            "data": 0,
+                            "span": "0"
+                          }
+                        },
+                        "span": "prev_states[0]"
+                      },
+                      "field": "balance",
+                      "field_span": "balance"
+                    },
+                    "span": "prev_states[0].balance"
+                  }
+                },
+                "span": "amount <= prev_states[0].balance"
+              },
+              "message": null,
+              "span": "require(amount <= prev_states[0].balance);",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "return",
+            "data": {
+              "exprs": [
+                {
+                  "kind": "state_object",
+                  "data": [
+                    {
+                      "name": "signer_a",
+                      "expr": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prev_states",
+                                "span": "prev_states"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prev_states[0]"
+                          },
+                          "field": "signer_a",
+                          "field_span": "signer_a"
+                        },
+                        "span": "prev_states[0].signer_a"
+                      },
+                      "span": "signer_a: prev_states[0].signer_a",
+                      "name_span": "signer_a"
+                    },
+                    {
+                      "name": "signer_b",
+                      "expr": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prev_states",
+                                "span": "prev_states"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prev_states[0]"
+                          },
+                          "field": "signer_b",
+                          "field_span": "signer_b"
+                        },
+                        "span": "prev_states[0].signer_b"
+                      },
+                      "span": "signer_b: prev_states[0].signer_b",
+                      "name_span": "signer_b"
+                    },
+                    {
+                      "name": "balance",
+                      "expr": {
+                        "kind": "binary",
+                        "data": {
+                          "op": "sub",
+                          "left": {
+                            "kind": "field_access",
+                            "data": {
+                              "source": {
+                                "kind": "array_index",
+                                "data": {
+                                  "source": {
+                                    "kind": "identifier",
+                                    "data": "prev_states",
+                                    "span": "prev_states"
+                                  },
+                                  "index": {
+                                    "kind": "int",
+                                    "data": 0,
+                                    "span": "0"
+                                  }
+                                },
+                                "span": "prev_states[0]"
+                              },
+                              "field": "balance",
+                              "field_span": "balance"
+                            },
+                            "span": "prev_states[0].balance"
+                          },
+                          "right": {
+                            "kind": "identifier",
+                            "data": "amount",
+                            "span": "amount"
+                          }
+                        },
+                        "span": "prev_states[0].balance - amount"
+                      },
+                      "span": "balance: prev_states[0].balance - amount ",
+                      "name_span": "balance"
+                    }
+                  ],
+                  "span": "{ signer_a: prev_states[0].signer_a, signer_b: prev_states[0].signer_b, balance: prev_states[0].balance - amount }"
+                }
+              ],
+              "span": "return({ signer_a: prev_states[0].signer_a, signer_b: prev_states[0].signer_b, balance: prev_states[0].balance - amount });"
+            }
+          }
+        ],
+        "return_type_spans": [
+          "State"
+        ],
+        "span": "#[covenant(binding = cov, from = max_ins, to = 1, mode = transition)]\n    function spend(State[] prev_states, sig auth_a, sig auth_b, int amount) : (State) {\n        require(checkSig(auth_a, prev_states[0].signer_a));\n        require(checkSig(auth_b, prev_states[0].signer_b));\n        require(amount >= 0);\n        require(amount <= prev_states[0].balance);\n        return({ signer_a: prev_states[0].signer_a, signer_b: prev_states[0].signer_b, balance: prev_states[0].balance - amount });\n    }",
+        "name_span": "spend",
+        "body_span": "require(checkSig(auth_a, prev_states[0].signer_a));\n        require(checkSig(auth_b, prev_states[0].signer_b));\n        require(amount >= 0);\n        require(amount <= prev_states[0].balance);\n        return({ signer_a: prev_states[0].signer_a, signer_b: prev_states[0].signer_b, balance: prev_states[0].balance - amount });"
+      },
+      {
+        "name": "__leader_spend",
+        "params": [
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "auth_a",
+            "span": "sig auth_a",
+            "type_span": "sig ",
+            "name_span": "auth_a"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "auth_b",
+            "span": "sig auth_b",
+            "type_span": "sig ",
+            "name_span": "auth_b"
+          },
+          {
+            "type_ref": {
+              "base": "int"
+            },
+            "name": "amount",
+            "span": "int amount",
+            "type_span": "int ",
+            "name_span": "amount"
+          }
+        ],
+        "entrypoint": true,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "byte",
+                "array_dims": [
+                  {
+                    "kind": "fixed",
+                    "value": 32
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "__cov_id",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpInputCovenantId",
+                  "args": [
+                    {
+                      "kind": "nullary",
+                      "data": "active_input_index",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "call",
+                    "data": {
+                      "name": "OpCovInputIdx",
+                      "args": [
+                        {
+                          "kind": "identifier",
+                          "data": "__cov_id",
+                          "span": "<synthetic>"
+                        },
+                        {
+                          "kind": "int",
+                          "data": 0,
+                          "span": "<synthetic>"
+                        }
+                      ],
+                      "name_span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "nullary",
+                    "data": "active_input_index",
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_in_count",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovInputCount",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "le",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__cov_in_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "identifier",
+                    "data": "max_ins",
+                    "span": "max_ins"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_out_count",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovOutputCount",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "State",
+                "array_dims": [
+                  {
+                    "kind": "dynamic"
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "prev_states",
+              "expr": null,
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "for",
+            "data": {
+              "ident": "__cov_in_k",
+              "start": {
+                "kind": "int",
+                "data": 0,
+                "span": "<synthetic>"
+              },
+              "end": {
+                "kind": "identifier",
+                "data": "__cov_in_count",
+                "span": "<synthetic>"
+              },
+              "max_iterations": {
+                "kind": "identifier",
+                "data": "max_ins",
+                "span": "max_ins"
+              },
+              "body": [
+                {
+                  "kind": "assign",
+                  "data": {
+                    "name": "prev_states",
+                    "expr": {
+                      "kind": "append",
+                      "data": {
+                        "source": {
+                          "kind": "identifier",
+                          "data": "prev_states",
+                          "span": "<synthetic>"
+                        },
+                        "args": [
+                          {
+                            "kind": "call",
+                            "data": {
+                              "name": "readInputState",
+                              "args": [
+                                {
+                                  "kind": "call",
+                                  "data": {
+                                    "name": "OpCovInputIdx",
+                                    "args": [
+                                      {
+                                        "kind": "identifier",
+                                        "data": "__cov_id",
+                                        "span": "<synthetic>"
+                                      },
+                                      {
+                                        "kind": "identifier",
+                                        "data": "__cov_in_k",
+                                        "span": "<synthetic>"
+                                      }
+                                    ],
+                                    "name_span": "<synthetic>"
+                                  },
+                                  "span": "<synthetic>"
+                                }
+                              ],
+                              "name_span": "<synthetic>"
+                            },
+                            "span": "<synthetic>"
+                          }
+                        ],
+                        "span": "<synthetic>"
+                      },
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  }
+                }
+              ],
+              "span": "<synthetic>",
+              "ident_span": "<synthetic>",
+              "body_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "function_call_assign",
+            "data": {
+              "bindings": [
+                {
+                  "type_ref": {
+                    "base": "State"
+                  },
+                  "name": "__cov_new_state",
+                  "span": "<synthetic>",
+                  "type_span": "<synthetic>",
+                  "name_span": "<synthetic>"
+                }
+              ],
+              "name": "__covenant_policy_spend",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prev_states",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "auth_a",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "auth_b",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "amount",
+                  "span": "<synthetic>"
+                }
+              ],
+              "span": "<synthetic>",
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__cov_out_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "int",
+                    "data": 1,
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_out_idx",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovOutputIdx",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    },
+                    {
+                      "kind": "int",
+                      "data": 0,
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "validateOutputState",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "__cov_out_idx",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "__cov_new_state",
+                  "span": "<synthetic>"
+                }
+              ],
+              "span": "<synthetic>",
+              "name_span": "<synthetic>"
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = cov, from = max_ins, to = 1, mode = transition)]\n    function spend(State[] prev_states, sig auth_a, sig auth_b, int amount) : (State) {\n        require(checkSig(auth_a, prev_states[0].signer_a));\n        require(checkSig(auth_b, prev_states[0].signer_b));\n        require(amount >= 0);\n        require(amount <= prev_states[0].balance);\n        return({ signer_a: prev_states[0].signer_a, signer_b: prev_states[0].signer_b, balance: prev_states[0].balance - amount });\n    }",
+        "name_span": "spend",
+        "body_span": "require(checkSig(auth_a, prev_states[0].signer_a));\n        require(checkSig(auth_b, prev_states[0].signer_b));\n        require(amount >= 0);\n        require(amount <= prev_states[0].balance);\n        return({ signer_a: prev_states[0].signer_a, signer_b: prev_states[0].signer_b, balance: prev_states[0].balance - amount });"
+      },
+      {
+        "name": "__delegate_spend",
+        "params": [],
+        "entrypoint": true,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "byte",
+                "array_dims": [
+                  {
+                    "kind": "fixed",
+                    "value": 32
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "__cov_id",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpInputCovenantId",
+                  "args": [
+                    {
+                      "kind": "nullary",
+                      "data": "active_input_index",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "ne",
+                  "left": {
+                    "kind": "call",
+                    "data": {
+                      "name": "OpCovInputIdx",
+                      "args": [
+                        {
+                          "kind": "identifier",
+                          "data": "__cov_id",
+                          "span": "<synthetic>"
+                        },
+                        {
+                          "kind": "int",
+                          "data": 0,
+                          "span": "<synthetic>"
+                        }
+                      ],
+                      "name_span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "nullary",
+                    "data": "active_input_index",
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = cov, from = max_ins, to = 1, mode = transition)]\n    function spend(State[] prev_states, sig auth_a, sig auth_b, int amount) : (State) {\n        require(checkSig(auth_a, prev_states[0].signer_a));\n        require(checkSig(auth_b, prev_states[0].signer_b));\n        require(amount >= 0);\n        require(amount <= prev_states[0].balance);\n        return({ signer_a: prev_states[0].signer_a, signer_b: prev_states[0].signer_b, balance: prev_states[0].balance - amount });\n    }",
+        "name_span": "spend",
+        "body_span": "require(checkSig(auth_a, prev_states[0].signer_a));\n        require(checkSig(auth_b, prev_states[0].signer_b));\n        require(amount >= 0);\n        require(amount <= prev_states[0].balance);\n        return({ signer_a: prev_states[0].signer_a, signer_b: prev_states[0].signer_b, balance: prev_states[0].balance - amount });"
+      }
+    ],
+    "span": "contract MultisigTreasury(int max_ins, int max_outs, pubkey signer_a, pubkey signer_b, int balance) {\n    pubkey signer_a = signer_a;\n    pubkey signer_b = signer_b;\n    int balance = balance;\n\n    #[covenant(binding = cov, from = max_ins, to = 1, mode = transition)]\n    function spend(State[] prev_states, sig auth_a, sig auth_b, int amount) : (State) {\n        require(checkSig(auth_a, prev_states[0].signer_a));\n        require(checkSig(auth_b, prev_states[0].signer_b));\n        require(amount >= 0);\n        require(amount <= prev_states[0].balance);\n        return({ signer_a: prev_states[0].signer_a, signer_b: prev_states[0].signer_b, balance: prev_states[0].balance - amount });\n    }\n}",
+    "name_span": "MultisigTreasury"
+  },
+  "abi": [
+    {
+      "name": "__leader_spend",
+      "inputs": [
+        {
+          "name": "auth_a",
+          "type_name": "sig"
+        },
+        {
+          "name": "auth_b",
+          "type_name": "sig"
+        },
+        {
+          "name": "amount",
+          "type_name": "int"
+        }
+      ]
+    },
+    {
+      "name": "__delegate_spend",
+      "inputs": []
+    }
+  ],
+  "without_selector": false,
+  "state_layout": {
+    "start": 1,
+    "len": 75
+  },
+  "debug_info": null
+}
