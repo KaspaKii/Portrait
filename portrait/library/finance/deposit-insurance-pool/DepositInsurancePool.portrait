@@ -1,0 +1,116 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  DepositInsurancePool — a pooled-reserve insurance / backstop covenant.
+//
+//  A pool UTXO holds a tracked reserve (`balance`) and is committed to a single
+//  claims-paying authority (`claims_authority`). Two state-mutating transitions:
+//
+//    · deposit       — a top-up that advances the reserve additively under
+//                      value-conservation (`balance + amount`). Authorisation is
+//                      bound to the COMMITTED pool owner key (so only the pool's
+//                      governance posts deposits into THIS covenant's state; the
+//                      coin contribution itself is complemented by the wallet).
+//    · payout_claim  — authorised ONLY against the COMMITTED `claims_authority`,
+//                      draws the reserve down (`balance - amount`), GATED so a
+//                      payout cannot overdraw the reserve (`amount <= balance`).
+//
+//  WHY THIS IS DISTINCT from the existing finance covenants: it is a
+//  pooled-backstop shape — a single reserve accumulator that BOTH grows (deposit)
+//  and is drawn down by a SEPARATE committed authority (claims_authority),
+//  overdraw-guarded. It is not a stream (StreamingVesting / PayrollStream: linear
+//  release to one recipient), not an N-way split (InternalSplit / RoyaltySplit),
+//  not a rate-limited pull (Subscription), and not a collateral/loan vault.
+//  The insurance/backstop reserve with a dedicated claims authority is a new
+//  structural shape in the catalogue.
+//
+//  VALUE-BEARING NAMING (honest, why the field is named `balance`): the hardened
+//  `value_conserved` rule polices fields named `balance` / `amount` / `supply`
+//  (or typed `coin`) and accepts ONLY a bare carry or a SINGLE additive
+//  adjustment (`balance + e` / `balance - e`). To keep the reserve accumulator
+//  policed by `value_conserved` it carries the conventional value-bearing name
+//  `balance` — exactly as the sibling MultisigTreasury (`balance - amount`) does.
+//  Both transitions advance it as a single additive form, so a future edit that
+//  multiplies, replaces, or double-references it is rejected by `portrait check`.
+//
+//  Honest scope (M1): the covenant enforces what it CAN without a solver —
+//  committed-authority authorisation, non-negative amounts, the overdraw guard
+//  on payouts, and single-additive conservation of the reserve. Per-depositor
+//  accounting and the actual coin custody are complemented by the wallet/relay;
+//  the covenant carries the conservation + authorisation invariants it rejects on.
+//
+//  `portrait engrave` lowers this to a singleton transition covenant that
+//  `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app DepositInsurancePool {
+  role pool {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey owner;             // committed pool owner/governance (deposit authority)
+    param pubkey claims_authority;  // committed claims-paying authority (payout authority)
+    param int    balance;           // value-bearing reserve accumulator (genesis = 0)
+
+    state {
+      pubkey owner;
+      pubkey claims_authority;
+      int    balance;               // value-bearing; policed by value_conserved
+    }
+
+    // Top up the insurance reserve.
+    //   · auth bound to the COMMITTED pool owner key   (authorized)
+    //   · amount is non-negative                        (non_negative_amount)
+    //   · reserve advances by a single additive         (value_conserved)
+    #[covenant(mode = transition)]
+    entrypoint function deposit(
+      sig auth,
+      int amount
+    ) : (pubkey owner, pubkey claims_authority, int balance) {
+      requires checkSig(auth, owner);            // committed-owner authorisation
+      requires amount >= 0;                       // non-negative top-up
+      return DepositInsurancePool {
+        owner:            owner,                   // committed keys carried unchanged
+        claims_authority: claims_authority,
+        balance:          balance + amount         // reserve grows by a single additive
+      };
+    }
+
+    // Pay an insurance claim out of the reserve.
+    //   · auth bound to the COMMITTED claims_authority  (authorized)
+    //   · amount is non-negative                         (non_negative_amount)
+    //   · payout cannot overdraw the reserve             (overdraw guard)
+    //   · reserve draws down by a single additive        (value_conserved)
+    #[covenant(mode = transition)]
+    entrypoint function payout_claim(
+      sig auth,
+      int amount
+    ) : (pubkey owner, pubkey claims_authority, int balance) {
+      requires checkSig(auth, claims_authority); // committed claims-authority authorisation
+      requires amount >= 0;                       // non-negative payout
+      requires amount <= balance;                 // cannot overdraw the reserve
+      return DepositInsurancePool {
+        owner:            owner,                   // committed keys carried unchanged
+        claims_authority: claims_authority,
+        balance:          balance - amount         // reserve draws down by a single additive
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via pool.deposit;
+    live -> live via pool.payout_claim;
+  }
+
+  invariant value_conserved;
+  // Capability invariant: every state-mutating transition authorises against a
+  // COMMITTED key (owner for deposit, claims_authority for payout). Declaring
+  // `authorized` makes the no-auth fail-safe a stated, enforced property — any
+  // transition added here that omits a committed-key checkSig is rejected.
+  invariant authorized;
+  // Refinement: deposit/payout amounts are bounded non-negative. The
+  // `requires amount >= 0;` guards above become enforced — a future edit that
+  // drops one fails the checker.
+  invariant non_negative_amount;
+  invariant no_undeclared_state;
+}

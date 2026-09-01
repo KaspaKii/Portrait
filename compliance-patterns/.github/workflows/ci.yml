@@ -1,0 +1,48 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo fmt --all --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+        # `wrpc` is the only non-default feature in the workspace, so
+        # --all-features == --features wrpc. It gates the real-engine tests; if
+        # the gate skips it, those tests never compile. Verified building,
+        # linting and testing clean on 2026-09-01 (the earlier upstream
+        # `cc-1.2.63` build failure no longer reproduces).
+      - run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - run: cargo build --workspace
+        # The generated-project compile checks in crates/kcp-cli/tests/ shell out
+        # to a nested `cargo`; they skip unless opted in, so an offline clone
+        # degrades to a skip rather than a hard failure. CI has network, so opt
+        # in — otherwise the scaffolds' own output is never compiled.
+      - run: cargo test --workspace
+        env:
+          KCP_GATE_SCAFFOLD_BUILD: "1"
+      - run: cargo test --workspace --all-features
+        env:
+          KCP_GATE_SCAFFOLD_BUILD: "1"
+        # The examples/ projects are standalone workspaces outside [workspace]
+        # members, so nothing above compiles them: a breaking API change in a
+        # crate can ship a broken example (it has). `_harness/ci.sh` runs a full
+        # `cargo test` on each (~4m30s warm); CI compile-checks them instead,
+        # because each project has its own target dir and a cold runner would
+        # rebuild the rusty-kaspa tree once per project. `--all-targets` covers
+        # each project's tests as well as its binary, which is what catches a
+        # changed function signature.
+      - name: compile-check every standalone examples/ project (check, not test)
+        run: |
+          for manifest in examples/*/Cargo.toml; do
+            dir="$(dirname "$manifest")"
+            echo "::group::$dir"
+            (cd "$dir" && cargo check --all-targets)
+            echo "::endgroup::"
+          done

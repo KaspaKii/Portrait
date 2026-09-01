@@ -1,0 +1,1656 @@
+{
+  "contract_name": "TransferableRecord",
+  "compiler_version": "0.1.0",
+  "script": [
+    107,
+    32,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    8,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    32,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    108,
+    118,
+    0,
+    156,
+    99,
+    117,
+    185,
+    207,
+    118,
+    0,
+    209,
+    185,
+    156,
+    105,
+    118,
+    208,
+    118,
+    81,
+    161,
+    105,
+    120,
+    210,
+    0,
+    0,
+    0,
+    0,
+    85,
+    121,
+    0,
+    148,
+    81,
+    161,
+    105,
+    118,
+    86,
+    121,
+    159,
+    99,
+    118,
+    87,
+    121,
+    120,
+    209,
+    88,
+    121,
+    82,
+    121,
+    209,
+    201,
+    2,
+    36,
+    2,
+    148,
+    82,
+    147,
+    89,
+    121,
+    83,
+    121,
+    209,
+    201,
+    2,
+    36,
+    2,
+    148,
+    82,
+    147,
+    1,
+    32,
+    147,
+    188,
+    88,
+    121,
+    82,
+    121,
+    209,
+    89,
+    121,
+    83,
+    121,
+    209,
+    201,
+    2,
+    36,
+    2,
+    148,
+    1,
+    35,
+    147,
+    90,
+    121,
+    84,
+    121,
+    209,
+    201,
+    2,
+    36,
+    2,
+    148,
+    1,
+    35,
+    147,
+    88,
+    147,
+    188,
+    89,
+    121,
+    83,
+    121,
+    209,
+    90,
+    121,
+    84,
+    121,
+    209,
+    201,
+    2,
+    36,
+    2,
+    148,
+    1,
+    44,
+    147,
+    91,
+    121,
+    85,
+    121,
+    209,
+    201,
+    2,
+    36,
+    2,
+    148,
+    1,
+    44,
+    147,
+    1,
+    32,
+    147,
+    188,
+    87,
+    121,
+    83,
+    121,
+    126,
+    88,
+    122,
+    117,
+    87,
+    121,
+    83,
+    121,
+    88,
+    205,
+    126,
+    88,
+    122,
+    117,
+    87,
+    121,
+    83,
+    121,
+    126,
+    88,
+    122,
+    117,
+    86,
+    121,
+    81,
+    147,
+    88,
+    122,
+    117,
+    84,
+    122,
+    117,
+    84,
+    122,
+    117,
+    84,
+    122,
+    117,
+    84,
+    122,
+    117,
+    104,
+    83,
+    121,
+    83,
+    121,
+    83,
+    121,
+    96,
+    121,
+    96,
+    121,
+    96,
+    121,
+    96,
+    121,
+    84,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    172,
+    105,
+    120,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    85,
+    121,
+    0,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    81,
+    147,
+    156,
+    105,
+    82,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    86,
+    121,
+    0,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    135,
+    105,
+    90,
+    121,
+    81,
+    161,
+    105,
+    90,
+    121,
+    1,
+    20,
+    121,
+    130,
+    124,
+    117,
+    1,
+    32,
+    150,
+    156,
+    105,
+    0,
+    91,
+    121,
+    0,
+    148,
+    81,
+    161,
+    105,
+    118,
+    92,
+    121,
+    159,
+    99,
+    118,
+    1,
+    21,
+    121,
+    120,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    1,
+    21,
+    121,
+    82,
+    121,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    88,
+    205,
+    1,
+    8,
+    124,
+    126,
+    1,
+    21,
+    121,
+    83,
+    121,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    126,
+    126,
+    185,
+    118,
+    201,
+    2,
+    36,
+    2,
+    148,
+    118,
+    81,
+    147,
+    188,
+    124,
+    126,
+    185,
+    118,
+    201,
+    118,
+    2,
+    36,
+    2,
+    148,
+    1,
+    76,
+    147,
+    124,
+    188,
+    126,
+    170,
+    2,
+    0,
+    0,
+    1,
+    170,
+    126,
+    1,
+    32,
+    126,
+    124,
+    126,
+    1,
+    135,
+    126,
+    95,
+    121,
+    82,
+    121,
+    211,
+    195,
+    135,
+    105,
+    118,
+    81,
+    147,
+    123,
+    117,
+    119,
+    104,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    81,
+    103,
+    118,
+    81,
+    156,
+    99,
+    117,
+    185,
+    207,
+    0,
+    209,
+    185,
+    158,
+    105,
+    117,
+    117,
+    117,
+    81,
+    103,
+    117,
+    0,
+    105,
+    104,
+    104
+  ],
+  "ast": {
+    "name": "TransferableRecord",
+    "params": [
+      {
+        "type_ref": {
+          "base": "byte",
+          "array_dims": [
+            {
+              "kind": "fixed",
+              "value": 32
+            }
+          ]
+        },
+        "name": "genesisRecordId",
+        "span": "byte[32] genesisRecordId",
+        "type_span": "byte[32]",
+        "name_span": "genesisRecordId"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "genesisSeq",
+        "span": "int      genesisSeq",
+        "type_span": "int      ",
+        "name_span": "genesisSeq"
+      },
+      {
+        "type_ref": {
+          "base": "byte",
+          "array_dims": [
+            {
+              "kind": "fixed",
+              "value": 32
+            }
+          ]
+        },
+        "name": "genesisControllerPk",
+        "span": "byte[32] genesisControllerPk",
+        "type_span": "byte[32]",
+        "name_span": "genesisControllerPk"
+      }
+    ],
+    "fields": [
+      {
+        "type_ref": {
+          "base": "byte",
+          "array_dims": [
+            {
+              "kind": "fixed",
+              "value": 32
+            }
+          ]
+        },
+        "name": "record_id",
+        "expr": {
+          "kind": "identifier",
+          "data": "genesisRecordId",
+          "span": "genesisRecordId"
+        },
+        "span": "byte[32] record_id    = genesisRecordId;",
+        "type_span": "byte[32]",
+        "name_span": "record_id"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "seq",
+        "expr": {
+          "kind": "identifier",
+          "data": "genesisSeq",
+          "span": "genesisSeq"
+        },
+        "span": "int      seq          = genesisSeq;",
+        "type_span": "int      ",
+        "name_span": "seq"
+      },
+      {
+        "type_ref": {
+          "base": "byte",
+          "array_dims": [
+            {
+              "kind": "fixed",
+              "value": 32
+            }
+          ]
+        },
+        "name": "controllerPk",
+        "expr": {
+          "kind": "identifier",
+          "data": "genesisControllerPk",
+          "span": "genesisControllerPk"
+        },
+        "span": "byte[32] controllerPk = genesisControllerPk;",
+        "type_span": "byte[32]",
+        "name_span": "controllerPk"
+      }
+    ],
+    "constants": [],
+    "functions": [
+      {
+        "name": "checkOwnership",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prevStates",
+            "span": "State[] prevStates",
+            "type_span": "State[]",
+            "name_span": "prevStates"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "s",
+            "span": "sig s",
+            "type_span": "sig ",
+            "name_span": "s"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "checkSig",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "s",
+                      "span": "s"
+                    },
+                    {
+                      "kind": "field_access",
+                      "data": {
+                        "source": {
+                          "kind": "array_index",
+                          "data": {
+                            "source": {
+                              "kind": "identifier",
+                              "data": "prevStates",
+                              "span": "prevStates"
+                            },
+                            "index": {
+                              "kind": "int",
+                              "data": 0,
+                              "span": "0"
+                            }
+                          },
+                          "span": "prevStates[0]"
+                        },
+                        "field": "controllerPk",
+                        "field_span": "controllerPk"
+                      },
+                      "span": "prevStates[0].controllerPk"
+                    }
+                  ],
+                  "name_span": "checkSig"
+                },
+                "span": "checkSig(s, prevStates[0].controllerPk)"
+              },
+              "message": null,
+              "span": "require(checkSig(s, prevStates[0].controllerPk));",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "function checkOwnership(State[] prevStates, sig s) {\n        require(checkSig(s, prevStates[0].controllerPk));\n    }",
+        "name_span": "checkOwnership",
+        "body_span": "require(checkSig(s, prevStates[0].controllerPk));"
+      },
+      {
+        "name": "checkSeq",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prevStates",
+            "span": "State[] prevStates",
+            "type_span": "State[]",
+            "name_span": "prevStates"
+          },
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "newStates",
+            "span": "State[] newStates",
+            "type_span": "State[]",
+            "name_span": "newStates"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "newStates",
+                            "span": "newStates"
+                          },
+                          "index": {
+                            "kind": "int",
+                            "data": 0,
+                            "span": "0"
+                          }
+                        },
+                        "span": "newStates[0]"
+                      },
+                      "field": "seq",
+                      "field_span": "seq"
+                    },
+                    "span": "newStates[0].seq"
+                  },
+                  "right": {
+                    "kind": "binary",
+                    "data": {
+                      "op": "add",
+                      "left": {
+                        "kind": "field_access",
+                        "data": {
+                          "source": {
+                            "kind": "array_index",
+                            "data": {
+                              "source": {
+                                "kind": "identifier",
+                                "data": "prevStates",
+                                "span": "prevStates"
+                              },
+                              "index": {
+                                "kind": "int",
+                                "data": 0,
+                                "span": "0"
+                              }
+                            },
+                            "span": "prevStates[0]"
+                          },
+                          "field": "seq",
+                          "field_span": "seq"
+                        },
+                        "span": "prevStates[0].seq"
+                      },
+                      "right": {
+                        "kind": "int",
+                        "data": 1,
+                        "span": "1"
+                      }
+                    },
+                    "span": "prevStates[0].seq + 1"
+                  }
+                },
+                "span": "newStates[0].seq == prevStates[0].seq + 1"
+              },
+              "message": null,
+              "span": "require(newStates[0].seq == prevStates[0].seq + 1);",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "function checkSeq(State[] prevStates, State[] newStates) {\n        require(newStates[0].seq == prevStates[0].seq + 1);\n    }",
+        "name_span": "checkSeq",
+        "body_span": "require(newStates[0].seq == prevStates[0].seq + 1);"
+      },
+      {
+        "name": "checkRecordId",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prevStates",
+            "span": "State[] prevStates",
+            "type_span": "State[]",
+            "name_span": "prevStates"
+          },
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "newStates",
+            "span": "State[] newStates",
+            "type_span": "State[]",
+            "name_span": "newStates"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "newStates",
+                            "span": "newStates"
+                          },
+                          "index": {
+                            "kind": "int",
+                            "data": 0,
+                            "span": "0"
+                          }
+                        },
+                        "span": "newStates[0]"
+                      },
+                      "field": "record_id",
+                      "field_span": "record_id"
+                    },
+                    "span": "newStates[0].record_id"
+                  },
+                  "right": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "prevStates",
+                            "span": "prevStates"
+                          },
+                          "index": {
+                            "kind": "int",
+                            "data": 0,
+                            "span": "0"
+                          }
+                        },
+                        "span": "prevStates[0]"
+                      },
+                      "field": "record_id",
+                      "field_span": "record_id"
+                    },
+                    "span": "prevStates[0].record_id"
+                  }
+                },
+                "span": "newStates[0].record_id == prevStates[0].record_id"
+              },
+              "message": null,
+              "span": "require(newStates[0].record_id == prevStates[0].record_id);",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "function checkRecordId(State[] prevStates, State[] newStates) {\n        require(newStates[0].record_id == prevStates[0].record_id);\n    }",
+        "name_span": "checkRecordId",
+        "body_span": "require(newStates[0].record_id == prevStates[0].record_id);"
+      },
+      {
+        "name": "__covenant_policy_transfer",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "prevStates",
+            "span": "State[] prevStates",
+            "type_span": "State[]",
+            "name_span": "prevStates"
+          },
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "newStates",
+            "span": "State[] newStates",
+            "type_span": "State[]",
+            "name_span": "newStates"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "s",
+            "span": "sig s",
+            "type_span": "sig ",
+            "name_span": "s"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "checkOwnership",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prevStates",
+                  "span": "prevStates"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "s",
+                  "span": "s"
+                }
+              ],
+              "span": "checkOwnership(prevStates, s);",
+              "name_span": "checkOwnership"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "checkSeq",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prevStates",
+                  "span": "prevStates"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "newStates",
+                  "span": "newStates"
+                }
+              ],
+              "span": "checkSeq(prevStates, newStates);",
+              "name_span": "checkSeq"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "checkRecordId",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prevStates",
+                  "span": "prevStates"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "newStates",
+                  "span": "newStates"
+                }
+              ],
+              "span": "checkRecordId(prevStates, newStates);",
+              "name_span": "checkRecordId"
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = cov, from = 1, to = 1)]\n    function transfer(State[] prevStates, State[] newStates, sig s) {\n        checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkRecordId(prevStates, newStates);\n    }",
+        "name_span": "transfer",
+        "body_span": "checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkRecordId(prevStates, newStates);"
+      },
+      {
+        "name": "__leader_transfer",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "newStates",
+            "span": "State[] newStates",
+            "type_span": "State[]",
+            "name_span": "newStates"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "s",
+            "span": "sig s",
+            "type_span": "sig ",
+            "name_span": "s"
+          }
+        ],
+        "entrypoint": true,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "byte",
+                "array_dims": [
+                  {
+                    "kind": "fixed",
+                    "value": 32
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "__cov_id",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpInputCovenantId",
+                  "args": [
+                    {
+                      "kind": "nullary",
+                      "data": "active_input_index",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "call",
+                    "data": {
+                      "name": "OpCovInputIdx",
+                      "args": [
+                        {
+                          "kind": "identifier",
+                          "data": "__cov_id",
+                          "span": "<synthetic>"
+                        },
+                        {
+                          "kind": "int",
+                          "data": 0,
+                          "span": "<synthetic>"
+                        }
+                      ],
+                      "name_span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "nullary",
+                    "data": "active_input_index",
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_in_count",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovInputCount",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "le",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__cov_in_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "int",
+                    "data": 1,
+                    "span": "1"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__cov_out_count",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpCovOutputCount",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "__cov_id",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "State",
+                "array_dims": [
+                  {
+                    "kind": "dynamic"
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "prevStates",
+              "expr": null,
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "for",
+            "data": {
+              "ident": "__cov_in_k",
+              "start": {
+                "kind": "int",
+                "data": 0,
+                "span": "<synthetic>"
+              },
+              "end": {
+                "kind": "identifier",
+                "data": "__cov_in_count",
+                "span": "<synthetic>"
+              },
+              "max_iterations": {
+                "kind": "int",
+                "data": 1,
+                "span": "1"
+              },
+              "body": [
+                {
+                  "kind": "assign",
+                  "data": {
+                    "name": "prevStates",
+                    "expr": {
+                      "kind": "append",
+                      "data": {
+                        "source": {
+                          "kind": "identifier",
+                          "data": "prevStates",
+                          "span": "<synthetic>"
+                        },
+                        "args": [
+                          {
+                            "kind": "call",
+                            "data": {
+                              "name": "readInputState",
+                              "args": [
+                                {
+                                  "kind": "call",
+                                  "data": {
+                                    "name": "OpCovInputIdx",
+                                    "args": [
+                                      {
+                                        "kind": "identifier",
+                                        "data": "__cov_id",
+                                        "span": "<synthetic>"
+                                      },
+                                      {
+                                        "kind": "identifier",
+                                        "data": "__cov_in_k",
+                                        "span": "<synthetic>"
+                                      }
+                                    ],
+                                    "name_span": "<synthetic>"
+                                  },
+                                  "span": "<synthetic>"
+                                }
+                              ],
+                              "name_span": "<synthetic>"
+                            },
+                            "span": "<synthetic>"
+                          }
+                        ],
+                        "span": "<synthetic>"
+                      },
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  }
+                }
+              ],
+              "span": "<synthetic>",
+              "ident_span": "<synthetic>",
+              "body_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "__covenant_policy_transfer",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prevStates",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "newStates",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "s",
+                  "span": "<synthetic>"
+                }
+              ],
+              "span": "<synthetic>",
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "le",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__cov_out_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "int",
+                    "data": 1,
+                    "span": "1"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__cov_out_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "unary_suffix",
+                    "data": {
+                      "source": {
+                        "kind": "identifier",
+                        "data": "newStates",
+                        "span": "<synthetic>"
+                      },
+                      "kind": "length",
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "for",
+            "data": {
+              "ident": "__cov_k",
+              "start": {
+                "kind": "int",
+                "data": 0,
+                "span": "<synthetic>"
+              },
+              "end": {
+                "kind": "identifier",
+                "data": "__cov_out_count",
+                "span": "<synthetic>"
+              },
+              "max_iterations": {
+                "kind": "int",
+                "data": 1,
+                "span": "1"
+              },
+              "body": [
+                {
+                  "kind": "variable_definition",
+                  "data": {
+                    "type_ref": {
+                      "base": "int"
+                    },
+                    "modifiers": [],
+                    "name": "__cov_out_idx",
+                    "expr": {
+                      "kind": "call",
+                      "data": {
+                        "name": "OpCovOutputIdx",
+                        "args": [
+                          {
+                            "kind": "identifier",
+                            "data": "__cov_id",
+                            "span": "<synthetic>"
+                          },
+                          {
+                            "kind": "identifier",
+                            "data": "__cov_k",
+                            "span": "<synthetic>"
+                          }
+                        ],
+                        "name_span": "<synthetic>"
+                      },
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "type_span": "<synthetic>",
+                    "modifier_spans": [],
+                    "name_span": "<synthetic>"
+                  }
+                },
+                {
+                  "kind": "function_call",
+                  "data": {
+                    "name": "validateOutputState",
+                    "args": [
+                      {
+                        "kind": "identifier",
+                        "data": "__cov_out_idx",
+                        "span": "<synthetic>"
+                      },
+                      {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "newStates",
+                            "span": "<synthetic>"
+                          },
+                          "index": {
+                            "kind": "identifier",
+                            "data": "__cov_k",
+                            "span": "<synthetic>"
+                          }
+                        },
+                        "span": "<synthetic>"
+                      }
+                    ],
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  }
+                }
+              ],
+              "span": "<synthetic>",
+              "ident_span": "<synthetic>",
+              "body_span": "<synthetic>"
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = cov, from = 1, to = 1)]\n    function transfer(State[] prevStates, State[] newStates, sig s) {\n        checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkRecordId(prevStates, newStates);\n    }",
+        "name_span": "transfer",
+        "body_span": "checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkRecordId(prevStates, newStates);"
+      },
+      {
+        "name": "__delegate_transfer",
+        "params": [],
+        "entrypoint": true,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "byte",
+                "array_dims": [
+                  {
+                    "kind": "fixed",
+                    "value": 32
+                  }
+                ]
+              },
+              "modifiers": [],
+              "name": "__cov_id",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpInputCovenantId",
+                  "args": [
+                    {
+                      "kind": "nullary",
+                      "data": "active_input_index",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "ne",
+                  "left": {
+                    "kind": "call",
+                    "data": {
+                      "name": "OpCovInputIdx",
+                      "args": [
+                        {
+                          "kind": "identifier",
+                          "data": "__cov_id",
+                          "span": "<synthetic>"
+                        },
+                        {
+                          "kind": "int",
+                          "data": 0,
+                          "span": "<synthetic>"
+                        }
+                      ],
+                      "name_span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "nullary",
+                    "data": "active_input_index",
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = cov, from = 1, to = 1)]\n    function transfer(State[] prevStates, State[] newStates, sig s) {\n        checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkRecordId(prevStates, newStates);\n    }",
+        "name_span": "transfer",
+        "body_span": "checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkRecordId(prevStates, newStates);"
+      }
+    ],
+    "span": "contract TransferableRecord(\n    byte[32] genesisRecordId,\n    int      genesisSeq,\n    byte[32] genesisControllerPk\n) {\n    byte[32] record_id    = genesisRecordId;\n    int      seq          = genesisSeq;\n    byte[32] controllerPk = genesisControllerPk;\n\n    // TR-3: ownership — the CURRENT controller must sign.\n    function checkOwnership(State[] prevStates, sig s) {\n        require(checkSig(s, prevStates[0].controllerPk));\n    }\n\n    // TR-1: seq must increment by exactly 1.\n    function checkSeq(State[] prevStates, State[] newStates) {\n        require(newStates[0].seq == prevStates[0].seq + 1);\n    }\n\n    // TR-2: record_id must be preserved.\n    function checkRecordId(State[] prevStates, State[] newStates) {\n        require(newStates[0].record_id == prevStates[0].record_id);\n    }\n\n    // Single-input single-output transfer transition.\n    // from=1, to=1: exactly one covenant input and one covenant output.\n    // The new controllerPk is unconstrained — it is set by the caller in newStates.\n    #[covenant(binding = cov, from = 1, to = 1)]\n    function transfer(State[] prevStates, State[] newStates, sig s) {\n        checkOwnership(prevStates, s);\n        checkSeq(prevStates, newStates);\n        checkRecordId(prevStates, newStates);\n    }\n}",
+    "name_span": "TransferableRecord"
+  },
+  "abi": [
+    {
+      "name": "__leader_transfer",
+      "inputs": [
+        {
+          "name": "newStates",
+          "type_name": "State[]"
+        },
+        {
+          "name": "s",
+          "type_name": "sig"
+        }
+      ]
+    },
+    {
+      "name": "__delegate_transfer",
+      "inputs": []
+    }
+  ],
+  "without_selector": false,
+  "state_layout": {
+    "start": 1,
+    "len": 75
+  },
+  "debug_info": null
+}

@@ -1,0 +1,127 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  DigitalReit — a two-covenant tokenised-REIT distribution waterfall.
+//
+//  THE POINT OF THIS FILE: it is a single app that a single silverscript
+//  contract *cannot* express. It is two distinct on-chain covenants linked by
+//  covenant-ID lineage:
+//
+//    · role `token`  → TrustedToken: the REIT share registry. The trustee
+//                      declares a per-period distribution (a sum to be paid
+//                      out to holders this period). It is the *parent* of the
+//                      lineage — its covenant ID is the anchor.
+//
+//    · role `splitter` → PaymentSplitter: the distribution waterfall. It pays
+//                      the declared period out senior-first. It is the *child*:
+//                      its genesis state commits to the parent TrustedToken's
+//                      covenant ID (`parent_kov_id`), and every `payout`
+//                      transition REQUIRES that the parent covenant's UTXO is
+//                      the spending input at index 0
+//                      (`parent_kov_id == OpInputCovenantId(0)`).
+//
+//  That `require` is the covenant-ID lineage edge, realised on-chain. A single
+//  contract cannot carry it: there is no second covenant whose ID can be bound,
+//  and there is no way for one UTXO's spend-rule to assert "I may only fire in
+//  the same transaction as that *other* covenant". You need two covenants and a
+//  cross-covenant ID binding — exactly what two roles + a cross-role lifecycle
+//  buy you. The Composer (Pounce projection → per-role engraving) exists to
+//  factor this into two `silverc`-clean contracts plus a deploy manifest.
+//
+//  Lifecycle crosses roles:  issued --token.distribute--> distributing
+//                            distributing --splitter.payout--> distributing
+//
+//  Honest scope (M1): `parent_kov_id` is bound at genesis by the deployer (the
+//  manifest in portrait-plan records the parent→child edge and the deploy
+//  order). The covenant enforces the *structural* lineage (the child cannot
+//  fire without the parent input present); the deployer is responsible for
+//  seeding the correct parent ID. Amounts/period are caller-asserted integers
+//  compared against committed state; real coin movement is the wallet's job,
+//  complemented here by the structural invariants the covenant rejects on.
+// ─────────────────────────────────────────────────────────────────────────
+
+app DigitalReit {
+  // ── Parent covenant: the REIT share registry / distribution declarer. ──
+  role token {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey trustee;       // trust root permitted to declare distributions
+    param int    supply;        // total REIT shares issued (constant)
+    param int    period;        // monotonic distribution period (genesis = 0)
+    param int    declared;      // amount declared for the current period
+
+    state {
+      pubkey trustee;
+      int    supply;
+      int    period;
+      int    declared;
+    }
+
+    // Trustee opens a new distribution period and declares the amount payable.
+    #[covenant(mode = transition)]
+    entrypoint function distribute(
+      sig auth,
+      int next_declared
+    ) : (pubkey trustee, int supply, int period, int declared) {
+      requires checkSig(auth, trustee);     // only the trustee may declare
+      requires next_declared >= 0;          // a declaration is non-negative
+      return DigitalReit {
+        trustee:  trustee,
+        supply:   supply,                   // supply is conserved
+        period:   period + 1,               // advance the distribution period
+        declared: next_declared
+      };
+    }
+  }
+
+  // ── Child covenant: the senior-first payment waterfall (the splitter). ──
+  role splitter {
+    // Genesis state (one constructor param per state field, in field order).
+    param bytes32 parent_kov_id;  // covenant ID of the parent TrustedToken (lineage anchor)
+    param pubkey  trustee;        // committed trustee public key (same trust root as the token)
+    param int     senior_bps;     // senior tranche share, basis points (0..10000)
+    param int     paid_period;    // last period this splitter has paid (genesis = 0)
+    param int     paid_amount;    // cumulative amount paid out across periods
+
+    state {
+      bytes32 parent_kov_id;
+      pubkey  trustee;
+      int     senior_bps;
+      int     paid_period;
+      int     paid_amount;
+    }
+
+    // Pay out one period of the waterfall. May ONLY fire when the parent
+    // TrustedToken covenant's UTXO is the spending input at index 0 — this is
+    // the covenant-ID lineage edge, enforced on-chain.
+    // Auth is verified against the COMMITTED trustee in state (prev_states[0].trustee),
+    // not a caller-supplied pubkey, so payout cannot be authorised by an arbitrary key.
+    #[covenant(mode = transition)]
+    entrypoint function payout(
+      sig auth,
+      int amount,
+      int for_period
+    ) : (bytes32 parent_kov_id, pubkey trustee, int senior_bps, int paid_period, int paid_amount) {
+      requires parent_kov_id == OpInputCovenantId(0);   // LINEAGE: parent covenant must be input 0
+      requires checkSig(auth, trustee);                  // only the committed trustee may pay out
+      requires senior_bps <= 10000;                      // basis-point envelope
+      requires amount >= 0;                              // non-negative payout
+      requires for_period == paid_period + 1;            // pay periods strictly in order
+      return DigitalReit {
+        parent_kov_id: parent_kov_id,                    // lineage anchor carried unchanged
+        trustee:       trustee,                          // trustee key carried unchanged
+        senior_bps:    senior_bps,
+        paid_period:   for_period,                       // advance to the paid period
+        paid_amount:   paid_amount + amount              // accumulate paid total
+      };
+    }
+  }
+
+  // Lifecycle crosses both roles: the token declares, then the splitter pays.
+  lifecycle {
+    issued       -> distributing via token.distribute;
+    distributing -> distributing via splitter.payout;
+  }
+
+  invariant value_conserved;
+  invariant no_undeclared_state;
+}

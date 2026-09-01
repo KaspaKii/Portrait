@@ -1,0 +1,36 @@
+// AllowanceToken — REJECT fixture (out of subset).
+// Solidity equivalent (the ERC20 allowance pattern):
+//   contract AllowanceToken {
+//     mapping(address => uint256) allowances;
+//     function transferFrom(address from, address to, uint256 amount) external;
+//   }
+// Two distinct out-of-subset constructs are present:
+//   1. a `map<...>` state field  — shared mutable mapping (SUBSET-V0 §3 item 1)
+//   2. a `transferFrom(...)`     — allowance pattern    (SUBSET-V0 §3 item 2)
+// `portrait engrave` MUST reject this fail-loud, naming the offending construct
+// and routing it to the vProgs layer — NOT silently miscompile it.
+//
+// (The mapping state field is hit first by the parser, so that is the construct
+// the diagnostic names; transferFrom is documented here as the second reason the
+// contract is out of subset.)
+pragma portrait ^0.1.0;
+
+app AllowanceToken {
+  role token {
+    param int balance;
+
+    state {
+      int balance;
+      map<pubkey, int> allowances;   // shared mutable mapping — REJECT
+    }
+
+    #[covenant(mode = transition)]
+    entrypoint function spend(int amount) : (int balance) {
+      transferFrom(owner, to, amount);   // allowance pattern — REJECT
+      return balance - amount;
+    }
+  }
+
+  lifecycle { live -> live via token.spend; }
+  invariant no_undeclared_state;
+}

@@ -1,0 +1,9 @@
+[package]
+name = "portrait-project"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+portrait-syntax = { path = "../portrait-syntax" }
+portrait-ir = { path = "../portrait-ir" }

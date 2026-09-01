@@ -1,0 +1,108 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  TrancheWaterfall — a multi-tranche bond coupon distribution (conservation_split).
+//
+//  THE POINT OF THIS FILE: reframe the RoyaltySplit N-field conservation_split
+//  as a structured-credit / fixed-income coupon WATERFALL — the genuinely-new
+//  RWA framing. One pooled coupon source leg (`coupon_balance`) is fanned to
+//  THREE tranche legs — senior, mezzanine, junior — in a single transition,
+//  authorised by the committed trustee. This is the on-chain shape of a CLO /
+//  structured-note coupon distribution across its capital stack.
+//
+//  State:
+//    · coupon_balance — pooled coupon source (value-bearing: ends in `balance`);
+//    · senior_balance — senior tranche leg (value-bearing);
+//    · mezz_balance   — mezzanine tranche leg (value-bearing);
+//    · junior_balance — junior tranche leg (value-bearing);
+//    · trustee        — committed distribution authority (carried).
+//
+//  Transition:
+//    · distribute(s, m, j) — trustee-auth; each tranche allocation non-negative
+//                     (`s >= 0`, `m >= 0`, `j >= 0`); the combined draw may not
+//                     overdraw the pool (`s + m + j <= coupon_balance`); the pool
+//                     decreases by `(s + m + j)` and each tranche increases by its
+//                     allocation. The four deltas net to zero — the subtracted
+//                     atoms {s, m, j} equal the added atoms {s, m, j} — the shape
+//                     `conservation_split` (generalised to N fields) requires.
+//
+//  HONEST SCOPE — STRUCTURAL N-FIELD SPLIT, NO PRIORITY ORDERING (identical to
+//  RoyaltySplit). `conservation_split` proves the multiset of added `+`-atoms
+//  equals the multiset of subtracted `+`-atoms by AST structural equality — it
+//  conserves value across the four legs. It does NOT reason about the numeric
+//  values of s/m/j, and — critically for a WATERFALL — it does NOT enforce
+//  senior-priority ORDERING (that senior is paid in full before mezz, before
+//  junior). Priority sequencing is a conditional / stateful waterfall rule that
+//  needs branch logic over the fill levels — a vProg or a DigitalReit-style
+//  lineage shape, NOT this covenant. The tranche COUNT is fixed at 3 to stay a
+//  covenant; arbitrary-N pro-rata distribution (share = balance * holding /
+//  supply) needs per-holder iteration and division and is a vProg.
+//
+//  HONEST SCOPE (M2): this is STRUCTURAL N-field additive-delta arithmetic, NOT
+//  a general SMT conservation proof, and models an INTERNAL split only (coupons
+//  moved BETWEEN the covenant's own legs), NOT a value-out spend.
+//
+//  Emission note: the constructor declares coupon_balance, senior_balance,
+//  mezz_balance, junior_balance, trustee in state-field order. `portrait engrave`
+//  lowers this to a single-transition singleton covenant `silverc` accepts.
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app TrancheWaterfall {
+  role waterfall {
+    // Genesis state (one constructor param per state field, in field order).
+    param int    coupon_balance;   // pooled coupon source (value-bearing)
+    param int    senior_balance;   // senior tranche leg (value-bearing)
+    param int    mezz_balance;     // mezzanine tranche leg (value-bearing)
+    param int    junior_balance;   // junior tranche leg (value-bearing)
+    param pubkey trustee;          // committed distribution authority
+
+    state {
+      int    coupon_balance;
+      int    senior_balance;
+      int    mezz_balance;
+      int    junior_balance;
+      pubkey trustee;
+    }
+
+    // Distribute `s + m + j` out of the pooled coupon leg: `s` to senior, `m` to
+    // mezzanine, `j` to junior. The committed trustee must authorise. The four
+    // deltas net to zero — the combined `(s + m + j)` leaving `coupon_balance`
+    // equals the `s`, `m`, `j` arriving in the three tranche legs.
+    #[covenant(mode = transition)]
+    entrypoint function distribute(
+      sig auth,
+      int s,
+      int m,
+      int j
+    ) : (int coupon_balance, int senior_balance, int mezz_balance, int junior_balance, pubkey trustee) {
+      requires checkSig(auth, trustee);          // only the committed trustee may distribute
+      requires s >= 0;                            // non-negative tranche allocations
+      requires m >= 0;
+      requires j >= 0;
+      requires s + m + j <= coupon_balance;       // cannot overdraw the coupon pool
+      return TrancheWaterfall {
+        coupon_balance: coupon_balance - (s + m + j),  // pool decreases by the combined term
+        senior_balance: senior_balance + s,            // senior gains s
+        mezz_balance:   mezz_balance + m,              // mezzanine gains m
+        junior_balance: junior_balance + j,            // junior gains j
+        trustee:        trustee                         // trustee carried unchanged
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via waterfall.distribute;
+  }
+
+  // Refinement (D4): the distribution conserves value across the four legs — the
+  // combined term leaving `coupon_balance` is the SAME triple of atoms arriving
+  // in the three tranche legs. STRUCTURAL N-field additive-delta arithmetic, NOT
+  // a general SMT conservation proof, and NOT a priority-ordering proof.
+  invariant conservation_split;
+  // Capability (C2): distribution authority is checked against the COMMITTED
+  // trustee.
+  invariant authorized;
+  invariant no_undeclared_state;
+}

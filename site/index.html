@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portrait — the Kaspa covenant pattern library + covenant language</title>
+  <meta name="description" content="The covenant pattern library for Kaspa — an open-source (MIT) OpenZeppelin-equivalent catalogue of reusable covenant components, plus Portrait, the high-level covenant language that builds them. Stewarded by the Stichting Kii Foundation. Pre-production, unaudited, testnet-only." />
+  <!-- Brand kit is the single override point: brand/tokens.css. -->
+  <link rel="stylesheet" href="brand/tokens.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-nav">
+    <nav class="container" aria-label="Primary">
+      <a class="brand-mark" href="#main">
+        <img class="kii-logo kii-logo--light" src="kii-logo-color.png" alt="Kii" />
+        <img class="kii-logo kii-logo--dark" src="kii-logo-white.png" alt="Kii" />
+        <img class="portrait-mark" src="portrait-frame.png" alt="" aria-hidden="true" />
+        <span class="brand-word">Portrait</span>
+      </a>
+      <div class="nav-links">
+        <a href="#library">Library</a>
+        <a href="wizard.html">Wizard</a>
+        <a href="#what-you-get">Language</a>
+        <a href="#verification">Verification</a>
+        <a href="#quick-start">Quick start</a>
+        <a href="#evidence">Evidence</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Prominent, page-level maturity banner. -->
+  <div class="maturity-banner" role="note" aria-label="Maturity status">
+    <p class="container">
+      <strong>Pre-production &middot; unaudited &middot; testnet-only.</strong>
+      Nothing is on mainnet. Testnet evidence is perishable (testnets reset by design).
+    </p>
+  </div>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container">
+        <h1>The covenant pattern library for Kaspa</h1>
+        <p>
+          Reusable covenant components you can drop into a Kaspa project: vaults,
+          escrows, auctions, registries, token standards, access guards. Each one
+          is real silverscript, with its own tests and a threat model.
+          <a href="#library">Browse the library</a>, or
+          <a href="wizard.html">start one in the wizard</a>.
+        </p>
+        <p>
+          The library is written in Portrait, a small covenant language that
+          compiles to silverscript. Both are open source (MIT) and maintained by
+          the <strong>Stichting Kii Foundation</strong>, a Dutch non-profit that
+          doesn't bill for anything.
+        </p>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         Covenant Patterns Library — the catalogue (headline)
+         ================================================================= -->
+    <section id="library" class="section" aria-labelledby="library-h">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 id="library-h">Covenant Patterns Library</h2>
+            <p class="lede">
+              This is the part that saves you work: a catalogue of covenant
+              patterns to reuse instead of writing from scratch, the Kaspa
+              counterpart to Solidity's audited pattern libraries. Every pattern is
+              real silverscript with a Portrait wrapper, golden tests, and a threat
+              model, and it goes through the same <code>portrait check</code> as
+              everything else here.
+            </p>
+          </div>
+        </div>
+
+        <div class="card-grid">
+          <article class="card">
+            <div class="card-body">
+              <h3>The <code>.portrait</code> catalogue</h3>
+              <p>
+                Vaults, escrows, auctions, registries, token standards, access
+                guards. <strong>35 covenant sources</strong> in all,
+                <strong>10</strong> of them cross-layer (vProg) patterns. By family:
+                finance 18, custody 3, governance 2, attestation 1, state 1,
+                vprog 10.
+              </p>
+            </div>
+            <div class="card-links">
+              <a href="https://github.com/kaspakii/portrait">Browse the sources &rarr;</a>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-body">
+              <h3>Reusable Rust primitives</h3>
+              <p>
+                A companion crate library for the pieces you reach for constantly:
+                ownable, pausable, timelock, a yield-vault profile, and more. A
+                Solidity-to-Kaspa migration guide sits alongside it, under
+                <code>compliance-patterns/</code>.
+              </p>
+            </div>
+            <div class="card-links">
+              <a href="https://github.com/kaspakii/portrait/tree/main/compliance-patterns">compliance-patterns/ &rarr;</a>
+            </div>
+          </article>
+        </div>
+
+        <p class="maturity" style="margin-top: var(--kii-space-4);">
+          Not sure where to begin? The <a href="wizard.html">wizard</a> turns a
+          pattern and a few toggles into a <code>.portrait</code> file you can
+          build on. Everything it produces has passed <code>portrait check</code>,
+          which is a structural gate, not an audit.
+        </p>
+      </div>
+    </section>
+    <!-- =================================================================
+         What you get
+         ================================================================= -->
+    <section id="what-you-get" class="section" aria-labelledby="what-you-get-h">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 id="what-you-get-h">How Portrait works</h2>
+            <p class="lede">
+              You write a covenant in Portrait: its state, its guards, its
+              transitions. The compiler parses it, type-checks it, lowers it, and
+              emits a <code>.sil</code> file (plus its CTOR JSON) that the real
+              <code>silverc</code> accepts. Every stage in between is something you
+              can read.
+            </p>
+          </div>
+        </div>
+
+        <div class="card-grid">
+          <article class="card">
+            <div class="card-body">
+              <h3>Twelve crates, one workspace</h3>
+              <p>Each stage is its own crate, so you can see exactly what happens:</p>
+              <ul>
+                <li><code>portrait-syntax</code>, <code>portrait-sema</code>, <code>portrait-ir</code>: parse, check, lower</li>
+                <li><code>portrait-pounce</code>, <code>portrait-project</code>, <code>portrait-emit</code>: project and emit the <code>.sil</code></li>
+                <li><code>portrait-atelier</code>, <code>portrait-plan</code>, <code>portrait-verify</code>: guest emit, planning, hallmarks</li>
+                <li><code>portrait-lens</code>, <code>portrait-compose</code>, <code>portrait-cli</code>: verification, composition, the CLI</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-body">
+              <h3>The CLI, in the order you'd use it</h3>
+              <ul>
+                <li><code>portrait check</code> parses and runs the semantic checks</li>
+                <li><code>portrait prove</code> discharges the model's VCs with z3</li>
+                <li><code>portrait compose</code> checks a multi-covenant protocol</li>
+                <li><code>portrait validate-translation</code> compares the model against the emitted <code>.sil</code></li>
+                <li><code>portrait ship</code> emits and compiles the artifacts. It does not deploy.</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- =================================================================
+         Verification — honest scope
+         ================================================================= -->
+    <section id="verification" class="section" aria-labelledby="verification-h">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 id="verification-h">The two verifiers, and where they stop</h2>
+            <p class="lede">
+              Two verification engines ship with the compiler. Both make narrow,
+              specific claims, and it's worth knowing where each one stops before
+              you lean on it.
+            </p>
+          </div>
+        </div>
+
+        <div class="card-grid">
+          <article class="card">
+            <div class="card-body">
+              <h3>Lens</h3>
+              <p>
+                Lens works on your covenant <strong>model</strong>, not the
+                compiled output. It generates verification conditions (value
+                conservation, ranges, refinements, invariants, the spend path) and
+                discharges them with z3, under the assumptions the M0 spec writes
+                down (A1 to A4). Counter-models are checked fail-closed, and
+                contradictory premises come back <code>UNKNOWN</code> rather than a
+                false <code>PROVED</code>.
+              </p>
+              <p>
+                Where it stops: it proves the model, not the emitted
+                <code>.sil</code> (<code>validate-translation</code> checks that
+                correspondence, and only structurally), and it never runs on a DAG,
+                so nothing it reports is a statement about on-chain behaviour.
+              </p>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-body">
+              <h3>Composer</h3>
+              <p>
+                Composer checks that several covenants wired together form a
+                well-typed protocol. That is the whole claim: type-level safety of
+                the composition.
+              </p>
+              <p>
+                Where it stops: it says nothing about liveness on a DAG, and it
+                doesn't stand in for a deployed covenant. It's a type check, not a
+                runtime.
+              </p>
+            </div>
+          </article>
+        </div>
+
+        <p class="maturity" style="margin-top: var(--kii-space-4);">
+          Both engines have been through internal adversarial hardening: build,
+          attack, fix, repeat. That is not external review. The M0 specs exist so
+          that review can happen, and the stronger claims wait until it has.
+        </p>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         Quick start
+         ================================================================= -->
+    <section id="quick-start" class="section" aria-labelledby="quick-start-h">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 id="quick-start-h">Quick start</h2>
+            <p class="lede">
+              From the compiler workspace (<code>portrait/portrait/</code>): run the
+              tests, engrave one of the examples, and hand the emitted
+              <code>.sil</code> to the real <code>silverc</code>.
+            </p>
+          </div>
+        </div>
+
+        <pre aria-label="Quick start commands"><code>cargo test --workspace
+cargo run --bin portrait -- engrave ../examples/counter.portrait
+silverc --ctor ../examples/Counter_ctor.json -c ../examples/Counter.sil</code></pre>
+        <p class="snippet-caption">
+          If that last line exits 0, <code>silverc</code> accepted the covenant.
+          It's the same check every pattern in the library has to pass.
+        </p>
+      </div>
+    </section>
+
+    <!-- =================================================================
+         Evidence
+         ================================================================= -->
+    <section id="evidence" class="section" aria-labelledby="evidence-h">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <h2 id="evidence-h">Don't trust it, check it</h2>
+            <p class="lede">
+              Every number on this page traces back to a file, a command, or a
+              testnet transaction. The trail lives in
+              <code>compliance-patterns/</code>.
+            </p>
+          </div>
+        </div>
+
+        <p>
+          The library ships <strong>35 covenant sources</strong>. Ten are
+          cross-layer (vProg) patterns, and five of those ten are settled live on
+          testnet-10; the other five are emit-verified only. If you want to dig in,
+          three things are worth reading: <strong>FRONTIER-COMPLETE</strong> states
+          the exact soundness claims for Lens and Composer; the
+          <strong>M0 specs</strong> (the Lens encoding spec and the Composer design)
+          are written so someone external can review them; and the settle txids
+          themselves each carry <code>is_accepted=true</code> next to a rejected
+          negative control.
+        </p>
+        <p class="maturity">
+          Those TN10 txids are captured in <code>PROVENANCE.json</code>. They are
+          perishable testnet evidence, not a permanent ledger, and nothing here is
+          on mainnet.
+        </p>
+        <div class="card-links">
+          <a href="https://github.com/kaspakii/portrait/tree/main/compliance-patterns">Read it in compliance-patterns/ &rarr;</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        <strong>Portrait</strong> is an open-source (MIT) project of the
+        <strong>Stichting Kii Foundation</strong>, a Dutch non-profit.
+      </p>
+      <p class="firewall">
+        The Foundation publishes public goods. It does not bill, audit, or
+        certify — commercial activity of any kind belongs to separate
+        commercial vehicles, never to the Foundation.
+      </p>
+      <p class="stamp">
+        Pre-production &middot; unaudited &middot; testnet-only. Nothing is on
+        mainnet. Testnet evidence is perishable.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,141 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  PrivateVickreyAuction — a CROSS-LAYER (vProg) SEALED second-price auction.
+//
+//  THE POINT OF THIS FILE: clear a second-price (Vickrey) auction over a set of
+//  bids that are NEVER revealed. The guest opens all committed sealed bids
+//  PRIVATELY and proves: (1) the journaled winner has the highest bid, (2) the
+//  journaled clearing price equals the SECOND-highest bid, and (3) both are
+//  consistent with the committed bid set under `bids_root`. Only {winner,
+//  clearing_price} (plus the advanced state-commitment + seq) ever enter the
+//  journal — losing bids and the winner's own bid amount stay sealed FOREVER.
+//
+//  WHY A COVENANT CANNOT DO THIS: a covenant can verify a single hashlock open
+//  (as the plain SealedBidAuction does) but cannot, on chain, (a) keep the losing
+//  bids secret while still proving a GLOBAL ranking, nor (b) compute the
+//  second-highest over a hidden multiset and prove it IS the second-highest.
+//  Vickrey requires reasoning over the WHOLE bid set at once to find max AND
+//  second-max while disclosing neither — an aggregate-over-private-set
+//  computation only the guest can discharge.
+//
+//  WHY THIS IS DISTINCT from the plain SealedBidAuction covenant
+//  (../../finance/sealed-bid-auction): that one is a commit-reveal, monotone-
+//  improving FIRST-price auction where each bid is REVEALED on chain and
+//  "highest wins" is a structural `bid > high_bid` guard — no proof of the global
+//  maximum, no second-price logic, no bid secrecy after reveal. PrivateVickrey
+//  NEVER reveals losing bids, NEVER reveals the winner's bid amount, proves the
+//  global max/second-max, and clears at the SECOND price. Different mechanism
+//  (second-price), different privacy guarantee (sealed forever), different proof
+//  obligation (global ranking over a hidden set).
+//
+//  FOLLOWS THE PROVEN CSCI SHAPE (see ../../state/CsciInstrument):
+//    • a `#[covenant]` settlement role (`settle`) self-enforcing the STRUCTURAL
+//      state machine on chain, and
+//    • a NonCovenant companion (`clearing_rule`) → vProg → Atelier emits its
+//      RISC Zero guest main. Its presence flips `has_vprog`, emitting the
+//      covenant-id binding require() into `settle`.
+//
+//  ON-CHAIN, the emitted .sil enforces:
+//    (a) monotonic seq          — CSCI sequence advances by one
+//    (b) covenant-id binding    — STARK journal covenant_id == this covenant's
+//                                 on-chain id (emitted by has_vprog)
+//    (c) auctioneer auth        — `settle` authorized against the COMMITTED
+//                                 auctioneer key, never a caller arg
+//    (d) `bids_root` carried forward unchanged (the sealed bid set is fixed at
+//        close; the proof clears against it)
+//
+//  OFF-CHAIN (the vProg guest), `clearing_rule` is the predicate proven by the
+//  STARK: open the sealed bids under `bids_root`, prove `winner` has the max bid,
+//  prove `clearing_price` is the second-max, commit the advanced commitment +
+//  winner + price + seq into the journal's new_state_hash. The winner's bid and
+//  all losing bids are NEVER committed.
+//
+//  STATUS — EMIT-VERIFIED template (NOT settled live). Compiles via silverc
+//  (exit 0); `portrait atelier-build` emits a RISC Zero guest. The global
+//  max/second-max ranking over the sealed set is developer-authored in the guest,
+//  NOT synthesized by the compiler. Only CSCI has settled live on TN10.
+//
+//  HONEST SCOPE: tag-0x21 ZK *verification* of the STARK is an ENGINE op
+//  (OpZkPrecompile / kcp-pq-anchor), NOT silverscript. silverscript enforces the
+//  state-machine + covenant-id binding only; the Vickrey-clearing soundness rests
+//  on the RISC Zero guest + the tag-0x21 verifier, NOT on Portrait.
+// ─────────────────────────────────────────────────────────────────────────
+
+app PrivateVickreyAuction {
+  role house {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey  auctioneer;     // committed auctioneer key (the settle authority)
+    param bytes32 bids_root;      // committed root of the SEALED bid set (fixed at close)
+    param bytes32 commitment;     // committed auction-state commitment
+    param bytes32 winner;         // last cleared winner commitment (genesis = empty)
+    param int     clearing_price; // last cleared second price (genesis = 0)
+    param int     seq;            // monotonic CSCI sequence number (genesis = 0)
+
+    state {
+      pubkey  auctioneer;
+      bytes32 bids_root;
+      bytes32 commitment;
+      bytes32 winner;
+      int     clearing_price;
+      int     seq;
+    }
+
+    // L1 covenant: settles ONE Vickrey clearing on chain.
+    //   · auctioneer auth against committed key    (committed-auctioneer auth)
+    //   · bids_root carried unchanged               (sealed set fixed at close)
+    //   · commitment advances to the proven next    (state progress)
+    //   · winner + clearing_price adopt the proof    (the only public outputs)
+    //   · seq advances by exactly one               (monotonic_seq)
+    //   · covenant-id binding require()              (emitted by has_vprog)
+    #[covenant(mode = transition)]
+    entrypoint function settle(
+      sig auth,
+      bytes32 next_commitment,
+      bytes32 next_winner,
+      int next_clearing_price
+    ) : (pubkey auctioneer, bytes32 bids_root, bytes32 commitment, bytes32 winner, int clearing_price, int seq) {
+      requires checkSig(auth, auctioneer);        // committed-auctioneer authorization
+      return PrivateVickreyAuction {
+        auctioneer:     auctioneer,                // auctioneer key carried unchanged
+        bids_root:      bids_root,                 // sealed bid set carried unchanged
+        commitment:     next_commitment,           // adopt the proven next commitment
+        winner:         next_winner,               // adopt the proven winner commitment
+        clearing_price: next_clearing_price,       // adopt the proven second price
+        seq:            seq + 1                    // CSCI sequence advances by one
+      };
+    }
+
+    // vProg (off-L1): the VICKREY-CLEARING predicate, proven via a STARK.
+    // No #[covenant] attribute → NonCovenant → Atelier emits the guest main.
+    // The body MIRRORS `settle`: consumes next_commitment + next_winner +
+    // next_clearing_price and advances commitment/winner/clearing_price/seq, so
+    // the M3 guest hashes the NEW state into the journal's new_state_hash. Its
+    // presence flips `has_vprog`, emitting the covenant-id binding into `settle`.
+    //
+    // WHAT STAYS MANUAL (developer guest code): opening the SEALED bids under
+    // `bids_root`, proving `next_winner` holds the GLOBAL maximum bid and
+    // `next_clearing_price` equals the SECOND-highest — a global ranking over a
+    // hidden multiset, never disclosing the losing bids or the winner's own bid.
+    // Not expressible in the Portrait body; remains hand-written in the guest.
+    entrypoint function clearing_rule(
+      bytes32 next_commitment,
+      bytes32 next_winner,
+      int next_clearing_price
+    ) {
+      return PrivateVickreyAuction {
+        auctioneer:     auctioneer,
+        bids_root:      bids_root,
+        commitment:     next_commitment,
+        winner:         next_winner,
+        clearing_price: next_clearing_price,
+        seq:            seq + 1
+      };
+    }
+  }
+
+  lifecycle { live -> live via house.settle; }
+
+  invariant monotonic_seq;          // seq must advance by exactly one
+  invariant no_undeclared_state;
+}

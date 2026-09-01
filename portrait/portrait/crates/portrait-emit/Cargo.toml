@@ -1,0 +1,18 @@
+[package]
+name = "portrait-emit"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+portrait-ir = { path = "../portrait-ir" }
+portrait-syntax = { path = "../portrait-syntax" }
+
+[dev-dependencies]
+# B2 output-binding proof: run the emitted binding's opcode form against the
+# REAL Toccata engine (tag v2.0.0 = 90dbf07), pinned exactly as the sibling
+# kaspa-compliance-patterns workspace pins it. Dev-only: the compiler itself
+# stays dependency-light; these are pulled solely for the acceptance test.
+kaspa-txscript = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-txscript-errors = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }
+kaspa-consensus-core = { git = "https://github.com/kaspanet/rusty-kaspa", tag = "v2.0.0" }

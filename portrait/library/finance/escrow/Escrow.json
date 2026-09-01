@@ -1,0 +1,1664 @@
+{
+  "contract_name": "Escrow",
+  "compiler_version": "0.1.0",
+  "script": [
+    107,
+    32,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    32,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    8,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    8,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    108,
+    118,
+    0,
+    156,
+    99,
+    117,
+    185,
+    203,
+    83,
+    121,
+    86,
+    121,
+    120,
+    172,
+    105,
+    0,
+    194,
+    84,
+    121,
+    156,
+    105,
+    0,
+    195,
+    120,
+    3,
+    0,
+    0,
+    32,
+    124,
+    126,
+    1,
+    172,
+    126,
+    135,
+    105,
+    120,
+    81,
+    161,
+    105,
+    120,
+    91,
+    121,
+    130,
+    124,
+    117,
+    1,
+    32,
+    150,
+    156,
+    105,
+    0,
+    82,
+    121,
+    0,
+    148,
+    81,
+    161,
+    105,
+    118,
+    83,
+    121,
+    159,
+    99,
+    118,
+    92,
+    121,
+    120,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    92,
+    121,
+    82,
+    121,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    92,
+    121,
+    83,
+    121,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    88,
+    205,
+    1,
+    8,
+    124,
+    126,
+    92,
+    121,
+    84,
+    121,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    88,
+    205,
+    1,
+    8,
+    124,
+    126,
+    126,
+    126,
+    126,
+    185,
+    118,
+    201,
+    2,
+    248,
+    1,
+    148,
+    118,
+    81,
+    147,
+    188,
+    124,
+    126,
+    185,
+    118,
+    201,
+    118,
+    2,
+    248,
+    1,
+    148,
+    1,
+    85,
+    147,
+    124,
+    188,
+    126,
+    170,
+    2,
+    0,
+    0,
+    1,
+    170,
+    126,
+    1,
+    32,
+    126,
+    124,
+    126,
+    1,
+    135,
+    126,
+    185,
+    82,
+    121,
+    204,
+    195,
+    135,
+    105,
+    118,
+    81,
+    147,
+    123,
+    117,
+    119,
+    104,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    81,
+    103,
+    118,
+    81,
+    156,
+    99,
+    117,
+    185,
+    203,
+    84,
+    121,
+    86,
+    121,
+    120,
+    172,
+    105,
+    0,
+    194,
+    84,
+    121,
+    156,
+    105,
+    0,
+    195,
+    120,
+    3,
+    0,
+    0,
+    32,
+    124,
+    126,
+    1,
+    172,
+    126,
+    135,
+    105,
+    82,
+    121,
+    176,
+    120,
+    81,
+    161,
+    105,
+    120,
+    91,
+    121,
+    130,
+    124,
+    117,
+    1,
+    32,
+    150,
+    156,
+    105,
+    0,
+    82,
+    121,
+    0,
+    148,
+    81,
+    161,
+    105,
+    118,
+    83,
+    121,
+    159,
+    99,
+    118,
+    92,
+    121,
+    120,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    92,
+    121,
+    82,
+    121,
+    1,
+    32,
+    149,
+    118,
+    1,
+    32,
+    147,
+    127,
+    1,
+    32,
+    124,
+    126,
+    92,
+    121,
+    83,
+    121,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    88,
+    205,
+    1,
+    8,
+    124,
+    126,
+    92,
+    121,
+    84,
+    121,
+    88,
+    149,
+    118,
+    88,
+    147,
+    127,
+    88,
+    205,
+    1,
+    8,
+    124,
+    126,
+    126,
+    126,
+    126,
+    185,
+    118,
+    201,
+    2,
+    248,
+    1,
+    148,
+    118,
+    81,
+    147,
+    188,
+    124,
+    126,
+    185,
+    118,
+    201,
+    118,
+    2,
+    248,
+    1,
+    148,
+    1,
+    85,
+    147,
+    124,
+    188,
+    126,
+    170,
+    2,
+    0,
+    0,
+    1,
+    170,
+    126,
+    1,
+    32,
+    126,
+    124,
+    126,
+    1,
+    135,
+    126,
+    185,
+    82,
+    121,
+    204,
+    195,
+    135,
+    105,
+    118,
+    81,
+    147,
+    123,
+    117,
+    119,
+    104,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    0,
+    122,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    117,
+    81,
+    103,
+    117,
+    0,
+    105,
+    104,
+    104
+  ],
+  "ast": {
+    "pragma": {
+      "name": "silverscript",
+      "value": "^0.1.0",
+      "span": "pragma silverscript ^0.1.0;",
+      "name_span": "silverscript",
+      "value_span": "^0.1.0"
+    },
+    "name": "Escrow",
+    "params": [
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "max_ins",
+        "span": "int max_ins",
+        "type_span": "int ",
+        "name_span": "max_ins"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "max_outs",
+        "span": "int max_outs",
+        "type_span": "int ",
+        "name_span": "max_outs"
+      },
+      {
+        "type_ref": {
+          "base": "pubkey"
+        },
+        "name": "init_buyer",
+        "span": "pubkey init_buyer",
+        "type_span": "pubkey ",
+        "name_span": "init_buyer"
+      },
+      {
+        "type_ref": {
+          "base": "pubkey"
+        },
+        "name": "init_seller",
+        "span": "pubkey init_seller",
+        "type_span": "pubkey ",
+        "name_span": "init_seller"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "init_amount",
+        "span": "int init_amount",
+        "type_span": "int ",
+        "name_span": "init_amount"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "init_deadline",
+        "span": "int init_deadline",
+        "type_span": "int ",
+        "name_span": "init_deadline"
+      }
+    ],
+    "fields": [
+      {
+        "type_ref": {
+          "base": "pubkey"
+        },
+        "name": "buyer",
+        "expr": {
+          "kind": "identifier",
+          "data": "init_buyer",
+          "span": "init_buyer"
+        },
+        "span": "pubkey buyer = init_buyer;",
+        "type_span": "pubkey ",
+        "name_span": "buyer"
+      },
+      {
+        "type_ref": {
+          "base": "pubkey"
+        },
+        "name": "seller",
+        "expr": {
+          "kind": "identifier",
+          "data": "init_seller",
+          "span": "init_seller"
+        },
+        "span": "pubkey seller = init_seller;",
+        "type_span": "pubkey ",
+        "name_span": "seller"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "amount",
+        "expr": {
+          "kind": "identifier",
+          "data": "init_amount",
+          "span": "init_amount"
+        },
+        "span": "int amount = init_amount;",
+        "type_span": "int ",
+        "name_span": "amount"
+      },
+      {
+        "type_ref": {
+          "base": "int"
+        },
+        "name": "deadline",
+        "expr": {
+          "kind": "identifier",
+          "data": "init_deadline",
+          "span": "init_deadline"
+        },
+        "span": "int deadline = init_deadline;",
+        "type_span": "int ",
+        "name_span": "deadline"
+      }
+    ],
+    "constants": [],
+    "functions": [
+      {
+        "name": "__covenant_policy_release",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State"
+            },
+            "name": "prev_state",
+            "span": "State prev_state",
+            "type_span": "State ",
+            "name_span": "prev_state"
+          },
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "new_states",
+            "span": "State[] new_states",
+            "type_span": "State[]",
+            "name_span": "new_states"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "auth",
+            "span": "sig auth",
+            "type_span": "sig ",
+            "name_span": "auth"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "checkSig",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "auth",
+                      "span": "auth"
+                    },
+                    {
+                      "kind": "field_access",
+                      "data": {
+                        "source": {
+                          "kind": "identifier",
+                          "data": "prev_state",
+                          "span": "prev_state"
+                        },
+                        "field": "seller",
+                        "field_span": "seller"
+                      },
+                      "span": "prev_state.seller"
+                    }
+                  ],
+                  "name_span": "checkSig"
+                },
+                "span": "checkSig(auth, prev_state.seller)"
+              },
+              "message": null,
+              "span": "require(checkSig(auth, prev_state.seller));",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "introspection",
+                    "data": {
+                      "kind": "output_value",
+                      "index": {
+                        "kind": "int",
+                        "data": 0,
+                        "span": "0"
+                      },
+                      "field_span": ".value"
+                    },
+                    "span": "tx.outputs[0].value"
+                  },
+                  "right": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "identifier",
+                        "data": "prev_state",
+                        "span": "prev_state"
+                      },
+                      "field": "amount",
+                      "field_span": "amount"
+                    },
+                    "span": "prev_state.amount"
+                  }
+                },
+                "span": "tx.outputs[0].value == prev_state.amount"
+              },
+              "message": null,
+              "span": "require(tx.outputs[0].value == prev_state.amount);",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "introspection",
+                    "data": {
+                      "kind": "output_script_pub_key",
+                      "index": {
+                        "kind": "int",
+                        "data": 0,
+                        "span": "0"
+                      },
+                      "field_span": ".scriptPubKey"
+                    },
+                    "span": "tx.outputs[0].scriptPubKey"
+                  },
+                  "right": {
+                    "kind": "call",
+                    "data": {
+                      "name": "byte[]",
+                      "args": [
+                        {
+                          "kind": "new",
+                          "data": {
+                            "name": "ScriptPubKeyP2PK",
+                            "args": [
+                              {
+                                "kind": "field_access",
+                                "data": {
+                                  "source": {
+                                    "kind": "identifier",
+                                    "data": "prev_state",
+                                    "span": "prev_state"
+                                  },
+                                  "field": "seller",
+                                  "field_span": "seller"
+                                },
+                                "span": "prev_state.seller"
+                              }
+                            ],
+                            "name_span": "ScriptPubKeyP2PK"
+                          },
+                          "span": "new ScriptPubKeyP2PK(prev_state.seller)"
+                        }
+                      ],
+                      "name_span": "byte[]"
+                    },
+                    "span": "byte[](new ScriptPubKeyP2PK(prev_state.seller))"
+                  }
+                },
+                "span": "tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.seller))"
+              },
+              "message": null,
+              "span": "require(tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.seller)));",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = auth, from = max_ins, to = 1, mode = verification)]\n    function release(State prev_state, State[] new_states, sig auth) {\n        require(checkSig(auth, prev_state.seller));\n        require(tx.outputs[0].value == prev_state.amount);\n        require(tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.seller)));\n    }",
+        "name_span": "release",
+        "body_span": "require(checkSig(auth, prev_state.seller));\n        require(tx.outputs[0].value == prev_state.amount);\n        require(tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.seller)));"
+      },
+      {
+        "name": "__covenant_entrypoint_auth_release",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "new_states",
+            "span": "State[] new_states",
+            "type_span": "State[]",
+            "name_span": "new_states"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "auth",
+            "span": "sig auth",
+            "type_span": "sig ",
+            "name_span": "auth"
+          }
+        ],
+        "entrypoint": true,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__auth_out_count",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpAuthOutputCount",
+                  "args": [
+                    {
+                      "kind": "nullary",
+                      "data": "active_input_index",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "State"
+              },
+              "modifiers": [],
+              "name": "prev_state",
+              "expr": {
+                "kind": "state_object",
+                "data": [
+                  {
+                    "name": "buyer",
+                    "expr": {
+                      "kind": "identifier",
+                      "data": "buyer",
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  },
+                  {
+                    "name": "seller",
+                    "expr": {
+                      "kind": "identifier",
+                      "data": "seller",
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  },
+                  {
+                    "name": "amount",
+                    "expr": {
+                      "kind": "identifier",
+                      "data": "amount",
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  },
+                  {
+                    "name": "deadline",
+                    "expr": {
+                      "kind": "identifier",
+                      "data": "deadline",
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  }
+                ],
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "__covenant_policy_release",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prev_state",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "new_states",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "auth",
+                  "span": "<synthetic>"
+                }
+              ],
+              "span": "<synthetic>",
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "le",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__auth_out_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "int",
+                    "data": 1,
+                    "span": "1"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__auth_out_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "unary_suffix",
+                    "data": {
+                      "source": {
+                        "kind": "identifier",
+                        "data": "new_states",
+                        "span": "<synthetic>"
+                      },
+                      "kind": "length",
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "for",
+            "data": {
+              "ident": "__cov_k",
+              "start": {
+                "kind": "int",
+                "data": 0,
+                "span": "<synthetic>"
+              },
+              "end": {
+                "kind": "identifier",
+                "data": "__auth_out_count",
+                "span": "<synthetic>"
+              },
+              "max_iterations": {
+                "kind": "int",
+                "data": 1,
+                "span": "1"
+              },
+              "body": [
+                {
+                  "kind": "variable_definition",
+                  "data": {
+                    "type_ref": {
+                      "base": "int"
+                    },
+                    "modifiers": [],
+                    "name": "__cov_out_idx",
+                    "expr": {
+                      "kind": "call",
+                      "data": {
+                        "name": "OpAuthOutputIdx",
+                        "args": [
+                          {
+                            "kind": "nullary",
+                            "data": "active_input_index",
+                            "span": "<synthetic>"
+                          },
+                          {
+                            "kind": "identifier",
+                            "data": "__cov_k",
+                            "span": "<synthetic>"
+                          }
+                        ],
+                        "name_span": "<synthetic>"
+                      },
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "type_span": "<synthetic>",
+                    "modifier_spans": [],
+                    "name_span": "<synthetic>"
+                  }
+                },
+                {
+                  "kind": "function_call",
+                  "data": {
+                    "name": "validateOutputState",
+                    "args": [
+                      {
+                        "kind": "identifier",
+                        "data": "__cov_out_idx",
+                        "span": "<synthetic>"
+                      },
+                      {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "new_states",
+                            "span": "<synthetic>"
+                          },
+                          "index": {
+                            "kind": "identifier",
+                            "data": "__cov_k",
+                            "span": "<synthetic>"
+                          }
+                        },
+                        "span": "<synthetic>"
+                      }
+                    ],
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  }
+                }
+              ],
+              "span": "<synthetic>",
+              "ident_span": "<synthetic>",
+              "body_span": "<synthetic>"
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = auth, from = max_ins, to = 1, mode = verification)]\n    function release(State prev_state, State[] new_states, sig auth) {\n        require(checkSig(auth, prev_state.seller));\n        require(tx.outputs[0].value == prev_state.amount);\n        require(tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.seller)));\n    }",
+        "name_span": "release",
+        "body_span": "require(checkSig(auth, prev_state.seller));\n        require(tx.outputs[0].value == prev_state.amount);\n        require(tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.seller)));"
+      },
+      {
+        "name": "__covenant_policy_refund",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State"
+            },
+            "name": "prev_state",
+            "span": "State prev_state",
+            "type_span": "State ",
+            "name_span": "prev_state"
+          },
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "new_states",
+            "span": "State[] new_states",
+            "type_span": "State[]",
+            "name_span": "new_states"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "auth",
+            "span": "sig auth",
+            "type_span": "sig ",
+            "name_span": "auth"
+          }
+        ],
+        "entrypoint": false,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "checkSig",
+                  "args": [
+                    {
+                      "kind": "identifier",
+                      "data": "auth",
+                      "span": "auth"
+                    },
+                    {
+                      "kind": "field_access",
+                      "data": {
+                        "source": {
+                          "kind": "identifier",
+                          "data": "prev_state",
+                          "span": "prev_state"
+                        },
+                        "field": "buyer",
+                        "field_span": "buyer"
+                      },
+                      "span": "prev_state.buyer"
+                    }
+                  ],
+                  "name_span": "checkSig"
+                },
+                "span": "checkSig(auth, prev_state.buyer)"
+              },
+              "message": null,
+              "span": "require(checkSig(auth, prev_state.buyer));",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "introspection",
+                    "data": {
+                      "kind": "output_value",
+                      "index": {
+                        "kind": "int",
+                        "data": 0,
+                        "span": "0"
+                      },
+                      "field_span": ".value"
+                    },
+                    "span": "tx.outputs[0].value"
+                  },
+                  "right": {
+                    "kind": "field_access",
+                    "data": {
+                      "source": {
+                        "kind": "identifier",
+                        "data": "prev_state",
+                        "span": "prev_state"
+                      },
+                      "field": "amount",
+                      "field_span": "amount"
+                    },
+                    "span": "prev_state.amount"
+                  }
+                },
+                "span": "tx.outputs[0].value == prev_state.amount"
+              },
+              "message": null,
+              "span": "require(tx.outputs[0].value == prev_state.amount);",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "introspection",
+                    "data": {
+                      "kind": "output_script_pub_key",
+                      "index": {
+                        "kind": "int",
+                        "data": 0,
+                        "span": "0"
+                      },
+                      "field_span": ".scriptPubKey"
+                    },
+                    "span": "tx.outputs[0].scriptPubKey"
+                  },
+                  "right": {
+                    "kind": "call",
+                    "data": {
+                      "name": "byte[]",
+                      "args": [
+                        {
+                          "kind": "new",
+                          "data": {
+                            "name": "ScriptPubKeyP2PK",
+                            "args": [
+                              {
+                                "kind": "field_access",
+                                "data": {
+                                  "source": {
+                                    "kind": "identifier",
+                                    "data": "prev_state",
+                                    "span": "prev_state"
+                                  },
+                                  "field": "buyer",
+                                  "field_span": "buyer"
+                                },
+                                "span": "prev_state.buyer"
+                              }
+                            ],
+                            "name_span": "ScriptPubKeyP2PK"
+                          },
+                          "span": "new ScriptPubKeyP2PK(prev_state.buyer)"
+                        }
+                      ],
+                      "name_span": "byte[]"
+                    },
+                    "span": "byte[](new ScriptPubKeyP2PK(prev_state.buyer))"
+                  }
+                },
+                "span": "tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.buyer))"
+              },
+              "message": null,
+              "span": "require(tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.buyer)));",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "time_op",
+            "data": {
+              "tx_var": "tx_time",
+              "expr": {
+                "kind": "field_access",
+                "data": {
+                  "source": {
+                    "kind": "identifier",
+                    "data": "prev_state",
+                    "span": "prev_state"
+                  },
+                  "field": "deadline",
+                  "field_span": "deadline"
+                },
+                "span": "prev_state.deadline"
+              },
+              "message": null,
+              "span": "require(tx.time >= prev_state.deadline);",
+              "tx_var_span": "tx.time",
+              "message_span": null
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = auth, from = max_ins, to = 1, mode = verification)]\n    function refund(State prev_state, State[] new_states, sig auth) {\n        require(checkSig(auth, prev_state.buyer));\n        require(tx.outputs[0].value == prev_state.amount);\n        require(tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.buyer)));\n        require(tx.time >= prev_state.deadline);\n    }",
+        "name_span": "refund",
+        "body_span": "require(checkSig(auth, prev_state.buyer));\n        require(tx.outputs[0].value == prev_state.amount);\n        require(tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.buyer)));\n        require(tx.time >= prev_state.deadline);"
+      },
+      {
+        "name": "__covenant_entrypoint_auth_refund",
+        "params": [
+          {
+            "type_ref": {
+              "base": "State",
+              "array_dims": [
+                {
+                  "kind": "dynamic"
+                }
+              ]
+            },
+            "name": "new_states",
+            "span": "State[] new_states",
+            "type_span": "State[]",
+            "name_span": "new_states"
+          },
+          {
+            "type_ref": {
+              "base": "sig"
+            },
+            "name": "auth",
+            "span": "sig auth",
+            "type_span": "sig ",
+            "name_span": "auth"
+          }
+        ],
+        "entrypoint": true,
+        "return_types": [],
+        "returns_tuple": false,
+        "body": [
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "int"
+              },
+              "modifiers": [],
+              "name": "__auth_out_count",
+              "expr": {
+                "kind": "call",
+                "data": {
+                  "name": "OpAuthOutputCount",
+                  "args": [
+                    {
+                      "kind": "nullary",
+                      "data": "active_input_index",
+                      "span": "<synthetic>"
+                    }
+                  ],
+                  "name_span": "<synthetic>"
+                },
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "variable_definition",
+            "data": {
+              "type_ref": {
+                "base": "State"
+              },
+              "modifiers": [],
+              "name": "prev_state",
+              "expr": {
+                "kind": "state_object",
+                "data": [
+                  {
+                    "name": "buyer",
+                    "expr": {
+                      "kind": "identifier",
+                      "data": "buyer",
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  },
+                  {
+                    "name": "seller",
+                    "expr": {
+                      "kind": "identifier",
+                      "data": "seller",
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  },
+                  {
+                    "name": "amount",
+                    "expr": {
+                      "kind": "identifier",
+                      "data": "amount",
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  },
+                  {
+                    "name": "deadline",
+                    "expr": {
+                      "kind": "identifier",
+                      "data": "deadline",
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  }
+                ],
+                "span": "<synthetic>"
+              },
+              "span": "<synthetic>",
+              "type_span": "<synthetic>",
+              "modifier_spans": [],
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "function_call",
+            "data": {
+              "name": "__covenant_policy_refund",
+              "args": [
+                {
+                  "kind": "identifier",
+                  "data": "prev_state",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "new_states",
+                  "span": "<synthetic>"
+                },
+                {
+                  "kind": "identifier",
+                  "data": "auth",
+                  "span": "<synthetic>"
+                }
+              ],
+              "span": "<synthetic>",
+              "name_span": "<synthetic>"
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "le",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__auth_out_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "int",
+                    "data": 1,
+                    "span": "1"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "require",
+            "data": {
+              "expr": {
+                "kind": "binary",
+                "data": {
+                  "op": "eq",
+                  "left": {
+                    "kind": "identifier",
+                    "data": "__auth_out_count",
+                    "span": "<synthetic>"
+                  },
+                  "right": {
+                    "kind": "unary_suffix",
+                    "data": {
+                      "source": {
+                        "kind": "identifier",
+                        "data": "new_states",
+                        "span": "<synthetic>"
+                      },
+                      "kind": "length",
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>"
+                  }
+                },
+                "span": "<synthetic>"
+              },
+              "message": null,
+              "span": "<synthetic>",
+              "message_span": null
+            }
+          },
+          {
+            "kind": "for",
+            "data": {
+              "ident": "__cov_k",
+              "start": {
+                "kind": "int",
+                "data": 0,
+                "span": "<synthetic>"
+              },
+              "end": {
+                "kind": "identifier",
+                "data": "__auth_out_count",
+                "span": "<synthetic>"
+              },
+              "max_iterations": {
+                "kind": "int",
+                "data": 1,
+                "span": "1"
+              },
+              "body": [
+                {
+                  "kind": "variable_definition",
+                  "data": {
+                    "type_ref": {
+                      "base": "int"
+                    },
+                    "modifiers": [],
+                    "name": "__cov_out_idx",
+                    "expr": {
+                      "kind": "call",
+                      "data": {
+                        "name": "OpAuthOutputIdx",
+                        "args": [
+                          {
+                            "kind": "nullary",
+                            "data": "active_input_index",
+                            "span": "<synthetic>"
+                          },
+                          {
+                            "kind": "identifier",
+                            "data": "__cov_k",
+                            "span": "<synthetic>"
+                          }
+                        ],
+                        "name_span": "<synthetic>"
+                      },
+                      "span": "<synthetic>"
+                    },
+                    "span": "<synthetic>",
+                    "type_span": "<synthetic>",
+                    "modifier_spans": [],
+                    "name_span": "<synthetic>"
+                  }
+                },
+                {
+                  "kind": "function_call",
+                  "data": {
+                    "name": "validateOutputState",
+                    "args": [
+                      {
+                        "kind": "identifier",
+                        "data": "__cov_out_idx",
+                        "span": "<synthetic>"
+                      },
+                      {
+                        "kind": "array_index",
+                        "data": {
+                          "source": {
+                            "kind": "identifier",
+                            "data": "new_states",
+                            "span": "<synthetic>"
+                          },
+                          "index": {
+                            "kind": "identifier",
+                            "data": "__cov_k",
+                            "span": "<synthetic>"
+                          }
+                        },
+                        "span": "<synthetic>"
+                      }
+                    ],
+                    "span": "<synthetic>",
+                    "name_span": "<synthetic>"
+                  }
+                }
+              ],
+              "span": "<synthetic>",
+              "ident_span": "<synthetic>",
+              "body_span": "<synthetic>"
+            }
+          }
+        ],
+        "return_type_spans": [],
+        "span": "#[covenant(binding = auth, from = max_ins, to = 1, mode = verification)]\n    function refund(State prev_state, State[] new_states, sig auth) {\n        require(checkSig(auth, prev_state.buyer));\n        require(tx.outputs[0].value == prev_state.amount);\n        require(tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.buyer)));\n        require(tx.time >= prev_state.deadline);\n    }",
+        "name_span": "refund",
+        "body_span": "require(checkSig(auth, prev_state.buyer));\n        require(tx.outputs[0].value == prev_state.amount);\n        require(tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.buyer)));\n        require(tx.time >= prev_state.deadline);"
+      }
+    ],
+    "span": "contract Escrow(int max_ins, int max_outs, pubkey init_buyer, pubkey init_seller, int init_amount, int init_deadline) {\n    pubkey buyer = init_buyer;\n    pubkey seller = init_seller;\n    int amount = init_amount;\n    int deadline = init_deadline;\n\n    #[covenant(binding = auth, from = max_ins, to = 1, mode = verification)]\n    function release(State prev_state, State[] new_states, sig auth) {\n        require(checkSig(auth, prev_state.seller));\n        require(tx.outputs[0].value == prev_state.amount);\n        require(tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.seller)));\n    }\n\n    #[covenant(binding = auth, from = max_ins, to = 1, mode = verification)]\n    function refund(State prev_state, State[] new_states, sig auth) {\n        require(checkSig(auth, prev_state.buyer));\n        require(tx.outputs[0].value == prev_state.amount);\n        require(tx.outputs[0].scriptPubKey == byte[](new ScriptPubKeyP2PK(prev_state.buyer)));\n        require(tx.time >= prev_state.deadline);\n    }\n}",
+    "name_span": "Escrow"
+  },
+  "abi": [
+    {
+      "name": "__covenant_entrypoint_auth_release",
+      "inputs": [
+        {
+          "name": "new_states",
+          "type_name": "State[]"
+        },
+        {
+          "name": "auth",
+          "type_name": "sig"
+        }
+      ]
+    },
+    {
+      "name": "__covenant_entrypoint_auth_refund",
+      "inputs": [
+        {
+          "name": "new_states",
+          "type_name": "State[]"
+        },
+        {
+          "name": "auth",
+          "type_name": "sig"
+        }
+      ]
+    }
+  ],
+  "without_selector": false,
+  "state_layout": {
+    "start": 1,
+    "len": 84
+  },
+  "debug_info": null
+}

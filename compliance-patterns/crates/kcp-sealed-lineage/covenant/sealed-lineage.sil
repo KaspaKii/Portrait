@@ -1,0 +1,97 @@
+// Sealed-lineage covenant — on-chain enforcement of L-1..L-4 invariants.
+//
+// Models the kcp-sealed-lineage pattern's four off-chain invariants as
+// engine-enforced covenant state transitions.
+//
+// ## State shape
+//
+//   lineage_id    (byte[32]) — SHA-256 of the genesis identity body.
+//   seq           (int)      — event sequence number; genesis = 0.
+//   event_class   (byte)     — 0x00 = Genesis, 0x01 = Append, 0x02 = Close.
+//   t_bucket      (int)      — publisher timestamp (seconds since Unix epoch).
+//   publisherPk   (byte[32]) — x-only Schnorr pubkey of the authorised publisher.
+//
+// ## Invariants enforced on-chain
+//
+//   L-1 (seq monotone):     newState.seq == prevState.seq + 1
+//   L-2 (lineage identity): newState.lineage_id == prevState.lineage_id
+//   L-3 (event-class):      if prevState.event_class == CLOSE, reject;
+//                            newState.event_class != GENESIS (0x00)
+//   L-4 (temporal envelope):
+//       newState.t_bucket >= prevState.t_bucket
+//       newState.t_bucket <= prevState.t_bucket + 7776000
+//
+//   Ownership: publisher's Schnorr signature required (single pubkey in state).
+//
+// ## Design notes
+//
+//   Single-input → single-output append only.  Genesis creation is off-chain
+//   (the publisher creates the genesis UTXO directly; it is not a covenant
+//   transition and does not need this entrypoint).  The Close transition is a
+//   valid append-step (prevState.event_class != CLOSE, newState.event_class ==
+//   CLOSE); after that the UTXO is permanently locked because any spend would
+//   have prevState.event_class == CLOSE which triggers L-3 rejection.
+//
+// silverscript@2c46231, validated against rusty-kaspa v2.0.0 (silverscript workspace).
+
+contract SealedLineage(
+    byte[32] genesisLineageId,
+    int      genesisSeq,
+    byte     genesisEventClass,
+    int      genesisTBucket,
+    byte[32] genesisPublisherPk
+) {
+    byte constant GENESIS_CLASS  = 0x00;
+    byte constant APPEND_CLASS   = 0x01;
+    byte constant CLOSE_CLASS    = 0x02;
+
+    // 90 days in seconds: 90 * 24 * 3600 = 7776000
+    int constant T_BUCKET_MAX_STEP = 7776000;
+
+    byte[32] lineage_id  = genesisLineageId;
+    int      seq         = genesisSeq;
+    byte     event_class = genesisEventClass;
+    int      t_bucket    = genesisTBucket;
+    byte[32] publisherPk = genesisPublisherPk;
+
+    // Ownership check: the current publisher must sign.
+    function checkOwnership(State[] prevStates, sig s) {
+        require(checkSig(s, prevStates[0].publisherPk));
+    }
+
+    // L-1: seq must increment by exactly 1.
+    function checkSeq(State[] prevStates, State[] newStates) {
+        require(newStates[0].seq == prevStates[0].seq + 1);
+    }
+
+    // L-2: lineage_id must be preserved.
+    function checkLineageId(State[] prevStates, State[] newStates) {
+        require(newStates[0].lineage_id == prevStates[0].lineage_id);
+    }
+
+    // L-3: event-class ordering.
+    //   - If the current state is CLOSE, no append is possible (terminal).
+    //   - The new event_class must not be GENESIS.
+    function checkEventClass(State[] prevStates, State[] newStates) {
+        require(prevStates[0].event_class != CLOSE_CLASS);
+        require(newStates[0].event_class != GENESIS_CLASS);
+    }
+
+    // L-4: temporal envelope.
+    //   t_bucket must be non-decreasing and within +90 days.
+    function checkTBucket(State[] prevStates, State[] newStates) {
+        require(newStates[0].t_bucket >= prevStates[0].t_bucket);
+        require(newStates[0].t_bucket <= prevStates[0].t_bucket + T_BUCKET_MAX_STEP);
+    }
+
+    // Single-input single-output append transition.
+    // from=1 to=1: exactly one covenant input and one covenant output.
+    #[covenant(binding = cov, from = 1, to = 1)]
+    function append(State[] prevStates, State[] newStates, sig s) {
+        checkOwnership(prevStates, s);
+        checkSeq(prevStates, newStates);
+        checkLineageId(prevStates, newStates);
+        checkEventClass(prevStates, newStates);
+        checkTBucket(prevStates, newStates);
+    }
+}

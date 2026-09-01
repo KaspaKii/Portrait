@@ -1,0 +1,48 @@
+// CSCI intent covenant — documentary only.
+// This file captures the INTENDED on-chain logic for the CSCI instrument.
+// NOT COMPILABLE: silverscript lacks sha256() and zkVerify() builtins.
+// Once those builtins land, this file will become the authoritative locking script.
+// For the current PoC, covenant enforcement is via `build_csci_redeem()` (raw script).
+//
+// Intended state:
+//   ownerIdentifier [32]  — current holder pubkey
+//   identifierType  byte  — always 0x00 (Pubkey) in CSCI v0
+//   amount          int   — token balance
+//   isMinter        bool  — always false in CSCI v0
+//   seq             int   — monotonic transfer counter; 0 at genesis
+//   ruleHash        [32]  — sha256(compliance_rule_set), fixed at genesis
+//   covenantId      [32]  — KIP-20 covenant ID, fixed at genesis
+//
+// Intended settle function:
+//   1. Verify RISC Zero succinct STARK (KIP-16 tag-0x21) -- NEEDS zkVerify() builtin
+//   2. Bind journal_bytes to proof: sha256(journal_bytes) == proof.journal -- NEEDS sha256() builtin
+//   3. Enforce journal_bytes[0..32] == covenantId (same instance)
+//   4. Enforce journal_bytes[96..104] == prev.seq + 1 (monotonic)
+//   5. Enforce journal_bytes[64..96] == ruleHash (immutable rule set)
+//   6. validateOutputState(0, next_state from journal) -- available now, but needs sha256 to bind
+
+contract CsciIntent(int max_ins, int max_outs, byte[32] genesis_owner, int genesis_amount, byte[32] genesis_rule_hash, byte[32] genesis_covenant_id) {
+    byte[32] ownerIdentifier = genesis_owner;
+    byte identifierType = 0x00;
+    int amount = genesis_amount;
+    bool isMinter = false;
+    int seq = 0;
+    byte[32] ruleHash = genesis_rule_hash;
+    byte[32] covenantId = genesis_covenant_id;
+
+    // #[covenant(binding = cov, from = max_ins, to = max_outs)]
+    // function settle(State[] prev_states, byte[] journal_bytes /* from vProg */) {
+    //     // STEP 1: verify RISC Zero STARK -- NEEDS zkVerify() builtin (not yet available)
+    //     // require(zkVerify(journal_bytes));
+    //
+    //     // STEP 2: bind journal_bytes to proof -- NEEDS sha256() builtin (not yet available)
+    //     // require(sha256(journal_bytes) == proof.journal_hash);
+    //
+    //     // STEP 3: enforce seq monotonicity (journal_bytes[96..104] as u64 LE)
+    //     // require(decode_u64_le(journal_bytes[96..104]) == prev_states[0].seq + 1);
+    //
+    //     // STEP 4: validate output state continuity
+    //     // State next = decode_new_state(journal_bytes[32..64]);
+    //     // validateOutputState(0, next);
+    // }
+}

@@ -1,0 +1,132 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  ProofOfReserves — a CROSS-LAYER (vProg) solvency-attestation pattern.
+//
+//  THE POINT OF THIS FILE: a custodian periodically attests that it is solvent
+//  — `sum(reserves) >= sum(liabilities)` — over a PRIVATE set of account
+//  balances. Summation over a large private set cannot be recomputed on chain,
+//  so the rule lives in a RISC Zero zk-STARK guest (the vProg), and the covenant
+//  records a monotonic-seq attestation transition BOUND to that proof.
+//
+//  This follows the proven CSCI shape exactly (see ../../state/CsciInstrument):
+//    • a `#[covenant]` settlement role (`attest`) that self-enforces the
+//      STRUCTURAL state-machine rules on chain, and
+//    • a NonCovenant companion entrypoint (`solvency_rule`) carrying NO
+//      #[covenant] attribute → portrait-ir lowers it as a vProg transition →
+//      Atelier emits its RISC Zero guest main. Its presence flips `has_vprog`,
+//      which is what causes the covenant-id binding require() to be emitted
+//      into `attest`.
+//
+//  ON-CHAIN, the emitted .sil enforces:
+//    (a) monotonic epoch         — the attested epoch advances by exactly one
+//                                  (no replay / no skipping a reporting period)
+//    (b) monotonic seq           — CSCI sequence advances by exactly one
+//    (c) covenant-id binding     — the STARK journal's covenant_id must equal
+//                                  this covenant's own on-chain id
+//                                  (`proof_cov_id == OpInputCovenantId(0)`),
+//                                  emitted automatically because this role has a
+//                                  vProg companion (`has_vprog`)
+//    (d) attestor authorization  — `attest` is authorized against the COMMITTED
+//                                  attestor key (prev state), never a caller arg
+//
+//  OFF-CHAIN (the vProg guest), the `solvency_rule` companion is the predicate
+//  proven by the STARK: it folds the private per-account balances and asserts
+//  `sum(reserves) >= sum(liabilities)`, committing the attested epoch + the
+//  boolean verdict + a Merkle root of the included accounts into the journal's
+//  `new_state_hash`.
+//
+//  STATUS — Emit-verified template; the state-machine transition is lowered into
+//  the guest (M3). The covenant compiles via silverc; `portrait atelier-build`
+//  emits a RISC Zero guest that consumes the entrypoint args the return body uses,
+//  hashes the NEW state into new_state_hash, advances seq, and asserts the
+//  assertable requires. The heavy predicate (sum(reserves) >= sum(liabilities) over
+//  the private account set) is STILL developer-authored, not synthesized by the
+//  compiler. Emit-verified, not settled live (only CSCI has settled live on TN10).
+//
+//  HONEST SCOPE: the tag-0x21 ZK *verification* of the STARK proof itself is an
+//  ENGINE-level operation (OpZkPrecompile / kcp-pq-anchor), NOT a silverscript
+//  op. silverscript here enforces the STATE-MACHINE rules + the covenant-id
+//  binding; the proof-bytes verification is layered by the settlement harness
+//  (examples/portrait-settlement), which feeds the journal's covenant_id in as
+//  `proof_cov_id`. The SOLVENCY claim's soundness rests on the RISC Zero guest +
+//  the tag-0x21 verifier, NOT on Portrait — Portrait only carries the structural
+//  attestation state machine on chain. This is an emit-verified template, not a
+//  pattern individually settled live; live settlement reuses the proven CSCI
+//  harness.
+// ─────────────────────────────────────────────────────────────────────────
+
+app ProofOfReserves {
+  role custodian {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey  attestor;        // committed attestor key (the attest authority)
+    param int     epoch;           // monotonic reporting epoch (genesis = 0)
+    param bool    solvent;         // attested verdict for `epoch` (genesis verdict)
+    param bytes32 accounts_root;   // Merkle root of the attested account set
+    param int     seq;             // monotonic CSCI sequence number (genesis = 0)
+
+    state {
+      pubkey  attestor;
+      int     epoch;
+      bool    solvent;
+      bytes32 accounts_root;
+      int     seq;
+    }
+
+    // L1 covenant: records ONE solvency-attestation transition on chain.
+    //   · epoch advances by exactly one         (monotonic reporting period)
+    //   · attestor auth against committed key    (committed-attestor auth)
+    //   · seq advances by exactly one            (monotonic_seq)
+    //   · covenant-id binding require()           (emitted by has_vprog)
+    // The new verdict + accounts root come in as the next attestation; the
+    // proof (verified by the harness) is what makes them trustworthy.
+    #[covenant(mode = transition)]
+    entrypoint function attest(
+      sig auth,
+      bool next_solvent,
+      bytes32 next_accounts_root
+    ) : (pubkey attestor, int epoch, bool solvent, bytes32 accounts_root, int seq) {
+      requires checkSig(auth, attestor);         // committed-attestor authorization
+      return ProofOfReserves {
+        attestor:      attestor,                 // attestor key carried unchanged
+        epoch:         epoch + 1,                // reporting epoch advances by one
+        solvent:       next_solvent,             // adopt the attested verdict
+        accounts_root: next_accounts_root,       // adopt the attested account-set root
+        seq:           seq + 1                   // CSCI sequence advances by one
+      };
+    }
+
+    // vProg (off-L1): the SOLVENCY predicate, proven via a RISC Zero STARK.
+    // No #[covenant] attribute → NonCovenant → Atelier emits the guest main.
+    // Its presence flips `has_vprog`, which is what causes the covenant-id
+    // binding require() to be emitted into `attest` above. The emitted guest
+    // builds the 104-byte journal whose new_state_hash commits the advanced
+    // epoch + verdict + accounts root + seq; the actual sum-comparison over the
+    // private balance set is authored into that guest (the catalogue template).
+    // The companion body MIRRORS `attest`: it consumes `next_solvent` +
+    // `next_accounts_root` and advances `epoch`/`solvent`/`accounts_root`/`seq`,
+    // so the M3 guest hashes the NEW state (advanced epoch + adopted verdict +
+    // adopted accounts root + advanced seq) into the journal's new_state_hash.
+    //
+    // WHAT STAYS MANUAL (developer guest code, NOT synthesised by the compiler):
+    // folding the PRIVATE per-account balances and proving
+    // `sum(reserves) >= sum(liabilities)` to JUSTIFY `next_solvent`, and proving
+    // `next_accounts_root` is the Merkle root of the included accounts. That
+    // summation over the private set is not expressible in the Portrait body and
+    // remains hand-written in the guest.
+    entrypoint function solvency_rule(bool next_solvent, bytes32 next_accounts_root) {
+      return ProofOfReserves {
+        attestor:      attestor,                 // attestor key carried unchanged
+        epoch:         epoch + 1,                // reporting epoch advances by one
+        solvent:       next_solvent,             // adopt the attested verdict
+        accounts_root: next_accounts_root,       // adopt the attested account-set root
+        seq:           seq + 1                   // CSCI sequence advances by one
+      };
+    }
+  }
+
+  lifecycle { live -> live via custodian.attest; }
+
+  invariant monotonic_seq;          // seq must advance by exactly one
+  invariant no_undeclared_state;
+}

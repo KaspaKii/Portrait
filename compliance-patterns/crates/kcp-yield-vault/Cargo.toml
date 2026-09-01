@@ -1,0 +1,13 @@
+[package]
+name = "kcp-yield-vault"
+version = "0.1.0"
+edition = "2021"
+description = "ERC4626-equivalent yield vault profile — shares/assets accounting for the Kaspa BlockDAG"
+license = "MIT"
+publish = false
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1"

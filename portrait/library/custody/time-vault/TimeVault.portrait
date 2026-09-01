@@ -1,0 +1,89 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  TimeVault — a two-key, time-gated custody covenant.
+//
+//  A vault UTXO is controlled by two keys and a release gate:
+//    · owner    may `release` the funds once the consensus time gate has opened
+//               (the spend is not relayable before the committed `unlock_bucket`);
+//    · recovery (a cold clawback key) may `claw` the funds back at any time
+//               before release — the break-glass path.
+//
+//  `released` is a one-shot flag: once set, neither transition fires again, so
+//  the vault cannot be double-spent across the two paths.
+//
+//  Scope (honest): `release` carries an `after(unlock_bucket)` clause, which
+//  portrait-emit lowers to `require(tx.time >= prev_states[0].unlock_bucket)` →
+//  the engine's `OpCheckLockTimeVerify`. The no-early-spend guarantee is TWO
+//  consensus rules and this opcode is only HALF: (1) CLTV forces the tx to COMMIT
+//  a `lock_time >= unlock_bucket` on a NON-FINAL input (defeating the
+//  final-sequence bypass), reading only the spender-set lock_time field; (2) the
+//  SEPARATE consensus finalization rule (`block_daa_score > unlock_bucket`) bars
+//  the tx from a block until the deadline has actually passed — the load-bearing
+//  half, outside txscript. Two ceremony preconditions the covenant cannot check:
+//  `unlock_bucket` and the spending tx's lock time must share a domain (a DAA
+//  score below `LOCK_TIME_THRESHOLD = 500_000_000_000`, or a Unix time at/above
+//  it); and a committed `unlock_bucket` of 0 / <= the instantiation DAA score is
+//  no gate — commit a real future deadline. See library/ENFORCEMENT.md for scope.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param matched BY NAME — a state field with no same-named param is a
+//  compile error, never a silent 0 — so the constructor declares owner,
+//  recovery, unlock_bucket, released. `portrait engrave` lowers this to a
+//  two-transition singleton covenant that `silverc` accepts (exit 0).
+// ─────────────────────────────────────────────────────────────────────────
+
+app TimeVault {
+  role vault {
+    param pubkey owner;          // hot key permitted to release after the gate
+    param pubkey recovery;       // cold clawback key (break-glass)
+    param int    unlock_bucket;  // coarse time bucket at/after which release is allowed
+    param int    released;       // one-shot spent flag (genesis = 0)
+
+    state {
+      pubkey owner;
+      pubkey recovery;
+      int    unlock_bucket;
+      int    released;
+    }
+
+    // Owner releases the funds once the consensus time gate has opened.
+    #[covenant(mode = transition)]
+    entrypoint function release(
+      sig auth
+    ) : (pubkey owner, pubkey recovery, int unlock_bucket, int released) {
+      requires checkSig(auth, owner);            // only the owner may release
+      after(unlock_bucket);                      // consensus CLTV gate: not relayable before unlock_bucket
+      requires released == 0;                    // one-shot: not already spent
+      return TimeVault {
+        owner:         owner,
+        recovery:      recovery,
+        unlock_bucket: unlock_bucket,
+        released:      1
+      };
+    }
+
+    // Recovery key claws the funds back (break-glass), before release.
+    #[covenant(mode = transition)]
+    entrypoint function claw(
+      sig auth
+    ) : (pubkey owner, pubkey recovery, int unlock_bucket, int released) {
+      requires checkSig(auth, recovery);         // only the recovery key may claw
+      requires released == 0;                     // one-shot: not already spent
+      return TimeVault {
+        owner:         owner,
+        recovery:      recovery,
+        unlock_bucket: unlock_bucket,
+        released:      1
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via vault.release;
+    live -> live via vault.claw;
+  }
+
+  invariant value_conserved;
+  invariant no_undeclared_state;
+}

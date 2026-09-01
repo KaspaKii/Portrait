@@ -1,0 +1,94 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  CsciInstrument — a covenant that SELF-ENFORCES the CSCI state machine
+//  on-chain (silverscript), rather than relying on the vProg alone.
+//
+//  THE POINT OF THIS FILE: the kcp-csci layer commits, in a 104-byte RISC Zero
+//  STARK journal,  covenant_id[32] || new_state_hash[32] || rule_hash[32] || seq[8 LE].
+//  Until now the *rules* of that state machine (sequence monotonicity, owner
+//  authorization, state continuity) lived only in the off-L1 vProg guest. This
+//  covenant lifts the structural rules ON-CHAIN: the emitted .sil enforces
+//
+//    (a) sequence monotonicity   — seq advances by exactly one (no replay / skip)
+//    (b) covenant-id binding      — the STARK journal's covenant_id must equal
+//                                   this covenant's own on-chain ID
+//                                   (`proof_cov_id == OpInputCovenantId(0)`),
+//                                   emitted automatically because this role has a
+//                                   vProg companion (`has_vprog`)
+//    (c) owner authorization      — settle is authorized against the COMMITTED
+//                                   owner key (prev state), never a caller arg
+//    (d) value conservation       — `amount` is carried from its own prior value
+//
+//  HONEST SCOPE: the tag-0x21 ZK *verification* of the STARK proof itself is an
+//  ENGINE-level operation (OpZkPrecompile / kcp-pq-anchor), NOT a silverscript
+//  op. silverscript here enforces the STATE-MACHINE rules + the covenant-id
+//  binding; the proof-bytes verification is layered by the settlement harness
+//  (C5), which feeds the journal's covenant_id in as `proof_cov_id`. So this
+//  .sil closes the "rules live only in the vProg" caveat for the structural
+//  state machine, and the proof binding is composed at settle time.
+//
+//  The `csci_rules` entrypoint carries NO #[covenant] attribute → portrait-ir
+//  lowers it as a NonCovenant (vProg) transition → Atelier emits its RISC Zero
+//  guest main; the Engraver ignores it but its presence flips `has_vprog`, which
+//  is what causes the covenant-id binding require() to be emitted into settle.
+// ─────────────────────────────────────────────────────────────────────────
+
+app CsciInstrument {
+  role instrument {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey owner;          // committed owner key (the settle authority)
+    param int    amount;         // value carried by the instrument (conserved)
+    param int    seq;            // monotonic CSCI sequence number (genesis = 0)
+    param bytes32 state_hash;    // CSCI content/state hash (new_state_hash in the journal)
+
+    state {
+      pubkey  owner;
+      int     amount;
+      int     seq;
+      bytes32 state_hash;
+    }
+
+    // L1 covenant: enforces one CSCI state transition on-chain.
+    //   · seq advances by exactly one          (monotonic_seq)
+    //   · owner auth against committed owner    (C2)
+    //   · amount carried from its own prior     (value_conserved / C1)
+    //   · covenant-id binding require()          (emitted by has_vprog)
+    #[covenant(mode = transition)]
+    entrypoint function settle(
+      sig auth,
+      bytes32 next_state_hash
+    ) : (pubkey owner, int amount, int seq, bytes32 state_hash) {
+      requires checkSig(auth, owner);          // committed-owner authorization
+      return CsciInstrument {
+        owner:      owner,                      // owner key carried unchanged
+        amount:     amount,                     // value conserved (carry f:f)
+        seq:        seq + 1,                    // CSCI sequence advances by one
+        state_hash: next_state_hash            // adopt the new committed state hash
+      };
+    }
+
+    // vProg (off-L1): the CSCI rule predicate, proven via a RISC Zero STARK.
+    // No #[covenant] attribute → NonCovenant → Atelier emits the guest main.
+    // Its presence flips `has_vprog`, which is what causes the covenant-id
+    // binding require() to be emitted into `settle` above.
+    //
+    // The companion body MIRRORS `settle`: it consumes `next_state_hash` and
+    // advances `state_hash`/`seq`, so the M3 guest hashes the NEW state into the
+    // journal's new_state_hash (owner + amount carried forward unchanged).
+    entrypoint function csci_rules(bytes32 next_state_hash) {
+      return CsciInstrument {
+        owner:      owner,                      // owner key carried unchanged
+        amount:     amount,                     // value conserved (carry f:f)
+        seq:        seq + 1,                    // CSCI sequence advances by one
+        state_hash: next_state_hash            // adopt the new committed state hash
+      };
+    }
+  }
+
+  lifecycle { live -> live via instrument.settle; }
+
+  invariant value_conserved;       // C1: amount must derive from its own prior
+  invariant monotonic_seq;         // C3: seq must advance by exactly one
+  invariant no_undeclared_state;
+}

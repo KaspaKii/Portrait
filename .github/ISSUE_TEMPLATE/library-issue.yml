@@ -1,0 +1,25 @@
+name: "Covenant Patterns Library — bug / issue"
+description: A problem with a covenant pattern or primitive in compliance-patterns/.
+labels: ["area:library", "type:bug"]
+body:
+  - type: input
+    id: crate
+    attributes:
+      label: Pattern / crate
+      placeholder: e.g. kcp-vault, kcp-ktt-token
+    validations:
+      required: false
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Expected vs actual. Include commands and any offline/testnet context.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction
+      description: Minimal steps or a covenant/source that shows it.
+    validations:
+      required: false

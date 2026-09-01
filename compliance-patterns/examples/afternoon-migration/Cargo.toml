@@ -1,0 +1,23 @@
+[package]
+name = "afternoon-migration"
+version = "0.1.0"
+edition = "2021"
+publish = false
+# "I migrated from Ethereum in an afternoon" composite demo.
+# Demonstrates Ownable + TimelockController + Vault via kii-solidity-compat.
+# Pre-production, unaudited, testnet-only.
+
+[workspace]
+
+[[bin]]
+name = "afternoon-migration"
+path = "src/main.rs"
+
+[dependencies]
+kii-solidity-compat = { path = "../../crates/kii-solidity-compat" }
+kcp-vault = { path = "../../crates/kcp-vault" }
+hex = "0.4"
+
+[dev-dependencies]
+kii-solidity-compat = { path = "../../crates/kii-solidity-compat" }
+kcp-vault = { path = "../../crates/kcp-vault" }

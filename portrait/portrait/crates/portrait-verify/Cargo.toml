@@ -1,0 +1,13 @@
+[package]
+name = "portrait-verify"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Proof-carrying Hallmark certification for Portrait components: emit a machine-checkable hallmark.json whose every claim maps to a re-runnable check."
+
+[dependencies]
+portrait-syntax = { path = "../portrait-syntax" }
+portrait-sema = { path = "../portrait-sema" }
+portrait-ir = { path = "../portrait-ir" }
+portrait-project = { path = "../portrait-project" }
+portrait-emit = { path = "../portrait-emit" }

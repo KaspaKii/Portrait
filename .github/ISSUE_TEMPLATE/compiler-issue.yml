@@ -1,0 +1,25 @@
+name: "Portrait compiler / toolchain issue"
+description: A bug or feature request for the Portrait language, compiler, Lens, or Composer.
+labels: ["area:compiler"]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options: [bug, feature request, question]
+    validations:
+      required: true
+  - type: input
+    id: stage
+    attributes:
+      label: Stage / crate
+      placeholder: e.g. portrait check, portrait-lens, portrait-compose, atelier
+    validations:
+      required: false
+  - type: textarea
+    id: what
+    attributes:
+      label: Details
+      description: What happened vs expected. Include the `.portrait` source and the command if a bug.
+    validations:
+      required: true

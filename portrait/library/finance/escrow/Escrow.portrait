@@ -1,0 +1,141 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  Escrow — a two-party, deadline-gated conditional-payment covenant.
+//
+//  An escrow UTXO locks `amount` between a `buyer` and a `seller`, with a
+//  `deadline`. It offers two mutually-exclusive TERMINAL spends:
+//
+//    · release (happy path) — the SELLER, authorised against the COMMITTED
+//                 seller key, settles the escrow once the deliverable has been
+//                 accepted off-chain. The coin is RELEASED to the seller and the
+//                 UTXO is consumed. Fires at any time.
+//    · refund  (timeout path) — the BUYER, authorised against the COMMITTED
+//                 buyer key, claws the funds back once the deadline has passed
+//                 (tx.time >= deadline) — the buyer's escape hatch when the
+//                 seller never delivers. The coin is RELEASED to the buyer and
+//                 the UTXO is consumed.
+//
+//  RELEASE-XOR-REFUND (structural, not a flag): both paths are TERMINAL — each
+//  SPENDS the single escrow UTXO. Because a UTXO can be spent exactly once, the
+//  two paths are mutually exclusive BY CONSTRUCTION: whichever fires first
+//  consumes the coin, so the other can never fire. There is no `settled` flag —
+//  a one-shot flag on a terminal path would be a no-op (the UTXO consumption
+//  already gives the exclusion) and misleading (it implies a surviving successor
+//  that does not exist).
+//
+//  VALUE / PAYOUT (honest scope): each terminal path CONSENSUS-MOVES THE COIN
+//  and RELEASES it — the covenant does NOT continue. `release`'s
+//  `pays(0, seller, amount)` clause emits two output-introspection requires that
+//  bind output[0] to pay the committed `amount` to the committed seller's P2PK
+//  spk (OpTxOutputAmount / OpTxOutputSpk); `refund`'s `pays(0, buyer, amount)`
+//  binds output[0] to the committed BUYER's P2PK spk. The emitted covenant is a
+//  `binding = auth` VERIFICATION function with NO successor: the spend is
+//  authorised by the `checkSig` the body checks (there is no successor covenant
+//  to inherit a covenant-id), and the coin LEAVES the covenant to the committed
+//  payee. The `invariant payout_bound` declared below makes both `pays(...)`
+//  bindings a CHECKED, NON-DELETABLE obligation: the checker recognizes each
+//  TERMINAL transition as a settling transition and rejects the program if either
+//  path stops carrying a `pays(...)` clause. Honest scope: EXISTENCE-ONLY — it
+//  requires *a* `pays(...)` on the settling path (→ OpTxOutputAmount/OpTxOutputSpk),
+//  NOT that it binds THIS settlement's own coin/payee (payee/amount validity is
+//  checked separately by the `pays` rules); it is NOT a value-conservation /
+//  KIP-9 mass proof (the L1 surplus caveat still applies — a spend may attach
+//  further inputs/outputs the covenant does not constrain).
+//
+//  Because both paths move value OUT of the covenant, this app does NOT declare
+//  `invariant value_conserved` (that would certify a conservation the payout
+//  falsifies); it declares `invariant authorized` instead.
+//
+//  TIMELOCK (honest scope): the deadline gate is the consensus CLTV opcode —
+//  `refund`'s `after(deadline)` clause lowers to
+//  `require(tx.time >= prev_state.deadline)` → `OpCheckLockTimeVerify`, exactly
+//  as TimeVault expresses it. That opcode is HALF the no-early-spend guarantee:
+//  (1) CLTV forces the spending tx to COMMIT a `lock_time >= deadline` on a
+//  NON-FINAL input (defeating the final-sequence bypass), reading only the
+//  spender-set lock_time field; (2) the SEPARATE consensus finalization rule
+//  (`block_daa_score > deadline`) bars the tx from a block until the deadline has
+//  actually passed — the load-bearing half, outside txscript. Two ceremony
+//  preconditions the covenant cannot check: `deadline` and the spending tx's lock
+//  time must share a domain (a DAA score below LOCK_TIME_THRESHOLD =
+//  500_000_000_000, or a Unix time at/above it); and a committed `deadline` of 0 /
+//  <= the instantiation DAA score is no gate — commit a real future deadline.
+//  The covenant does NOT read wall-clock time. See library/ENFORCEMENT.md.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param matched BY NAME — a state field with no same-named param is a
+//  compile error, never a silent 0 — so the constructor declares buyer,
+//  seller, amount, deadline. `amount` is typed `coin` — a Portrait surface
+//  type the type checker forbids arithmetic on and forbids comparing to an
+//  int, which is also what lets `check_pays` accept `amount` as the
+//  value-bearing operand of `pays(...)`. The Engraver lowers `coin` to
+//  silverscript's `int` representation (silverscript has no `coin` type), so
+//  the emitted .sil declares `int amount`. `portrait engrave` lowers this to
+//  a two-terminal-transition singleton covenant that `silverc` accepts (exit
+//  0).
+// ─────────────────────────────────────────────────────────────────────────
+
+app Escrow {
+  role escrow {
+    param pubkey buyer;     // party who funds the escrow (refund authority)
+    param pubkey seller;    // party who delivers (release authority)
+    param coin   amount;    // value locked; each path binds output[0] to pay it
+    param int    deadline;  // coarse time bucket at/after which refund is allowed
+
+    state {
+      pubkey buyer;
+      pubkey seller;
+      coin   amount;        // value-bearing (coin); bound by each path's pays(...)
+      int    deadline;
+    }
+
+    // Happy path (TERMINAL): the seller releases the coin to themselves.
+    // Authorised against the COMMITTED seller key, not a caller-supplied arg.
+    // No return: the coin is released via pays and the UTXO is consumed.
+    #[covenant(mode = transition)]
+    entrypoint function release(sig auth) {
+      requires checkSig(auth, seller);     // only the committed seller may release
+      pays(0, seller, amount);             // SCRIPT-ENFORCED (B2): consensus binds
+                                           // output[0] to pay the COMMITTED `amount`
+                                           // to the COMMITTED seller's P2PK spk
+    }
+
+    // Timeout path (TERMINAL): the buyer claws the coin back after the deadline.
+    // Authorised against the COMMITTED buyer key; gated on the deadline bucket.
+    // No return: the coin is released via pays and the UTXO is consumed.
+    #[covenant(mode = transition)]
+    entrypoint function refund(sig auth) {
+      requires checkSig(auth, buyer);      // only the committed buyer may refund
+      after(deadline);                     // SCRIPT-ENFORCED (B1): consensus CLTV
+                                           // gate — not relayable before `deadline`
+      pays(0, buyer, amount);              // SCRIPT-ENFORCED (B2): consensus binds
+                                           // output[0] to pay the COMMITTED `amount`
+                                           // to the COMMITTED buyer's P2PK spk
+    }
+  }
+
+  lifecycle {
+    live -> released via escrow.release terminal;
+    live -> refunded via escrow.refund terminal;
+  }
+
+  // NOT `value_conserved`: each terminal path consensus-moves the coin out to a
+  // committed payee (see the VALUE / PAYOUT note above), so a conservation
+  // invariant would be false. `authorized` keeps the checker enforcing
+  // committed-key auth without certifying a conservation the payout falsifies.
+  invariant authorized;
+  // A6 (payout_bound): every RECOGNIZED settling transition MUST bind its payout
+  // to a committed output via `pays(...)`. Here both `release` and `refund` are
+  // recognized as TERMINAL settling transitions (a lifecycle edge marked
+  // `terminal`, which releases the coin and ends the lifecycle), so this makes
+  // the `pays(0, seller, amount)` and `pays(0, buyer, amount)` bindings above a
+  // CHECKED, NON-DELETABLE obligation: the checker rejects the program if either
+  // settling path stops paying. Honest scope: EXISTENCE-ONLY — it requires *a*
+  // `pays(...)` on the settling path (→ OpTxOutputAmount/OpTxOutputSpk), NOT that
+  // it binds THIS settlement's own coin/payee (payee/amount validity is checked
+  // separately by the `pays` rules); it is NOT a value-conservation / KIP-9 mass
+  // proof (the L1 surplus caveat still applies — a spend may attach further
+  // inputs/outputs the covenant does not constrain).
+  invariant payout_bound;
+  invariant no_undeclared_state;
+}

@@ -1,0 +1,147 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  Htlc — a hash-time-locked contract (HTLC).
+//
+//  An HTLC UTXO locks value between a `sender` and a `recipient` behind a
+//  hashlock and a deadline, with a one-shot `settled` flag:
+//
+//    · claim  (hashlock path) — the RECIPIENT, authorised against the COMMITTED
+//                 recipient key, settles the contract by revealing the preimage
+//                 that matches the committed `hashlock`. Fires any time before
+//                 settlement. Revealing the preimage on-chain is what lets the
+//                 counterparty leg of a cross-chain / cross-UTXO swap also claim.
+//    · refund (timeout path) — the SENDER, authorised against the COMMITTED
+//                 sender key, claws the funds back once the deadline has passed
+//                 (now_bucket >= deadline) — the sender's escape hatch if the
+//                 recipient never reveals the preimage.
+//
+//  `settled` is a one-shot flag (genesis = 0): once set, neither transition can
+//  fire again, so the locked value cannot be double-spent across the two
+//  mutually-exclusive paths (claim XOR refund). This is the structural spine of
+//  every HTLC: reveal-XOR-timeout, never both.
+//
+//  HASHLOCK (real digest hashlock): the committed `hashlock` is a `bytes32`
+//  blake2b digest. The `claim` path requires `blake2b(preimage) == hashlock` —
+//  i.e. the spender must reveal a preimage whose blake2b digest equals the
+//  committed hashlock. This is a TRUE hashlock computed ON CHAIN by the covenant,
+//  not a committed-value equality: `blake2b()` is a Portrait surface builtin that
+//  the type checker recognises (returning bytes32) and the emitter lowers
+//  verbatim to the engine's hashing intrinsic (silverc `blake2b(_)` → OpBlake2b,
+//  0xaa). Revealing the preimage on chain is what lets the counterparty leg of a
+//  cross-chain / cross-UTXO swap claim against the same digest. The covenant
+//  enforces the digest check itself, alongside the STRUCTURAL rules (who, what
+//  value, one-shot).
+//
+//  TIMELOCK (honest scope): the deadline gate is now the consensus CLTV opcode —
+//  `refund`'s `after(deadline)` clause lowers to
+//  `require(tx.time >= prev_states[0].deadline)` → `OpCheckLockTimeVerify`,
+//  exactly as TimeVault and Escrow express it. That opcode is HALF the
+//  no-early-spend guarantee: (1) CLTV forces the spending tx to COMMIT a
+//  `lock_time >= deadline` on a NON-FINAL input (defeating the final-sequence
+//  bypass), reading only the spender-set lock_time field; (2) the SEPARATE
+//  consensus finalization rule (`block_daa_score > deadline`) bars the tx from a
+//  block until the deadline has actually passed — the load-bearing half, outside
+//  txscript. Two ceremony preconditions the covenant cannot check: `deadline` and
+//  the spending tx's lock time must share a domain (a DAA score below
+//  LOCK_TIME_THRESHOLD = 500_000_000_000, or a Unix time at/above it); and a
+//  committed `deadline` of 0 / <= the instantiation DAA score is no gate — commit
+//  a real future deadline. The covenant does NOT read wall-clock time. The
+//  `invariant refund_after_deadline: refund => after(deadline)` declared below
+//  pins this gate to the `refund` entrypoint and makes the `after(deadline)`
+//  clause NON-DELETABLE (a STRUCTURAL check that `refund` CARRIES the matching
+//  consensus CLTV clause — not an SMT-discharged temporal proof).
+//
+//  VALUE CONSERVATION (honest scope): no value-bearing field changes across a
+//  transition; the locked value is governed by the spending wallet's output
+//  script, and the covenant enforces only the structural authorisation +
+//  hashlock / temporal gates. The state carries the hashlock, deadline, and the
+//  one-shot flag; the actual payout/clawback is complemented — not replaced — by
+//  the covenant's rules.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param matched BY NAME — a state field with no same-named param is a
+//  compile error, never a silent 0 — so the constructor declares sender,
+//  recipient, hashlock, deadline, settled. `portrait engrave` lowers this to
+//  a two-transition singleton covenant that `silverc` accepts (exit 0).
+// ─────────────────────────────────────────────────────────────────────────
+
+app Htlc {
+  role htlc {
+    param pubkey  sender;     // party who funds the HTLC (refund authority)
+    param pubkey  recipient;  // party who may claim by revealing the preimage
+    param bytes32 hashlock;   // committed blake2b digest; claim must reveal a matching preimage
+    param int     deadline;   // coarse time bucket at/after which refund is allowed
+    param int     settled;    // one-shot spent flag (genesis = 0)
+
+    state {
+      pubkey  sender;
+      pubkey  recipient;
+      bytes32 hashlock;
+      int     deadline;
+      int     settled;
+    }
+
+    // Hashlock path: the recipient claims by revealing the preimage.
+    // Authorised against the COMMITTED recipient key, not a caller-supplied arg.
+    #[covenant(mode = transition)]
+    entrypoint function claim(
+      sig auth,
+      bytes32 preimage
+    ) : (pubkey sender, pubkey recipient, bytes32 hashlock, int deadline, int settled) {
+      requires checkSig(auth, recipient);            // only the committed recipient may claim
+      requires blake2b(preimage) == hashlock;        // TRUE hashlock: digest(preimage) == committed hashlock
+      requires settled == 0;                         // one-shot: not already settled
+      return Htlc {
+        sender:    sender,
+        recipient: recipient,
+        hashlock:  hashlock,
+        deadline:  deadline,
+        settled:   1
+      };
+    }
+
+    // Timeout path: the sender claws the funds back after the deadline.
+    // Authorised against the COMMITTED sender key; gated on the consensus CLTV.
+    #[covenant(mode = transition)]
+    entrypoint function refund(
+      sig auth
+    ) : (pubkey sender, pubkey recipient, bytes32 hashlock, int deadline, int settled) {
+      requires checkSig(auth, sender);      // only the committed sender may refund
+      after(deadline);                      // SCRIPT-ENFORCED (B1): consensus CLTV
+                                            // gate — not relayable before `deadline`
+      requires settled == 0;                // one-shot: not already settled
+      return Htlc {
+        sender:    sender,
+        recipient: recipient,
+        hashlock:  hashlock,
+        deadline:  deadline,
+        settled:   1
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via htlc.claim;
+    live -> live via htlc.refund;
+  }
+
+  invariant value_conserved;
+  // Refinement (D3, temporal_guard): the `refund` timeout path gates on the
+  // committed `deadline` via the consensus `after(deadline)` CLTV clause. The
+  // role-level `temporal_guard` check requires at least one mutating transition to
+  // assert a committed-time gate; the `after(...)` clause (which lowers to
+  // OpCheckLockTimeVerify) is a strictly STRONGER gate than a `now_bucket`
+  // comparison and satisfies it. `claim` is untouched — it carries no time gate.
+  invariant temporal_guard;
+  // A4-full (formula-bearing temporal invariant): the path-binding pins the
+  // deadline gate to the `refund` entrypoint specifically and makes the
+  // `after(deadline)` clause NON-DELETABLE — the checker rejects the program if
+  // `refund` ever stops carrying the matching `after(deadline)` consensus CLTV
+  // clause. Honest scope: this is a STRUCTURAL check that the named entrypoint
+  // CARRIES the matching consensus gate the emitter lowers to
+  // OpCheckLockTimeVerify — NOT an SMT-discharged temporal obligation, and
+  // strictly stronger than the existence-only `temporal_guard` above.
+  invariant refund_after_deadline: refund => after(deadline);
+  invariant no_undeclared_state;
+}

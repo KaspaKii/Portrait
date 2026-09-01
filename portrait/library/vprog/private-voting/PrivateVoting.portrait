@@ -1,0 +1,148 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  PrivateVoting — a CROSS-LAYER (vProg) anonymous-ballot pattern.
+//
+//  THE POINT OF THIS FILE: an electorate casts ballots into a running tally
+//  WITHOUT revealing who voted for what. Each accepted ballot must satisfy two
+//  predicates that a pure covenant cannot check, because doing so would unmask
+//  the voter:
+//
+//    · ELIGIBILITY  — the voter is a member of the committed registry (the
+//                     `registrar` attests a Merkle/accumulator root of eligible
+//                     voters), proven WITHOUT revealing which member,
+//    · ONE-VOTE     — the voter has not already voted in this round (a nullifier
+//                     derived from the voter's secret is fresh), proven WITHOUT
+//                     linking the nullifier back to an identity.
+//
+//  The new running tally is then a FOLD of the prior tally with this ballot.
+//  None of {voter identity, ballot choice, nullifier set} can live on chain
+//  without breaking ballot secrecy, so the predicate is discharged in a RISC Zero
+//  zk-STARK guest (the vProg), and the covenant records a monotonic-seq tally
+//  transition BOUND to that proof.
+//
+//  This follows the proven CSCI shape exactly (see ../../state/CsciInstrument):
+//    • a `#[covenant]` settlement role (`settle`) that self-enforces the
+//      STRUCTURAL state-machine rules on chain, and
+//    • a NonCovenant companion entrypoint (`vote_rule`) carrying NO #[covenant]
+//      attribute → portrait-ir lowers it as a vProg transition → Atelier emits
+//      its RISC Zero guest main. Its presence flips `has_vprog`, which is what
+//      causes the covenant-id binding require() to be emitted into `settle`.
+//
+//  ON-CHAIN, the emitted .sil enforces:
+//    (a) tally advance           — adopt the next committed tally_root (the proven
+//                                  new tally-commitment after folding the ballot)
+//    (b) monotonic seq           — CSCI sequence advances by exactly one
+//                                  (no replay / no double-counting a round)
+//    (c) covenant-id binding     — the STARK journal's covenant_id must equal
+//                                  this covenant's own on-chain id
+//                                  (`proof_cov_id == OpInputCovenantId(0)`),
+//                                  emitted automatically because this role has a
+//                                  vProg companion (`has_vprog`)
+//    (d) owner authorization     — `settle` is authorized against the COMMITTED
+//                                  owner key (prev state), never a caller arg
+//
+//  OFF-CHAIN (the vProg guest), the `vote_rule` companion is the predicate
+//  proven by the STARK: a voter is ELIGIBLE (member of the committed registry)
+//  and casts EXACTLY ONE vote (fresh nullifier) WITHOUT revealing identity, and
+//  the folded `next_tally_root` is the correct update of the prior `tally_root`.
+//  The journal commits the new tally_root + advanced seq into `new_state_hash`.
+//
+//  WHY a committed `registrar` (separate from `owner`): the `owner` key is the
+//  on-chain settlement authority (who may post a transition); the `registrar` is
+//  the committed authority over WHO is eligible — its identity is folded into the
+//  guest's eligibility check via the registry root. Both are committed state, so
+//  neither can be swapped by a caller argument.
+//
+//  STATUS — Emit-verified template; the state-machine transition is lowered into
+//  the guest (M3). The covenant compiles via silverc; `portrait atelier-build`
+//  emits a RISC Zero guest that consumes the entrypoint args the return body uses,
+//  hashes the NEW state into new_state_hash, advances seq, and asserts the
+//  assertable requires. The heavy predicate (eligibility membership + one-vote
+//  nullifier-freshness + tally fold over the hidden ballot) is STILL
+//  developer-authored, not synthesized by the compiler. Emit-verified, not settled
+//  live (only CSCI has settled live on TN10).
+//
+//  HONEST SCOPE: the tag-0x21 ZK *verification* of the STARK proof itself is an
+//  ENGINE-level operation (OpZkPrecompile / kcp-pq-anchor), NOT a silverscript
+//  op. silverscript here enforces the STATE-MACHINE rules + the covenant-id
+//  binding; the proof-bytes verification is layered by the settlement harness
+//  (examples/portrait-settlement), which feeds the journal's covenant_id in as
+//  `proof_cov_id`. The BALLOT-SECRECY + eligibility + one-vote SOUNDNESS rests on
+//  the RISC Zero guest + the tag-0x21 verifier, NOT on Portrait — Portrait only
+//  carries the structural tally state machine on chain. The covenant-side checks
+//  are structural/relational (no SMT). This is an emit-verified template, not a
+//  pattern individually settled live; live settlement reuses the proven CSCI
+//  harness.
+// ─────────────────────────────────────────────────────────────────────────
+
+app PrivateVoting {
+  role ballotbox {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey  owner;        // committed owner key (the settle authority)
+    param pubkey  registrar;    // committed registrar key (authority over eligibility)
+    param bytes32 tally_root;   // committed commitment to the running tally
+    param int     seq;          // monotonic CSCI sequence number (genesis = 0)
+
+    state {
+      pubkey  owner;
+      pubkey  registrar;
+      bytes32 tally_root;
+      int     seq;
+    }
+
+    // L1 covenant: settles ONE private-ballot tally transition on chain.
+    //   · owner auth against committed owner    (committed-owner auth)
+    //   · tally_root advances to next_tally_root (the proven new tally-commitment)
+    //   · seq advances by exactly one            (monotonic_seq)
+    //   · covenant-id binding require()           (emitted by has_vprog)
+    // The ballot, voter identity, and nullifier are NEVER arguments here — they
+    // live only in the proof. The covenant only ever sees the new tally root.
+    #[covenant(mode = transition)]
+    entrypoint function settle(
+      sig auth,
+      bytes32 next_tally_root
+    ) : (pubkey owner, pubkey registrar, bytes32 tally_root, int seq) {
+      requires checkSig(auth, owner);          // committed-owner authorization
+      return PrivateVoting {
+        owner:      owner,                     // owner key carried unchanged
+        registrar:  registrar,                 // registrar key carried unchanged
+        tally_root: next_tally_root,           // adopt the new committed tally-commitment
+        seq:        seq + 1                    // CSCI sequence advances by one
+      };
+    }
+
+    // vProg (off-L1): the PRIVATE-VOTING predicate, proven via a RISC Zero STARK.
+    // No #[covenant] attribute → NonCovenant → Atelier emits the guest main. Its
+    // presence flips `has_vprog`, which is what causes the covenant-id binding
+    // require() to be emitted into `settle` above. The emitted guest builds the
+    // 104-byte journal whose new_state_hash commits the advanced tally_root + seq;
+    // the actual eligibility + one-vote + tally-fold logic is authored into that
+    // guest (the catalogue template).
+    //
+    // The companion body MIRRORS `settle`: it consumes `next_tally_root` and
+    // advances `tally_root`/`seq`, so the M3 guest hashes the NEW state (adopted
+    // tally root + advanced seq) into the journal's new_state_hash.
+    //
+    // WHAT STAYS MANUAL (developer guest code, NOT synthesised by the compiler):
+    //   · proving the voter is a member of the committed registry (eligibility),
+    //   · proving the nullifier is fresh (exactly one vote), and
+    //   · folding the hidden ballot into the prior tally to JUSTIFY
+    //     `next_tally_root` — all WITHOUT revealing voter identity or choice.
+    // None of that is expressible in the Portrait body; it remains hand-written
+    // in the guest.
+    entrypoint function vote_rule(bytes32 next_tally_root) {
+      return PrivateVoting {
+        owner:      owner,                     // owner key carried unchanged
+        registrar:  registrar,                 // registrar key carried unchanged
+        tally_root: next_tally_root,           // adopt the new committed tally-commitment
+        seq:        seq + 1                    // CSCI sequence advances by one
+      };
+    }
+  }
+
+  lifecycle { live -> live via ballotbox.settle; }
+
+  invariant monotonic_seq;          // seq must advance by exactly one
+  invariant no_undeclared_state;
+}

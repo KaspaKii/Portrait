@@ -1,0 +1,37 @@
+[package]
+name = "kcp-pq-anchor"
+version = "0.1.0"
+edition = "2021"
+description = "KIP-16 tag-0x21 post-quantum credential anchor — script assembly for Kaspa BlockDAG"
+license = "MIT"
+publish = false
+
+[features]
+default = []
+# Engine-touching code — the same posture as every other crate in the workspace:
+# the default build must not pull the rusty-kaspa git tree. Enables
+# `sigop::{measure_pq_anchor_units, fits_pq_verify_budget}`, which run a real
+# P2SH spend through the pinned v2.0.0 consensus VM to check a proof against the
+# u8 SigopCount ceiling. MEASURE BEFORE FUNDING a tag-0x21 address: the
+# reference proof sits 0.25% under the ceiling and an over-budget spend is
+# unspendable.
+wrpc = ["dep:kaspa-txscript", "dep:kaspa-consensus-core"]
+
+[dependencies]
+sha2 = "0.10"
+thiserror = { workspace = true }
+kaspa-txscript = { workspace = true, optional = true }
+kaspa-consensus-core = { workspace = true, optional = true }
+
+[dev-dependencies]
+hex = "0.4"
+# The engine-acceptance test has always run on default features; keeping these
+# as dev-deps preserves that. The library itself takes them only under `wrpc`.
+kaspa-txscript = { workspace = true }
+kaspa-consensus-core = { workspace = true }
+
+# Budget measurement calls `sigop::measure_pq_anchor_units`, which the library
+# only exposes under `wrpc`. The gate's --all-features pass runs it.
+[[test]]
+name = "budget_ceiling"
+required-features = ["wrpc"]

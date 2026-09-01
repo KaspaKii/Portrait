@@ -1,0 +1,40 @@
+{
+  "component": "MultisigTreasury",
+  "source": "library/governance/treasury/MultisigTreasury.portrait",
+  "maturity": "pre-production, unaudited, testnet-only",
+  "rederive": "Clone the portrait workspace, then run `cargo run -p portrait-cli -- verify library/governance/treasury/MultisigTreasury.portrait` (or `portrait verify library/governance/treasury/MultisigTreasury.portrait`). This re-runs portrait_syntax::parse, portrait_sema::check, the lower→project→emit pipeline, and invokes `silverc --constructor-args <ctor> -c <emitted.sil>`, re-deriving every claim above. Do not trust this stamp — reproduce it.",
+  "claims": [
+    {
+      "claim": "Source parses as a well-formed Portrait program.",
+      "check": "parse",
+      "command": "portrait_syntax::parse(&source)",
+      "result": "pass",
+      "detail": "parser returned Ok",
+      "rederivable": true
+    },
+    {
+      "claim": "Program satisfies portrait-sema's structural static checks (lifecycle reachability, flow integrity, transition/return consistency, value_conserved, no_undeclared_state).",
+      "check": "sema",
+      "command": "portrait_sema::check(&program)",
+      "result": "pass",
+      "detail": "all structural checks passed",
+      "rederivable": true
+    },
+    {
+      "claim": "Program lowers and projects to at least one silverscript covenant source (portrait-ir → portrait-project → portrait-emit).",
+      "check": "emit",
+      "command": "portrait_emit::emit(&portrait_project::project(&portrait_ir::lower(&program)))",
+      "result": "pass",
+      "detail": "emitted 1 covenant(s): MultisigTreasury",
+      "rederivable": true
+    },
+    {
+      "claim": "The pinned silverc compiler accepts the emitted .sil with a generated constructor (exit 0).",
+      "check": "silverc-accepts[MultisigTreasury]",
+      "command": "silverc --constructor-args <ctor> -c <emitted.sil>",
+      "result": "pass",
+      "detail": "silverc exited 0",
+      "rederivable": true
+    }
+  ]
+}

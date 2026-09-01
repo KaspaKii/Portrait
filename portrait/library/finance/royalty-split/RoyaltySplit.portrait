@@ -1,0 +1,98 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  RoyaltySplit — a one-source, N-payee royalty distribution (conservation_split).
+//
+//  THE POINT OF THIS FILE: showcase `conservation_split` on a *fan-out* shape
+//  with MORE than two destination legs. A single pooled source leg
+//  (`income_balance`) is split across THREE named payee legs in one transition:
+//  `a` flows to `payee_a_balance`, `b` to `payee_b_balance`, `c` to
+//  `payee_c_balance`, with `income_balance` decreasing by the combined term
+//  `(a + b + c)`. This is the royalty-distribution generalisation of the 3-field
+//  InternalSplit: there one source fanned to two legs; here it fans to three.
+//
+//  `conservation_split`, generalised to N fields, computes the additive delta of
+//  every value-bearing field in the return — here:
+//    · income_balance:  -(a + b + c)
+//    · payee_a_balance: +a
+//    · payee_b_balance: +b
+//    · payee_c_balance: +c
+//  flattens each delta term into its `+`-separated atoms, and requires the added
+//  atoms {a, b, c} to cancel the subtracted atoms {a, b, c}. They do, so the
+//  distribution conserves value across the four legs and the checker accepts it.
+//  A distribution whose deltas do NOT net to zero (royalties created or lost
+//  across the legs), or a non-additive mutation on a value-bearing field, is
+//  rejected at compile time.
+//
+//  HONEST SCOPE (M2): this is STRUCTURAL N-field additive-delta arithmetic, NOT
+//  a general SMT conservation proof. It proves the multiset of added `+`-atoms
+//  equals the multiset of subtracted `+`-atoms (by `Expr` structural equality).
+//  It does NOT reason about the numeric values of `a`/`b`/`c`, does NOT prove
+//  them non-negative on its own (the `requires ... >= 0;` guards, enforced by
+//  `non_negative_amount` where an int `amount` is taken, supply that), does NOT
+//  see arithmetic identities (e.g. that `a * 2` equals `a + a`), and — critically
+//  — models an INTERNAL split only: royalties moved BETWEEN the covenant's own
+//  legs. It does NOT model a SPEND that pays a payee OUT to an external output
+//  (that is the `value_conserved` single-additive shape, not this one).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app RoyaltySplit {
+  role pool {
+    // Genesis state (one constructor param per state field, in field order).
+    param int    income_balance;    // pooled source leg (value-bearing: ends in `balance`)
+    param int    payee_a_balance;   // royalty recipient one (value-bearing)
+    param int    payee_b_balance;   // royalty recipient two (value-bearing)
+    param int    payee_c_balance;   // royalty recipient three (value-bearing)
+    param pubkey distributor;       // committed distributor — sole distribution authority
+
+    state {
+      int    income_balance;
+      int    payee_a_balance;
+      int    payee_b_balance;
+      int    payee_c_balance;
+      pubkey distributor;
+    }
+
+    // Distribute `a + b + c` out of the pooled income leg: `a` to payee a,
+    // `b` to payee b, `c` to payee c. The committed distributor must authorise.
+    // The four deltas net to zero — the combined `(a + b + c)` leaving
+    // `income_balance` equals the `a`, `b`, `c` arriving in the three payee legs
+    // — the shape `conservation_split` (generalised to N fields) requires.
+    #[covenant(mode = transition)]
+    entrypoint function distribute(
+      sig auth,
+      int a,
+      int b,
+      int c
+    ) : (int income_balance, int payee_a_balance, int payee_b_balance, int payee_c_balance, pubkey distributor) {
+      requires checkSig(auth, distributor);     // only the committed distributor may distribute
+      requires a >= 0;                           // non-negative royalty legs
+      requires b >= 0;
+      requires c >= 0;
+      requires a + b + c <= income_balance;      // cannot overdraw the pooled income
+      return RoyaltySplit {
+        income_balance:  income_balance - (a + b + c),  // pooled income decreases by the combined term
+        payee_a_balance: payee_a_balance + a,           // payee a gains a
+        payee_b_balance: payee_b_balance + b,           // payee b gains b
+        payee_c_balance: payee_c_balance + c,           // payee c gains c
+        distributor:     distributor                    // distributor carried unchanged
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via pool.distribute;
+  }
+
+  // Refinement (D4): the distribution conserves value across the four legs — the
+  // combined term leaving `income_balance` is the SAME triple of atoms arriving
+  // in the three payee legs. STRUCTURAL N-field additive-delta arithmetic, NOT a
+  // general SMT conservation proof.
+  invariant conservation_split;
+  // Capability (C2): distribution authority is checked against the COMMITTED
+  // distributor.
+  invariant authorized;
+  invariant no_undeclared_state;
+}

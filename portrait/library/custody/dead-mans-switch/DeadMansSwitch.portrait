@@ -1,0 +1,127 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  DeadMansSwitch — an inactivity-triggered inheritance covenant.
+//
+//  THE POINT OF THIS FILE: a custody UTXO that the `owner` keeps alive by
+//  periodically proving liveness; if the owner goes silent for longer than a
+//  committed `timeout`, the `heir` may claim control. This is the on-chain
+//  "dead man's switch" / inheritance pattern: liveness is a recurring, signed
+//  heartbeat, and the inheritance path opens only after a committed inactivity
+//  window has elapsed.
+//
+//  Two transitions, both authorised against COMMITTED keys (never caller args):
+//
+//    · heartbeat (liveness path) — the OWNER, authorised against the COMMITTED
+//                 owner key, re-asserts liveness. It refreshes `last_active`
+//                 to the caller-asserted `now_bucket` and carries the heir,
+//                 timeout and owner unchanged. Each heartbeat pushes the
+//                 inactivity deadline forward by `timeout`.
+//    · claim     (inheritance path) — the HEIR, authorised against the
+//                 COMMITTED heir key, takes control once the inactivity window
+//                 has elapsed (consensus `after(last_active + timeout)` CLTV gate,
+//                 plus the caller-asserted `now_bucket >= last_active + timeout`
+//                 that anchors the new window). Control is transferred by promoting
+//                 the heir to `owner`; `last_active` is reset to `now_bucket` so the
+//                 new owner inherits a fresh liveness window. Heir key + timeout carried.
+//
+//  CAPABILITY (C2): both transitions checkSig against a COMMITTED state key —
+//  heartbeat against `owner`, claim against `heir`. An attacker who controls
+//  neither committed key, or who supplies a key of their own, can fire neither
+//  transition: the heartbeat cannot be forged to keep the owner "alive", and
+//  the claim cannot be forged to steal the inheritance early. The `authorized`
+//  invariant makes the no-auth fail-safe a stated, enforced property.
+//
+//  TIMELOCK (honest scope): the inactivity gate on `claim` is enforced by TWO
+//  gates: (1) the consensus `after(last_active + timeout)` clause, which lowers to
+//  `require(tx.time >= prev_states[0].last_active + prev_states[0].timeout)` →
+//  OpCheckLockTimeVerify, forcing the spending tx to commit a lock_time at/after
+//  the inactivity window sum on a non-final input; and (2) the caller-asserted
+//  `now_bucket >= last_active + timeout` compare, RETAINED because `now_bucket`
+//  also sets the new owner's fresh `last_active` anchor (the CLTV gate bounds tx
+//  time but does not itself constrain the recorded anchor). The CLTV opcode is
+//  HALF the guarantee — the SEPARATE finalization rule (`block_daa_score >
+//  last_active + timeout`) is the load-bearing half; the covenant does NOT read
+//  wall-clock time. See library/ENFORCEMENT.md for the domain-match + future-window
+//  ceremony preconditions.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param matched BY NAME — a state field with no same-named param is a
+//  compile error, never a silent 0 — so the constructor declares owner, heir,
+//  last_active, timeout. `portrait engrave` lowers this to a two-transition
+//  singleton covenant that `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app DeadMansSwitch {
+  role switch {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey owner;        // committed owner key (liveness / heartbeat authority)
+    param pubkey heir;         // committed heir key (inheritance / claim authority)
+    param int    last_active;  // coarse time bucket of the last proven heartbeat
+    param int    timeout;      // inactivity window (buckets) after which heir may claim
+
+    state {
+      pubkey owner;
+      pubkey heir;
+      int    last_active;
+      int    timeout;
+    }
+
+    // Liveness path: the owner proves liveness, refreshing `last_active`.
+    // Authorised against the COMMITTED owner key, not a caller-supplied pubkey.
+    #[covenant(mode = transition)]
+    entrypoint function heartbeat(
+      sig auth,
+      int now_bucket
+    ) : (pubkey owner, pubkey heir, int last_active, int timeout) {
+      requires checkSig(auth, owner);          // only the committed owner may heartbeat
+      return DeadMansSwitch {
+        owner:       owner,                     // owner key carried unchanged
+        heir:        heir,                      // heir key carried unchanged
+        last_active: now_bucket,                // liveness refreshed to now
+        timeout:     timeout                    // inactivity window carried
+      };
+    }
+
+    // Inheritance path: the heir claims control after the inactivity window.
+    // Authorised against the COMMITTED heir key; gated on last_active + timeout.
+    // Control is transferred by promoting the heir into `owner`.
+    #[covenant(mode = transition)]
+    entrypoint function claim(
+      sig auth,
+      int now_bucket
+    ) : (pubkey owner, pubkey heir, int last_active, int timeout) {
+      requires checkSig(auth, heir);                       // only the committed heir may claim
+      requires now_bucket >= last_active + timeout;        // inactivity window elapsed (anchors last_active)
+      after(last_active + timeout);                        // SCRIPT-ENFORCED (B1): consensus CLTV gate on
+                                                           // the committed window sum (OpCheckLockTimeVerify)
+      return DeadMansSwitch {
+        owner:       heir,                       // control transferred to the heir
+        heir:        heir,                       // heir key carried
+        last_active: now_bucket,                 // fresh liveness window for the new owner
+        timeout:     timeout                     // inactivity window carried
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via switch.heartbeat;
+    live -> live via switch.claim;
+  }
+
+  // Capability invariant (C2): both transitions authorise against a COMMITTED
+  // state key (heartbeat → owner, claim → heir). Any state-mutating transition
+  // added here that omits a committed-key checkSig is rejected by the checker.
+  invariant authorized;
+  // Refinement (D3, temporal_guard): the `claim` path gates on the committed
+  // inactivity window via BOTH the consensus `after(last_active + timeout)` CLTV
+  // clause AND the caller-asserted `now_bucket >= last_active + timeout` compare
+  // (the latter anchors the successor `last_active`). Either alone satisfies the
+  // role-level check; a future edit that drops the window entirely is rejected.
+  // `heartbeat` is untouched — it reads `now_bucket` only in its return (refreshing
+  // `last_active`), not in a guard, so it is not a gate.
+  invariant temporal_guard;
+  invariant no_undeclared_state;
+}

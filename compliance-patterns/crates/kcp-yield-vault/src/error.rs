@@ -1,0 +1,39 @@
+//! Error types for `kcp-yield-vault`.
+
+/// Errors returned by vault profile operations.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum VaultError {
+    /// Depositing zero assets is not permitted.
+    ZeroDeposit,
+    /// Withdrawing zero shares is not permitted.
+    ZeroWithdraw,
+    /// Insufficient shares for the requested withdrawal.
+    InsufficientShares,
+    /// The deposit is too small to mint a whole share at the current rate.
+    ///
+    /// Rejected rather than accepted, because accepting it would add the
+    /// assets to the vault and give the depositor nothing in return.
+    ZeroSharesMinted,
+    /// Arithmetic overflow during shares/assets conversion.
+    ArithmeticOverflow,
+}
+
+impl std::fmt::Display for VaultError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::ZeroDeposit => write!(f, "deposit amount must be greater than zero"),
+            Self::ZeroWithdraw => write!(f, "withdraw shares must be greater than zero"),
+            Self::InsufficientShares => write!(f, "insufficient shares for withdrawal"),
+            Self::ZeroSharesMinted => write!(
+                f,
+                "deposit too small to mint a share at the current rate — it would be lost"
+            ),
+            Self::ArithmeticOverflow => write!(f, "arithmetic overflow in vault calculation"),
+        }
+    }
+}
+
+impl std::error::Error for VaultError {}
+
+/// Result type for `kcp-yield-vault`.
+pub type Result<T> = std::result::Result<T, VaultError>;

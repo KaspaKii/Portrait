@@ -1,0 +1,28 @@
+// LoopAirdrop — REJECT fixture (out of subset).
+// Solidity equivalent:
+//   contract LoopAirdrop {
+//     function airdrop(address[] recipients, uint256 amount) external {
+//       for (uint i = 0; i < recipients.length; i++) { _mint(recipients[i], amount); }
+//     }
+//   }
+// The unbounded `for` loop cannot be expressed in a covenant (silverscript has no
+// general iteration). `portrait engrave` MUST reject this fail-loud, naming the
+// `for` construct and routing it to the vProgs layer (SUBSET-V0 §3 item 9).
+pragma portrait ^0.1.0;
+
+app LoopAirdrop {
+  role airdrop {
+    param int total;
+
+    state { int total; }
+
+    #[covenant(mode = transition)]
+    entrypoint function distribute(int amount) : (int total) {
+      for (i = 0; i < n; i = i + 1) { total = total - amount };   // unbounded loop — REJECT
+      return total - amount;
+    }
+  }
+
+  lifecycle { live -> live via airdrop.distribute; }
+  invariant no_undeclared_state;
+}

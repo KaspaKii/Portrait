@@ -1,0 +1,16 @@
+[package]
+name = "kii-solidity-compat"
+description = "Solidity-pattern-shaped facade over kcp-ktt-token for Ethereum developer familiarity"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+kcp-ktt-token = { path = "../kcp-ktt-token" }
+kcp-governance = { path = "../kcp-governance" }
+kcp-vault = { path = "../kcp-vault" }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+# none needed

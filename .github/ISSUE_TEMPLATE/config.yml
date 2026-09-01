@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Getting started
+    url: https://github.com/kaspakii/portrait/blob/main/portrait/docs/GETTING-STARTED.md
+    about: First 15 minutes with the Portrait toolchain.
+  - name: The Covenant Patterns Library
+    url: https://github.com/kaspakii/portrait/tree/main/compliance-patterns
+    about: Browse the reusable covenant pattern library (OpenZeppelin-equivalent).

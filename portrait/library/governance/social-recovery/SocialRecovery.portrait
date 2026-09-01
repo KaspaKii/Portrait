@@ -1,0 +1,137 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  SocialRecovery — a guardian-based 2-of-3 account-recovery covenant.
+//
+//  THE POINT OF THIS FILE: an account UTXO is owned by `owner`, but the owner
+//  key can be ROTATED without the owner's participation when a threshold of
+//  trusted guardians cooperates — the canonical "lost my key" recovery flow.
+//  Three committed guardians (`guardian_a` / `guardian_b` / `guardian_c`)
+//  govern the recovery; ANY TWO of the three (2-of-3) drive it across two
+//  transitions:
+//
+//    · propose_recovery — any 2-of-3 guardians nominate a `pending_owner` and
+//                arm the recovery (`recovering: 1`). This stages, but does not
+//                yet enact, the rotation.
+//    · finalize        — any 2-of-3 guardians (the same threshold) confirm the
+//                staged rotation: `owner` becomes `pending_owner` and the
+//                recovery is disarmed (`recovering: 0`).
+//
+//  The two-step shape mirrors real social-recovery wallets: a proposal arms a
+//  pending owner that a confirming threshold must then ratify, so a single
+//  malformed proposal cannot silently hand over the account — finalize re-checks
+//  the 2-of-3 guardian quorum before the owner key is rotated.
+//
+//  CAPABILITY (C2): every `checkSig` authorises against a COMMITTED guardian
+//  key carried in state, never a caller-supplied pubkey. An attacker holding
+//  one guardian key — or supplying keys of their own — cannot satisfy any of
+//  the three conjunctive pairs. The two signature arguments `auth_x` / `auth_y`
+//  are matched to two distinct committed guardian keys by whichever disjunct the
+//  spender chooses to satisfy. The `owner` itself never signs a recovery: that
+//  is the whole point — recovery exists precisely for when the owner key is
+//  gone. This mirrors ArbiterEscrow's 2-of-3 disjunction-of-conjunctions.
+//
+//  GUARD STATE: `recovering` is a coarse arm/disarm flag (genesis = 0). It is
+//  not value-bearing; it is the recovery's staged-rotation marker. `propose_recovery`
+//  requires `recovering == 0` (cannot re-arm an in-flight recovery) and sets it
+//  to 1; `finalize` requires `recovering == 1` (cannot finalize what was never
+//  proposed) and clears it back to 0. There is no coin or value field: this
+//  covenant rotates AUTHORITY, it does not move funds — so no value invariant
+//  applies (cf. EvidenceLineage / CsciInstrument, which are likewise non-value).
+//
+//  EMISSION NOTE: `&&` binds tighter than `||` in both the Portrait Pratt parser
+//  and silverscript, so each 2-of-3 disjunction-of-conjunctions parses and lowers
+//  unambiguously; the emitted .sil carries the flat
+//  `checkSig(..) && checkSig(..) || …` form (semantically identical to the
+//  parenthesised source). No `require` begins with `(` — a leading paren is read
+//  as the optional require-wrapper. `portrait engrave` lowers this to a
+//  two-transition singleton covenant that `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app SocialRecovery {
+  role account {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey owner;          // current account owner (rotated by recovery)
+    param pubkey guardian_a;     // committed guardian 1 (recovery authority)
+    param pubkey guardian_b;     // committed guardian 2 (recovery authority)
+    param pubkey guardian_c;     // committed guardian 3 (recovery authority)
+    param pubkey pending_owner;  // nominee staged by a proposal (genesis: placeholder)
+    param int    recovering;     // arm/disarm flag (genesis = 0)
+
+    state {
+      pubkey owner;
+      pubkey guardian_a;
+      pubkey guardian_b;
+      pubkey guardian_c;
+      pubkey pending_owner;
+      int    recovering;         // 0 = idle, 1 = recovery armed
+    }
+
+    // Propose a recovery: any TWO of the three COMMITTED guardians nominate a
+    // new `pending_owner` and arm the recovery (recovering -> 1). 2-of-3 is a
+    // disjunction of the three conjunctive guardian pairs; `&&` binds tighter
+    // than `||`, so this groups as (a&&b) || (a&&c) || (b&&c) without parens.
+    #[covenant(mode = transition)]
+    entrypoint function propose_recovery(
+      sig    auth_x,
+      sig    auth_y,
+      pubkey new_owner
+    ) : (pubkey owner, pubkey guardian_a, pubkey guardian_b, pubkey guardian_c, pubkey pending_owner, int recovering) {
+      requires checkSig(auth_x, guardian_a) && checkSig(auth_y, guardian_b)
+            || checkSig(auth_x, guardian_a) && checkSig(auth_y, guardian_c)
+            || checkSig(auth_x, guardian_b) && checkSig(auth_y, guardian_c);
+      requires recovering == 0;          // cannot re-arm an in-flight recovery
+      return SocialRecovery {
+        owner:         owner,            // owner unchanged until finalize
+        guardian_a:    guardian_a,       // committed guardian keys carried unchanged
+        guardian_b:    guardian_b,
+        guardian_c:    guardian_c,
+        pending_owner: new_owner,        // stage the nominee
+        recovering:    1                 // arm the recovery
+      };
+    }
+
+    // Finalize a recovery: any TWO of the three COMMITTED guardians (the same
+    // 2-of-3 threshold) confirm the staged rotation. The owner key becomes the
+    // previously staged `pending_owner` and the recovery is disarmed.
+    #[covenant(mode = transition)]
+    entrypoint function finalize(
+      sig auth_x,
+      sig auth_y
+    ) : (pubkey owner, pubkey guardian_a, pubkey guardian_b, pubkey guardian_c, pubkey pending_owner, int recovering) {
+      requires checkSig(auth_x, guardian_a) && checkSig(auth_y, guardian_b)
+            || checkSig(auth_x, guardian_a) && checkSig(auth_y, guardian_c)
+            || checkSig(auth_x, guardian_b) && checkSig(auth_y, guardian_c);
+      requires recovering == 1;          // cannot finalize what was never proposed
+      return SocialRecovery {
+        owner:         pending_owner,    // rotate owner to the staged nominee
+        guardian_a:    guardian_a,       // committed guardian keys carried unchanged
+        guardian_b:    guardian_b,
+        guardian_c:    guardian_c,
+        pending_owner: pending_owner,    // carry nominee (now the owner)
+        recovering:    0                 // disarm the recovery
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via account.propose_recovery;
+    live -> live via account.finalize;
+  }
+
+  // Capability invariant (C2): both recovery transitions authorise against
+  // COMMITTED guardian keys. Declaring `authorized` makes the no-auth fail-safe a
+  // stated, enforced property: any state-mutating transition added here that omits
+  // a committed-key checkSig is rejected by `portrait check`.
+  invariant authorized;
+  // Refinement (D3, multisig_threshold): each transition authorises via at least
+  // 2 DISTINCT committed guardian-key checkSig operands (any 2-of-3 of
+  // guardian_a / guardian_b / guardian_c). A future edit that reduces it to a
+  // single committed-key checkSig is rejected by the checker. STRUCTURAL count of
+  // distinct committed keys signed — NOT a proof the boolean combination is a
+  // true k-of-n threshold.
+  invariant multisig_threshold;
+  invariant no_undeclared_state;
+}

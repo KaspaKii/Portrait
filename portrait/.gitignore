@@ -1,0 +1,17 @@
+# Rust build output (210M+ — never commit)
+target/
+**/target/
+# OS / editor cruft
+.DS_Store
+*.log
+*.swp
+# Secrets hygiene (none present today; keep it that way)
+.env
+.env.*
+*.key
+*.pem
+*.secret
+wallet*.json
+
+# local build accelerator (sccache) — not portable, keep local
+**/.cargo/config.toml

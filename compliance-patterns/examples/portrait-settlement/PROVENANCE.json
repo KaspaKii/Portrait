@@ -1,0 +1,547 @@
+{
+  "_description": "Phase A cross-layer settlement provenance — a REAL Covenant-Settled Compliance Instrument (CSCI): a RISC Zero succinct STARK over a genuine CsciState transition, bound to the real on-chain identity of the covenant that locks the settled UTXO (KIP-20), verified in-consensus on Kaspa testnet-10 via KIP-16 tag-0x21 (OpZkPrecompile).",
+  "_status": "LIVE-CONFIRMED (real instrument). The proof binds a real covenant_id (= blake2b256(redeem) = the value the P2SH lock commits) and a real CsciState next-state hash. The settle was mined on TN10; the on-chain negative control (tampered next-state, submitted to the live node with the local preflight disabled) was REJECTED by consensus.",
+  "_honesty_note": "Every txid was obtained from a real submit_transaction on the live TN10 node and independently confirmed via api-tn10.kaspa.org (is_accepted=true). The rejected negative-control tx (e44d4f7b...) returns HTTP 404 on the REST API (never entered the chain) — its evidence is the node's error string, not a txid. No value is fabricated, placeholder, or example.",
+  "generated_utc": "2026-06-28T03:55:34Z",
+  "engine_ref": "rusty-kaspa tag v2.0.0 (commit 90dbf07)",
+  "repo_head_at_capture": "f9cdd324b482c5f24424a0264015982445953396 (working tree dirty — these changes not yet committed)",
+  "supersedes": "the prior PoC run (covenant_id 0x01..01, 42-byte state) committed at kaspa f9cdd32 / portrait 2dd21d2 — superseded by this real-instrument run.",
+
+  "vprog_private_voting_settled_live": {
+    "_summary": "Tier-3 milestone (5th and FINAL vProg): graduated the PrivateVoting vProg from EMIT-VERIFIED (atelier template, predicate stub returning true) to COMPILE-VERIFIED (real RISC0 ballot-privacy guest) to SETTLED-LIVE on TN10. This COMPLETES ALL 5 of 5 vProg patterns settled live. An eligible voter casts ONE valid ballot adopted into a tally WITHOUT revealing the ballot — only the new tally root + a nullifier reach the journal. Same recipe as PoR (3d7c4a16...), ZK-KYC (52616496...), ConfidentialTransfer (2d8166f9...), BatchRollup (0237d2de...). Captured 2026-06-29; engine rusty-kaspa v2.0.0 (90dbf07). Local-only.",
+    "generated_utc": "2026-06-29T13:04:54Z",
+    "pattern": "private-voting (ballot privacy: eligible voter casts one ballot into a tally without revealing it)",
+    "template_read_from": "kii-portrait library/vprog/private-voting/privatevoting_guest_main.rs (READ-ONLY; portrait not edited)",
+
+    "real_predicate": "pv-guest (kii-csci-prover/methods/pv-guest/src/main.rs): over PRIVATE inputs read INSIDE the zkVM and NEVER journaled in the clear — voter_secret[32], ballot:u32 (0..K), prev_tally[K] — the guest asserts: (1) ELIGIBILITY: sha256(voter_secret) in ELECTORATE (fixed small set; v1, structured for a future Merkle membership root); (2) BALLOT VALIDITY: ballot < K; (3) TALLY UPDATE: claimed_next_tally == prev_tally with ONLY bucket `ballot` incremented by exactly 1 (all other buckets unchanged); (4) ONE-VOTE: nullifier = sha256(voter_secret || election_id), committed (so a repeat is detectable). Commits new_state_hash = sha256(tally_root || nullifier || epoch || new_seq), tally_root = sha256(next_tally bytes). The individual ballot is NEVER journaled — only the aggregate tally root + nullifier. Any failing clause PANICS the guest -> no proof.",
+    "K_candidates": 4,
+    "sample_inputs": "voter_secret=[0xA1;32] (eligible), ballot=2 (private), prev_tally=[10,20,30,40] -> claimed_next_tally=[10,20,31,40] (only bucket 2 +1), election_id=[0x55;32], epoch=0, prev_seq=0.",
+
+    "tally_advanced_by_1_positive_check": "Observed in both the dev journal and the real proof: prev_tally [10,20,30,40] -> next_tally [10,20,31,40] — exactly bucket 2 (the private ballot) advanced by 1, every other bucket unchanged. The ballot value (2) is NOT in the journal; only the aggregate tally_root + nullifier are committed. Ballot privacy + correct tally update, simultaneously.",
+
+    "compile_verified": {
+      "result": "PASS — pv-guest compiles against the REAL RISC0 guest target (riscv32im-risc0-zkvm-elf) in the same methods crate as csci/por/kyc/ct/br guests; risc0-build produced PV_GUEST_ELF/PV_GUEST_ID.",
+      "image_id": "a61b9400257e651dbbc8b196422e6bc2c7ca4fce793cbcf54fbaf8afd763b2ed",
+      "real_proof_RISC0_DEV_MODE_0": "PASS — two-pass: pass 1 discovered image_id+control_id (c9b08054...); covid derived = blake2b256(redeem) = 4ec22e21...; pass 2 bound the journal to it. seal 222668 bytes; journal(sha256)=0758cfcd674f54f8de61357eea77109413667b75dd6d55a110d2bb32ef18bb81.",
+      "offline_engine_accept": "portrait-settlement demonstrator: VALID PV proof ACCEPT, tampered journal REJECT, wrong image_id REJECT (real v2.0.0 engine)."
+    },
+
+    "covenant_id_kovid": "4ec22e213baacb817569b4ce720965aceb63d9515a69fe3a89c8fae5dd66c750 (= blake2b256 of the 71-byte tag-0x21 redeem committing the PV image_id; journal[0..32] commits this, cross-bound to the settled UTXO's P2SH lock).",
+
+    "settled_live": {
+      "network": "testnet-10",
+      "node": "ws://127.0.0.1:17210 (server v2.0.0, is_synced=true after a long IBD catch-up)",
+      "p2sh_covenant_address": "kaspatest:pp8vyt3p8w4vhqt4dx6vuusfvkkwkc7e29dxnl3638y04ewavmr4qzr2fhd66",
+      "lock_txid": "cda62be37d6a9fbf31acdcd4c1cdf1ae9e7587c6ebce5c213ea6ef533a2d3e48",
+      "settle_txid": "112780ec67b1aaa160567e4c18952c97586b75462b2148abc242b42d86f832a6",
+      "settle_is_accepted": true,
+      "settle_accepting_block_hash": "32b06b516e5533ea... (REST-confirmed)",
+      "spends": "cda62be3...:0 (the locked PV covenant UTXO)",
+      "what_it_proves": "the spend was accepted by consensus ONLY because the PV STARK verified in-consensus (OpZkPrecompile) over the ballot-privacy journal and bound image_id=a61b9400... — i.e. a real proof that an eligible voter cast one valid ballot adopted into the tally (bucket +1) with a nullifier committed, while the chain saw only the aggregate tally root + nullifier, never the ballot. emit-verified -> compile-verified -> SETTLED-LIVE.",
+      "verified_via": "RpcApi submit_transaction (live) + api-tn10.kaspa.org (settle is_accepted=true, spends the lock UTXO; lock is_accepted=true)."
+    },
+
+    "negative_controls": {
+      "guest_level_a_ineligible_voter": "KCP_VOTER_SECRET=[0xB9;32] (sha256 not in ELECTORATE): guest PANICKED 'INELIGIBLE: sha256(voter_secret) not in the electorate' -> 'RISC Zero proof generation failed'. No proof.",
+      "guest_level_b_out_of_range_ballot": "KCP_BALLOT=9 (>= K=4): guest PANICKED 'INVALID_BALLOT: ballot index out of range' -> no proof.",
+      "guest_level_c_wrong_tally_update": "KCP_BAD_TALLY=1 (a DIFFERENT bucket bumped instead of the ballot bucket): guest PANICKED 'WRONG_TALLY_UPDATE: bucket changed incorrectly' -> no proof.",
+      "onchain_tampered_journal": {
+        "negctl_lock_txid": "31363e90ce798c1c2f0eea11bfe7f9cf5ad166a90a457d1d046b85ca5f4af8ec",
+        "rejected_settle_txid_attempted": "ab86a0bc4ba8d0e1a2ab438b15d10fb9a03a6fe23d1beb33918a979d36a347c0",
+        "node_error": "RPC Server (remote error) -> Rejected transaction ab86a0bc...: failed to verify the signature script: ZK Integrity: Verification failed",
+        "rest_status": "HTTP 404 (never entered the chain)",
+        "txid": null
+      }
+    },
+
+    "files_changed": {
+      "pv_guest": "kii-csci-prover/methods/pv-guest/{Cargo.toml,src/main.rs} (NEW) — real ballot-privacy guest (eligibility + ballot-validity + tally update + nullifier).",
+      "methods_cargo": "kii-csci-prover/methods/Cargo.toml — methods = [csci-guest, por-guest, kyc-guest, ct-guest, br-guest, pv-guest].",
+      "host": "kii-csci-prover/host/src/main.rs — KCP_GUEST=pv branch drives the pv guest (build_pv_env) with private voter_secret/ballot/prev_tally inputs + host-side tally update; export logic shared, guest-agnostic. CSCI + PoR + KYC + CT + BR paths unchanged (regression-checked: image_ids c6ce0eda.../ef7b7182.../a9198603.../6446903f.../4cb34a28... stable).",
+      "kaspa_side": "no source change — reused the proven settle/covid bins to lock + settle the PV P2SH; this PROVENANCE section added."
+    },
+
+    "honest_scope": "Proves eligibility + ballot-validity + tally update + commits a nullifier, with only the aggregate tally root + nullifier on-chain (the ballot stays private — genuinely cross-layer). RESIDUALS (v1, honest): (1) FIXED ELECTORATE set (sha256 of voter secrets), NOT a Merkle membership root — structured so it could later become one. (2) commits a nullifier but does NOT maintain a persistent nullifier SET across settlements — so cross-settlement double-vote prevention is a DOCUMENTED RESIDUAL (single-settlement double-vote detection only). (3) fixed sample inputs; prev_tally is a sample starting value, not anchored from a prior on-chain voting state. (4) the live covenant is the tag-0x21 verifier P2SH (image_id-pinned), enforcing 'a valid PV proof for this vProg' but NOT yet a silverscript state machine — same residual class as PoR/KYC/CT/BR (the C5-style next step).",
+
+    "honest_assessment": "GENUINELY SETTLED LIVE. PrivateVoting moved emit-verified -> compile-verified -> settled-live: a real RISC0 ballot-privacy proof was verified in-consensus on TN10 (settle 112780ec..., is_accepted), with FOUR independent negative controls (guest-panic on ineligible-voter / out-of-range-ballot / wrong-tally-update; node ZK-reject on a tampered journal) PLUS the positive tally-advanced-by-1 check with the ballot kept private. This COMPLETES ALL 5 OF 5 vProg patterns settled live (proof-of-reserves, compliance-credential, confidential-transfer, batch-rollup, private-voting). The live broadcast required a long node IBD catch-up (the node had fallen ~75 min behind across the multi-hour proving sessions); I waited for is_synced=true before broadcasting and did not fake any txid.",
+    "_note_completion": "Earlier attempts at this task were interrupted by a transient server rate-limit and then a long node IBD; this run completed the live broadcast after the node reached is_synced=true. All txids are real, observed via submit_transaction + REST is_accepted (rejected negctl 404)."
+  },
+
+  "vprog_batch_rollup_settled_live": {
+    "_summary": "Tier-3 milestone (4th vProg): graduated the BatchRollup vProg from EMIT-VERIFIED (atelier template, predicate stub returning true) to COMPILE-VERIFIED (real RISC0 N-transition fold guest) to SETTLED-LIVE on TN10. N->1 aggregation: a covenant cannot replay N transitions in one spend; the vProg proves the fold (applying N deltas to prev_root yields next_root) and the covenant verifies ONE proof, advancing seq by N in a single settlement. Same recipe as PoR (3d7c4a16...), ZK-KYC (52616496...), ConfidentialTransfer (2d8166f9...). Captured 2026-06-29; engine rusty-kaspa v2.0.0 (90dbf07). Local-only.",
+    "generated_utc": "2026-06-29T10:37:30Z",
+    "pattern": "batch-rollup (N->1 aggregation: fold N state transitions into one proof)",
+    "template_read_from": "kii-portrait library/vprog/batch-rollup/batchrollup_guest_main.rs (READ-ONLY; portrait not edited)",
+
+    "real_predicate": "br-guest (kii-csci-prover/methods/br-guest/src/main.rs): over PRIVATE inputs read INSIDE the zkVM and NEVER journaled individually — prev_root[32], deltas: Vec<u64> (the N transition deltas) — the guest folds: root=prev_root; for each delta: root=sha256(root||delta_le); next_root=root. It asserts: (1) batch_count >= 1 (non-empty); (2) batch_count == deltas.len() (N matches); (3) claimed_next_root == folded next_root (operator did not lie about the result); (4) claimed_new_seq == prev_seq + batch_count (seq advances by exactly N). Commits new_state_hash = sha256(next_root || epoch || new_seq) where new_seq = prev_seq + N. The chain sees ONLY next_root + the advanced seq — never the individual deltas. Any failing clause PANICS the guest -> no proof.",
+    "N_used": 5,
+    "sample_inputs": "prev_root=[0x22;32], deltas=[11,22,33,44,55] (N=5), epoch=0, prev_seq=0. Folded next_root=3c4d60b2b248b977f0c6d587abfe71c29a76754be87f73af0000020c44f7a4ca; new_seq=5.",
+
+    "seq_advanced_by_N_positive_check": "The committed journal seq tail is 0500000000000000 (= 5) — i.e. ONE settlement advanced seq from 0 by exactly N=5 (the N->1 aggregation property), instead of the +1 a single transition would give. Observed in both the dev journal and the real proof journal.",
+
+    "compile_verified": {
+      "result": "PASS — br-guest compiles against the REAL RISC0 guest target (riscv32im-risc0-zkvm-elf) in the same methods crate as csci-guest + por-guest + kyc-guest + ct-guest; risc0-build produced BR_GUEST_ELF/BR_GUEST_ID.",
+      "image_id": "4cb34a28be0b208a5fa127b7426a20b6409b1855a06faf1d5ca87f2211c360e0",
+      "real_proof_RISC0_DEV_MODE_0": "PASS — two-pass: pass 1 discovered image_id+control_id (c9b08054...); covid derived = blake2b256(redeem) = 42d9f4e3...; pass 2 bound the journal to it. seal 222668 bytes; journal(sha256)=9ccc475f72fcdec6cd57790138e2e30f0312cf0e18bab728fe60c278ff497aec.",
+      "offline_engine_accept": "portrait-settlement demonstrator: VALID BR proof ACCEPT, tampered journal REJECT, wrong image_id REJECT (real v2.0.0 engine)."
+    },
+
+    "covenant_id_kovid": "42d9f4e3075ab22cb60f2c4ca9bd2542b1f9baf196c96ecc30410e59ca78579b (= blake2b256 of the 71-byte tag-0x21 redeem committing the BR image_id; journal[0..32] commits this, cross-bound to the settled UTXO's P2SH lock).",
+
+    "settled_live": {
+      "network": "testnet-10",
+      "node": "ws://127.0.0.1:17210 (server v2.0.0, is_synced=true)",
+      "lock_txid": "2ce1dbd120db7beacdedf9be2d44bad4f203aebfb0173db8cfbe2a3739903fd0",
+      "settle_txid": "0237d2de2638a182645951a884af02d87f7e8683d578cc1a790259b8b9c284bd",
+      "settle_is_accepted": true,
+      "settle_accepting_block_hash": "705b131e0d777048c4... (REST-confirmed)",
+      "spends": "2ce1dbd1...:0 (the locked BR covenant UTXO)",
+      "what_it_proves": "the spend was accepted by consensus ONLY because the BR STARK verified in-consensus (OpZkPrecompile) over the fold journal and bound image_id=4cb34a28... — i.e. a real proof that applying N=5 transition deltas to prev_root yields next_root, with seq advancing by 5 in one settlement, while the chain saw only next_root + the advanced seq. emit-verified -> compile-verified -> SETTLED-LIVE.",
+      "verified_via": "RpcApi submit_transaction (live) + api-tn10.kaspa.org (settle is_accepted=true, spends the lock UTXO; lock is_accepted=true)."
+    },
+
+    "negative_controls": {
+      "guest_level_a_wrong_next_root": "KCP_BAD_ROOT=1 (claimed next_root corrupted): guest PANICKED 'WRONG_NEXT_ROOT: claimed next_root != folded next_root' -> 'RISC Zero proof generation failed'. No proof.",
+      "guest_level_b_empty_batch": "KCP_BATCH_COUNT=0: guest PANICKED 'EMPTY_BATCH: batch_count must be >= 1' -> no proof.",
+      "guest_level_c_wrong_seq_advance": "KCP_CLAIMED_NEW_SEQ=99 (!= prev_seq + N): guest PANICKED 'WRONG_SEQ_ADVANCE: claimed_new_seq != prev_seq + batch_count' -> no proof.",
+      "onchain_tampered_journal": {
+        "negctl_lock_txid": "e8e7ffc8a37254ae4e1a51a542055f1d4d1b300b768fcfc3620c53aaa0d671d0",
+        "rejected_settle_txid_attempted": "bdf49c4e76bf6d42c7b079a4617462437d632938037e6ee33847e44f955df013",
+        "node_error": "RPC Server (remote error) -> Rejected transaction bdf49c4e...: failed to verify the signature script: ZK Integrity: Verification failed",
+        "rest_status": "HTTP 404 (never entered the chain)",
+        "txid": null
+      }
+    },
+
+    "files_changed": {
+      "br_guest": "kii-csci-prover/methods/br-guest/{Cargo.toml,src/main.rs} (NEW) — real N-transition fold guest.",
+      "methods_cargo": "kii-csci-prover/methods/Cargo.toml — methods = [csci-guest, por-guest, kyc-guest, ct-guest, br-guest].",
+      "host": "kii-csci-prover/host/src/main.rs — KCP_GUEST=br branch drives the br guest (build_br_env) with private prev_root+deltas inputs + host-side fold to compute claimed_next_root; export logic shared, guest-agnostic. CSCI + PoR + KYC + CT paths unchanged (regression-checked: image_ids c6ce0eda.../ef7b7182.../a9198603.../6446903f... stable).",
+      "kaspa_side": "no source change — reused the proven settle/covid bins to lock + settle the BR P2SH; this PROVENANCE section added."
+    },
+
+    "honest_scope": "Proves the N-transition FOLD with only next_root + the advanced seq on-chain (genuinely cross-layer aggregation — a covenant cannot replay N transitions in one spend; the vProg can, and the covenant verifies one proof). RESIDUALS (v1, honest): (1) FIXED SAMPLE transitions and a sha256 CHAINED-FOLD root (root'=sha256(root||delta)), NOT a Merkle/Verkle accumulator with membership proofs. (2) prev_root is a sample starting value, not anchored from a prior on-chain rollup state. (3) the live covenant is the tag-0x21 verifier P2SH (image_id-pinned), enforcing 'a valid BR proof for this vProg' but NOT yet a silverscript state machine — same residual class as PoR/KYC/CT (the C5-style next step). The 1 remaining vProg pattern (private-voting) stays an emit-verified template; proof-of-reserves, compliance-credential, confidential-transfer, and batch-rollup are now settled live (4 of 5).",
+
+    "honest_assessment": "GENUINELY SETTLED LIVE. BatchRollup moved emit-verified -> compile-verified -> settled-live: a real RISC0 N-transition fold proof (N=5) was verified in-consensus on TN10 (settle 0237d2de..., is_accepted), with FOUR independent negative controls (guest-panic on wrong-next-root / empty-batch / wrong-seq-advance; node ZK-reject on a tampered journal) PLUS the positive seq-advanced-by-N=5 check (one settlement, seq 0->5). FOUR of five vProg patterns are now settled live; the same guest+two-pass+settle recipe generalizes to the last one (private-voting).",
+    "_note_completion": "The live broadcast + all controls completed in the prior session; only this PROVENANCE write was interrupted by a transient server rate-limit. The settle/lock/negctl txids were re-confirmed is_accepted (and the rejected negctl 404) via REST before writing this section — no re-broadcast was performed (that would waste funds and fabricate nothing)."
+  },
+
+  "vprog_confidential_transfer_settled_live": {
+    "_summary": "Tier-3 milestone (3rd vProg): graduated the ConfidentialTransfer vProg from EMIT-VERIFIED (atelier template, predicate stub returning true) to COMPILE-VERIFIED (real RISC0 shielded-transfer guest) to SETTLED-LIVE on TN10. The moat piece: proves a transfer is valid over HIDDEN amounts (which a covenant fundamentally cannot do) + an optional regulator audit key. Same recipe as PoR (3d7c4a16...) and ZK-KYC (52616496...). Captured 2026-06-29; engine rusty-kaspa v2.0.0 (90dbf07). Local-only.",
+    "generated_utc": "2026-06-29T00:25:12Z",
+    "pattern": "confidential-transfer (shielded transfer over hidden amounts, with regulator audit key)",
+    "template_read_from": "kii-portrait library/vprog/confidential-transfer/confidentialtransfer_guest_main.rs (READ-ONLY; portrait not edited)",
+
+    "real_predicate": "ct-guest (kii-csci-prover/methods/ct-guest/src/main.rs): over PRIVATE inputs read INSIDE the zkVM and NEVER journaled in the clear — sender_old_balance, amount, recipient_old_balance, caller-asserted sender_new/recipient_new, blinding[32], audit_shared_secret[32] — the guest asserts: (1) RANGE: amount <= sender_old_balance (u64 => amount >= 0); (2a) sender_new == sender_old - amount; (2b) VALUE CONSERVATION over hidden amounts: (sender_old + recipient_old) == (sender_new + recipient_new) — rejects any value-creating transfer; (3) AUDIT BINDING: audit_ciphertext XOR keystream == amount. Commits new_state_hash = sha256(sender_commitment || recipient_commitment || audit_ciphertext(8) || epoch || new_seq), each commitment = sha256(balance || blinding). The chain sees ONLY commitments + the opaque audit ciphertext + epoch + seq — NEVER amounts or balances. Any failing clause PANICS the guest -> no proof.",
+    "audit_mechanism": "v1 symmetric stream-cipher pad: audit_ciphertext = amount_le(8) XOR keystream, keystream = sha256(audit_shared_secret || epoch)[..8]. The guest PROVES the same amount used in the conservation check is the one encrypted (audit binding). A regulator holding audit_shared_secret recovers the amount by XOR'ing the ciphertext with the same keystream. HONEST: this is a v1 symmetric-pad DEMONSTRATOR, NOT production ElGamal/Pedersen; the commitments are sha256(balance||blinding), not Pedersen commitments.",
+    "sample_inputs": "sender_old=1000000, amount=250000, recipient_old=500000 -> sender_new=750000, recipient_new=750000 (conserves: 1500000==1500000). audit_ciphertext=63df334876605302 (epoch 0).",
+
+    "positive_audit_decrypt_check": "decrypt(audit_ciphertext=63df334876605302, audit_shared_secret) = 250000 == amount (host-side, confirms a regulator recovers the exact transfer amount while the chain sees only the opaque ciphertext).",
+
+    "compile_verified": {
+      "result": "PASS — ct-guest compiles against the REAL RISC0 guest target (riscv32im-risc0-zkvm-elf) in the same methods crate as csci-guest + por-guest + kyc-guest; risc0-build produced CT_GUEST_ELF/CT_GUEST_ID.",
+      "image_id": "6446903f9468aeb11696bbfe936e0557e9b5e9ac9b0ca55f9569700d9fe0f327",
+      "real_proof_RISC0_DEV_MODE_0": "PASS — two-pass: pass 1 discovered image_id+control_id (c9b08054...); covid derived = blake2b256(redeem) = ae75453130...; pass 2 bound the journal to it. seal 222668 bytes; journal(sha256)=c240e6207847b8939d4ecfeea5f4bbed38543d858301c5b895a2cd13cf7edc6f.",
+      "offline_engine_accept": "portrait-settlement demonstrator: VALID CT proof ACCEPT, tampered journal REJECT, wrong image_id REJECT (real v2.0.0 engine)."
+    },
+
+    "covenant_id_kovid": "ae75453130635b59dedbe0af30fe10b559e7443bde91dddb12ff1a19238a4a01 (= blake2b256 of the 71-byte tag-0x21 redeem committing the CT image_id; journal[0..32] commits this, cross-bound to the settled UTXO's P2SH lock).",
+
+    "settled_live": {
+      "network": "testnet-10",
+      "node": "ws://127.0.0.1:17210 (server v2.0.0, is_synced=true)",
+      "lock_txid": "0ed82a0504bc28cf26575f1056ced981d70b9c54727518800fe1279ea127ec51",
+      "settle_txid": "2d8166f947ddfbcacb19c0121c4a2dca93bb97befb7fe2854db3e642c51d8d2f",
+      "settle_is_accepted": true,
+      "settle_accepting_block_hash": "5a352ab0a7a9f3fa... (REST-confirmed)",
+      "spends": "0ed82a05...:0 (the locked CT covenant UTXO)",
+      "what_it_proves": "the spend was accepted by consensus ONLY because the CT STARK verified in-consensus (OpZkPrecompile) over the shielded-transfer journal and bound image_id=6446903f... — i.e. a real proof of a value-conserving, in-range transfer over HIDDEN amounts with an auditor-recoverable amount, while the chain saw only commitments + the opaque audit ciphertext. emit-verified -> compile-verified -> SETTLED-LIVE.",
+      "verified_via": "RpcApi submit_transaction (live) + api-tn10.kaspa.org (settle is_accepted=true, spends the lock UTXO; lock is_accepted=true)."
+    },
+
+    "negative_controls": {
+      "guest_level_a_value_creating": "KCP_RECIPIENT_NEW=900000 (sender_new+recipient_new=1650000 > 1500000): guest PANICKED 'VALUE_NOT_CONSERVED: sum of balances changed (value created/destroyed)' -> no proof.",
+      "guest_level_b_over_balance": "KCP_AMOUNT=2000000 (> sender_old 1000000): guest PANICKED 'OVER_BALANCE: amount exceeds sender_old_balance' -> no proof.",
+      "guest_level_c_audit_binding": "KCP_BAD_AUDIT=1 (audit_ciphertext byte flipped so it does NOT decrypt to the conserved amount): guest PANICKED 'AUDIT_BINDING_FAILED: audit_ciphertext does not decrypt to the conserved amount' -> no proof.",
+      "onchain_tampered_journal": {
+        "negctl_lock_txid": "8009b0c2238c18618a996dfd8dac19c7d91d365a3182e9da0968d44ba1ab4897",
+        "rejected_settle_txid_attempted": "6ecf7ae94ef2e459e789b4812cd3826db1955c075cf0c6c54b035e44f3265c67",
+        "node_error": "RPC Server (remote error) -> Rejected transaction 6ecf7ae9...: failed to verify the signature script: ZK Integrity: Verification failed",
+        "rest_status": "HTTP 404 (never entered the chain)",
+        "txid": null
+      }
+    },
+
+    "files_changed": {
+      "ct_guest": "kii-csci-prover/methods/ct-guest/{Cargo.toml,src/main.rs} (NEW) — real shielded-transfer (conservation+range over hidden amounts) + v1 symmetric-pad audit-key guest.",
+      "methods_cargo": "kii-csci-prover/methods/Cargo.toml — methods = [csci-guest, por-guest, kyc-guest, ct-guest].",
+      "host": "kii-csci-prover/host/src/main.rs — KCP_GUEST=ct branch drives the ct guest (build_ct_env) with private balances/amount/blinding/audit-secret inputs + audit-ciphertext construction; export logic shared, guest-agnostic. CSCI + PoR + KYC paths unchanged (regression-checked: image_ids c6ce0eda.../ef7b7182.../a9198603... stable).",
+      "kaspa_side": "no source change — reused the proven settle/covid bins to lock + settle the CT P2SH; this PROVENANCE section added."
+    },
+
+    "honest_scope": "Proves CONSERVATION + RANGE over HIDDEN amounts with only commitments + an opaque audit ciphertext on-chain (genuinely cross-layer — a covenant cannot validate hidden-amount transfers; the vProg can). RESIDUALS (v1, honest): (1) the AUDIT KEY is a SYMMETRIC stream-cipher pad demonstrator (amount XOR sha256(secret||epoch)), NOT production ElGamal/Pedersen; commitments are sha256(balance||blinding), not Pedersen. (2) FIXED SAMPLE balances; the prev balances are not anchored from a prior on-chain confidential state (this is the first transition). (3) the live covenant is the tag-0x21 verifier P2SH (image_id-pinned), enforcing 'a valid CT proof for this vProg' but NOT yet a silverscript state machine — same residual class as PoR/KYC (the C5-style next step). The 2 remaining vProg patterns (batch-rollup, private-voting) stay emit-verified templates; proof-of-reserves, compliance-credential, and confidential-transfer are now settled live (3 of 5).",
+
+    "honest_assessment": "GENUINELY SETTLED LIVE. ConfidentialTransfer moved emit-verified -> compile-verified -> settled-live: a real RISC0 shielded-transfer proof (conservation + range over hidden amounts + audit binding) was verified in-consensus on TN10 (settle 2d8166f9..., is_accepted), with FOUR independent negative controls (guest-panic on value-creating / over-balance / audit-binding-failure; node ZK-reject on a tampered journal) PLUS a positive audit-decrypt check (regulator recovers 250000). THREE of five vProg patterns are now settled live; the same guest+two-pass+settle recipe generalizes to the rest."
+  },
+
+  "vprog_compliance_credential_settled_live": {
+    "_summary": "Tier-3 milestone (2nd vProg): graduated the ComplianceCredential vProg from EMIT-VERIFIED (atelier template, predicate stub returning true) to COMPILE-VERIFIED (real RISC0 ZK-KYC selective-disclosure guest) to SETTLED-LIVE on TN10. Same recipe as proof-of-reserves (3d7c4a16...). Captured 2026-06-29; engine rusty-kaspa v2.0.0 (90dbf07). Local-only.",
+    "generated_utc": "2026-06-29T00:04:17Z",
+    "pattern": "compliance-credential (ZK-KYC selective disclosure)",
+    "template_read_from": "kii-portrait library/vprog/compliance-credential/compliancecredential_guest_main.rs (READ-ONLY; portrait not edited)",
+
+    "real_predicate": "kyc-guest (kii-csci-prover/methods/kyc-guest/src/main.rs): over PRIVATE holder attributes read INSIDE the zkVM and NEVER committed — accredited:bool, jurisdiction_code:u32, identity_secret:[u8;32] — the guest asserts ALL of: (1) accredited == true; (2) jurisdiction_code in ALLOWED {840 US, 978 EU-MiCA, 702 SG}; (3) sha256(identity_secret) NOT in SANCTIONS (fixed array, structured for a future Merkle non-membership root). On success commits new_state_hash = sha256(credential_commitment || verdict=1 || epoch || new_seq) where credential_commitment = sha256(identity_secret || jurisdiction_code). The chain sees ONLY commitment+verdict+epoch+seq — NEVER the attributes (real selective disclosure). Any failing clause PANICS the guest -> no proof can exist.",
+    "sample_inputs": "accredited=true, jurisdiction=840 (US), identity_secret=[0xAB;32] (sha256 9a2db2e2...; NOT sanctioned) -> PASS.",
+
+    "compile_verified": {
+      "result": "PASS — kyc-guest compiles against the REAL RISC0 guest target (riscv32im-risc0-zkvm-elf) in the same methods crate as csci-guest + por-guest; risc0-build produced KYC_GUEST_ELF/KYC_GUEST_ID.",
+      "image_id": "a9198603013f540a99fb5b9468b32a92241b52f5c3b1fb5bf0d34bf6c46e2d16",
+      "real_proof_RISC0_DEV_MODE_0": "PASS — two-pass: pass 1 discovered image_id+control_id (c9b08054...); covid derived = blake2b256(redeem) = 3f31087566...; pass 2 bound the journal to it. seal 222668 bytes; journal(sha256)=0227b4f5c047822304507a08ef8e1d0a46a987e97d178c40ccad284a821a2d58.",
+      "offline_engine_accept": "portrait-settlement demonstrator: VALID KYC proof ACCEPT, tampered journal REJECT, wrong image_id REJECT (real v2.0.0 engine)."
+    },
+
+    "covenant_id_kovid": "3f31087566efebba1c817f632482efea97333c3bb4392795e04b15bb55f1edeb (= blake2b256 of the 71-byte tag-0x21 redeem committing the KYC image_id; journal[0..32] commits this, cross-bound to the settled UTXO's P2SH lock).",
+
+    "settled_live": {
+      "network": "testnet-10",
+      "node": "ws://127.0.0.1:17210 (server v2.0.0, is_synced=true)",
+      "p2sh_covenant_address": "kaspatest:pqlnzzr4vmh7hwsus9lkxfyzal4fwveu8w6rjfu4up93tw6478k7krf8cewy3",
+      "lock_txid": "c865ccb6f6bdd2cd01bca310c1b68aef4bb25cc4651095dd49d76c0dfbe2aa3c",
+      "settle_txid": "52616496ffb83d97d29857a0b373478d0d60563ecc155389caee4ea7d4fb5591",
+      "settle_is_accepted": true,
+      "settle_accepting_block_hash": "f6d83bc11165c202... (REST-confirmed)",
+      "spends": "c865ccb6...:0 (the locked KYC covenant UTXO)",
+      "what_it_proves": "the spend was accepted by consensus ONLY because the KYC STARK verified in-consensus (OpZkPrecompile) over the selective-disclosure journal and bound image_id=a9198603... — i.e. a real proof that the holder is accredited, in an allowed jurisdiction, and not sanctioned, WITHOUT revealing those attributes. emit-verified -> compile-verified -> SETTLED-LIVE.",
+      "verified_via": "RpcApi submit_transaction (live) + api-tn10.kaspa.org (settle is_accepted=true, spends the lock UTXO; lock is_accepted=true)."
+    },
+
+    "negative_controls": {
+      "guest_level_a_not_accredited": "KCP_ACCREDITED=0: guest PANICKED 'NOT_ACCREDITED: holder is not an accredited investor' -> 'RISC Zero proof generation failed'. No proof.",
+      "guest_level_b_disallowed_jurisdiction": "KCP_JURISDICTION=999: guest PANICKED 'DISALLOWED_JURISDICTION: jurisdiction_code not in the allowed set' -> no proof.",
+      "guest_level_c_sanctioned_identity": "KCP_IDENTITY_SECRET=[0xDD;32] (sha256 2b26816b... in SANCTIONS): guest PANICKED 'SANCTIONED: identity_hash is a member of the sanctions set' -> no proof.",
+      "onchain_tampered_journal": {
+        "negctl_lock_txid": "4404dcb8c8e8133298ad481fab54a4829da22870dc22b4aeec14669747f32398",
+        "rejected_settle_txid_attempted": "c8e0b129298ccc392b0164767e470aecd35b96d6fe044a5337198aa496786222",
+        "node_error": "RPC Server (remote error) -> Rejected transaction c8e0b129...: failed to verify the signature script: ZK Integrity: Verification failed",
+        "rest_status": "HTTP 404 (never entered the chain)",
+        "txid": null
+      }
+    },
+
+    "files_changed": {
+      "kyc_guest": "kii-csci-prover/methods/kyc-guest/{Cargo.toml,src/main.rs} (NEW) — real ZK-KYC selective-disclosure predicate guest.",
+      "methods_cargo": "kii-csci-prover/methods/Cargo.toml — methods = [csci-guest, por-guest, kyc-guest].",
+      "host": "kii-csci-prover/host/src/main.rs — KCP_GUEST=kyc branch drives the kyc guest (build_kyc_env) with private accredited/jurisdiction/identity_secret inputs; export logic shared, guest-agnostic. CSCI + PoR paths unchanged (regression-checked: image_ids c6ce0eda... / ef7b7182... stable).",
+      "kaspa_side": "no source change — reused the proven settle/covid bins to lock + settle the KYC P2SH; this PROVENANCE section added."
+    },
+
+    "honest_scope": "This proves the COMPLIANCE PREDICATE in zk with only commitment+verdict on-chain (real selective disclosure — attributes never leave the zkVM). RESIDUALS (v1, honest): (1) FIXED SAMPLE attributes + small FIXED allowed/sanctions sets — NOT a real credential registry or a Merkle-rooted sanctions list (the sanctions check is structured so it could later become a Merkle non-membership proof); (2) the live covenant is the tag-0x21 verifier P2SH (image_id-pinned), enforcing 'a valid KYC proof for this vProg' but NOT yet a silverscript state machine with the KYC-specific rules lifted on-chain (same residual class as PoR — the C5-style next step). The 3 other vProg patterns (batch-rollup, confidential-transfer, private-voting) remain emit-verified templates with stubs; proof-of-reserves and compliance-credential are now settled live.",
+
+    "honest_assessment": "GENUINELY SETTLED LIVE. ComplianceCredential moved emit-verified -> compile-verified -> settled-live: a real RISC0 ZK-KYC selective-disclosure proof was verified in-consensus on TN10 (settle 52616496..., is_accepted), with FOUR independent negative controls (guest-panic on non-accredited / disallowed-jurisdiction / sanctioned-identity; node ZK-reject on a tampered journal). Two vProg patterns are now settled live; the same guest+two-pass+settle recipe generalizes to the rest."
+  },
+
+  "vprog_proof_of_reserves_settled_live": {
+    "_summary": "Tier-3 milestone: graduated the ProofOfReserves vProg pattern from EMIT-VERIFIED (atelier template with a developer-predicate stub returning true) to COMPILE-VERIFIED (real RISC0 guest with a genuine solvency predicate) to SETTLED-LIVE on TN10. Captured 2026-06-28; engine rusty-kaspa v2.0.0 (90dbf07). Local-only.",
+    "generated_utc": "2026-06-28T23:20:30Z",
+    "pattern": "proof-of-reserves (solvency_rule: sum(reserves) >= sum(liabilities))",
+    "template_read_from": "kii-portrait library/vprog/proof-of-reserves/proofofreserves_guest_main.rs (READ-ONLY; portrait not edited)",
+
+    "emit_verified_gap_closed": "The portrait template's predicate() was a stub returning `true` (the guest did NOT prove the claim). REPLACED in-house with a REAL computation: the guest sums reserves[] and liabilities[] (overflow-checked) inside the zkVM and asserts reserves_total >= liabilities_total. A false predicate makes the guest PANIC → no proof can exist.",
+
+    "real_predicate": "por-guest (kii-csci-prover/methods/por-guest/src/main.rs): reserves_total = checked_sum(reserves[]); liabilities_total = checked_sum(liabilities[]); assert!(reserves_total >= liabilities_total, 'INSOLVENT'). new_state_hash commits the attested result = sha256(attestor || new_epoch || solvent || reserves_total || liabilities_total || accounts_root || new_seq).",
+    "sample_inputs": "reserves=[1000000,500000] (total 1500000) >= liabilities=[400000,300000,300000] (total 1000000) → SOLVENT.",
+
+    "compile_verified": {
+      "result": "PASS — the por-guest compiles against the REAL RISC0 guest target (riscv32im-risc0-zkvm-elf) in the same methods crate that builds the CSCI guest; risc0-build embed_methods produced POR_GUEST_ELF/POR_GUEST_ID.",
+      "image_id": "ef7b7182e50edbae045e25cb732e49076b75f2cb55ef364711e35a490ed7a539",
+      "real_proof_RISC0_DEV_MODE_0": "PASS — two-pass: pass 1 discovered image_id+control_id (c9b08054...), covid derived = blake2b256(redeem) = d78ade83..., pass 2 bound the journal to it. seal 222668 bytes; journal(sha256)=719af1bc58dafa5455bb5f45830cb1cb5619bdebf97a139e0400ade0e53f794f.",
+      "offline_engine_accept": "portrait-settlement demonstrator: VALID PoR proof ACCEPT, tampered journal REJECT, wrong image_id REJECT (real v2.0.0 engine)."
+    },
+
+    "covenant_id_kovid": "d78ade8370263058f6b9626c64639f181e4d5678fc43ea21dce21caafdc3d1fb (= blake2b256 of the 71-byte tag-0x21 redeem committing the PoR image_id; journal[0..32] commits this, cross-bound to the settled UTXO's P2SH lock).",
+
+    "settled_live": {
+      "network": "testnet-10",
+      "node": "ws://127.0.0.1:17210 (server v2.0.0, is_synced=true after IBD)",
+      "p2sh_covenant_address": "kaspatest:prtc4h5rwqnrqk8kh93xcerrnuvpun2k0r7y863pmn3pe2hac0glkq8rptchs",
+      "lock_txid": "64fd5e81b8c72f3375332dcbea8a25212a130d8337b846fc14df59244974f9c6",
+      "settle_txid": "3d7c4a1603d0268bf5aaab486a9be3d0f9bc682c0c99eed8af64aa50b09b6df5",
+      "settle_is_accepted": true,
+      "settle_accepting_block_hash": "e36f60dc45759b22... (REST-confirmed)",
+      "spends": "64fd5e81...:0 (the locked PoR covenant UTXO)",
+      "what_it_proves": "the spend was accepted by consensus ONLY because the PoR STARK verified in-consensus (OpZkPrecompile) over the solvency journal and bound image_id=ef7b7182... — i.e. a real proof that sum(reserves)>=sum(liabilities). emit-verified -> compile-verified -> SETTLED-LIVE.",
+      "verified_via": "RpcApi submit_transaction (live) + api-tn10.kaspa.org (settle is_accepted=true, spends the lock UTXO; lock is_accepted=true)."
+    },
+
+    "negative_controls": {
+      "guest_level_insolvent": "reserves=[100000] (total 100000) < liabilities=[900000,500000] (total 1400000): the por-guest PANICKED inside the zkVM ('INSOLVENT: reserves_total < liabilities_total') → 'Guest panicked' / 'RISC Zero proof generation failed' — NO proof produced. Proves the predicate is real (a false claim cannot be proven).",
+      "onchain_tampered_journal": {
+        "negctl_lock_txid": "9b1540410f57e6b6706bf4011c6390772d8e2c8e9f8b86ef29922149f0bb0c01",
+        "rejected_settle_txid_attempted": "5342dbd33504072fb2ab59dae932bbce1ee78be48951ba361104981a191cbe8e",
+        "node_error": "RPC Server (remote error) -> Rejected transaction 5342dbd3...: failed to verify the signature script: ZK Integrity: Verification failed",
+        "rest_status": "HTTP 404 (never entered the chain)",
+        "txid": null
+      }
+    },
+
+    "files_changed": {
+      "por_guest": "kii-csci-prover/methods/por-guest/{Cargo.toml,src/main.rs} (NEW) — real solvency predicate guest.",
+      "methods_cargo": "kii-csci-prover/methods/Cargo.toml — methods = [csci-guest, por-guest].",
+      "host": "kii-csci-prover/host/src/main.rs — KCP_GUEST=por branch drives the PoR guest (build_por_env) with reserves/liabilities inputs; export logic shared, guest-agnostic. CSCI path unchanged (regression-checked, image_id c6ce0eda... stable).",
+      "kaspa_side": "no source change — reused the proven settle/covid bins to lock + settle the PoR P2SH; this PROVENANCE section added."
+    },
+
+    "honest_assessment": "GENUINELY SETTLED LIVE. ProofOfReserves moved emit-verified -> compile-verified -> settled-live: a real RISC0 proof of a genuine solvency predicate (sum reserves >= sum liabilities) was verified in-consensus on TN10 (settle 3d7c4a16..., is_accepted), with two independent negative controls (guest-panic on insolvency; node ZK-reject on a tampered journal). RESIDUAL (honest): (1) the PoR covenant here is the tag-0x21 verifier P2SH (image_id-pinned) — it enforces 'a valid PoR proof for this vProg' but the PoR-specific state-machine rules are not (yet) lifted into a silverscript covenant the way CsciInstrument's seq/auth are (that would be the C5-style next step for this pattern); (2) the solvency inputs (reserves/liabilities arrays) are fixed sample data, not sourced from real on-chain custody attestations. The 4 other vProg patterns (batch-rollup, compliance-credential, confidential-transfer, private-voting) remain emit-verified templates with stubs — only proof-of-reserves is now settled live."
+  },
+
+  "c5_silverscript_self_enforcing_covenant": {
+    "_summary": "C5 closes the Phase-A caveat: the covenant is now a REAL silverscript program (CsciInstrument.sil, portrait repo) whose compiled settle() ENFORCES seq-monotonicity + committed-owner auth + covenant-id binding AT CONSENSUS on testnet-10 — not just in the off-L1 vProg. Captured 2026-06-28; engine rusty-kaspa v2.0.0 (90dbf07).",
+    "generated_utc": "2026-06-28T05:20:02Z",
+    "artifact": "library/state/CsciInstrument.sil in the portrait workspace (silverc compiles exit 0; compiler 0.1.0)",
+
+    "silverscript_kovid": {
+      "_def": "sha256 of the compiled silverscript `script` bytes (524 B). The KovId DEPENDS ON the constructor args (it embeds the state).",
+      "kovid_from_silverc_zeros_ctor": "d100e78f9e5d5f8711e896d7b42f226db0f84c366444b29b87d7c40f0142af7e  (silverc -c CsciInstrument.sil --ctor CsciInstrument_ctor.json — the committed all-zeros ctor template)",
+      "kovid_of_deployed_covenant_real_owner": "88a73a9f03bd965d9f44a45ff0f895c8fe3a913eafba6068ef3386a192dd7f26  (ctor with the funded TN10 wallet owner pubkey 8ccda595... — the script actually locked on-chain)",
+      "proof_bound_to": "88a73a9f03bd965d9f44a45ff0f895c8fe3a913eafba6068ef3386a192dd7f26 (the deployed-covenant KovId). Real STARK regenerated RISC0_DEV_MODE=0 with KCP_COVENANT_ID=88a73a9f...; journal[0..32] == that KovId; journal(sha256)=b0c7a703a6cfae80aa4dd6752010a93f13387baa5e45ab202c7cd64b6ea8f5e9; image_id=c6ce0eda...; control_id=c9b08054...",
+      "engine_accept_offline": "portrait-settlement demonstrator ACCEPTs this KovId-bound proof and REJECTs tampered journal / wrong image id (real v2.0.0 engine)."
+    },
+
+    "crux_combined_enforcement": {
+      "question": "Can ONE spend path enforce BOTH the silverscript covenant rules AND the tag-0x21 STARK verification?",
+      "single_redeem_verdict": "NOT EXPRESSIBLE on the pinned engine via a single silverscript-compiled redeem. silverc/portrait CANNOT emit OpZkPrecompile (portrait-emit/src/lib.rs literally carries `[PENDING: add OpZkPrecompile(0x21, journal) call when engine support lands]`). The compiled CsciInstrument.script uses OpInputCovenantId(0xcf)+OpCheckSig(0xac)+OpBlake2b(0xaa) but NOT OpZkPrecompile(0xa6). CsciInstrument.portrait states this explicitly as HONEST SCOPE: silverscript enforces the state-machine rules + cov-id binding; the proof-bytes verification is layered by the settlement harness.",
+      "two_input_verdict": "ACHIEVABLE and PROVEN against the real v2.0.0 engine (offline). One transaction with input[0] = CsciInstrument covenant UTXO (silverscript: seq/auth/cov-id) and input[1] = tag-0x21 P2SH(redeem) verifier UTXO (OpZkPrecompile over the real STARK). BOTH inputs were executed through TxScriptEngine with one shared CovenantsContext and BOTH ACCEPTED: input[0]=104898 script units, input[1]=25000176 script units. Since a tx is valid only if every input's script passes, this is genuine ATOMIC CO-ENFORCEMENT of both layers in one tx.",
+      "combined_proof_command": "KCP_MODE=combined KCP_CSCI_CAPTURE=<csci-capture.json> KCP_PROOF_DIR=<proof-export/succinct> KCP_KEY_FILE=.secrets/tn10-portrait.key cargo run -p portrait-settlement --bin csci_settle --release",
+      "honest_cross_binding_gap": "The two layers are CO-ENFORCED but NOT cryptographically CROSS-BOUND to the same identity. The silverscript require is `proof_cov_id == OpInputCovenantId(0)`, where OpInputCovenantId(0) returns the ENGINE per-instance covenant_id = covenant_id(funding_outpoint, [output]) (depends on the spending outpoint; differs every deployment). The STARK journal instead binds the sha256 KovId (88a73a9f...). These are DIFFERENT 32-byte values. So: the silverscript checks a spender-supplied proof_cov_id equals the runtime covenant id (real on-chain binding of the silverscript layer to its own UTXO), and the STARK independently binds the KovId — but nothing forces the STARK's covenant_id to equal the engine per-instance id. Fully closing this needs EITHER silverc emitting OpZkPrecompile (so one script both verifies the proof and checks its journal's covenant_id), OR committing the engine per-instance covenant_id into the journal (a build-time bootstrap, since it depends on the funding outpoint). Neither is available on the pinned engine/compiler today.",
+      "combined_live": "NOT broadcast live. The offline combined proof runs the IDENTICAL consensus engine code path (TxScriptEngine + CovenantsContext, covenants_enabled), so it is decisive engine-level evidence; a live combined broadcast (two genesis locks + a ~223 KB combined spend tx) was judged to add risk/cost without adding enforcement evidence beyond what the offline engine proof + the two already-live single-layer settlements establish. [UNVERIFIED on-chain as a single combined tx — proven at the engine level + both layers proven live separately.]"
+    },
+
+    "silverscript_layer_live_onchain": {
+      "network": "testnet-10",
+      "node": "ws://127.0.0.1:17210 (server v2.0.0, is_synced=true)",
+      "covenant_locking": "P2SH(CsciInstrument.script) with a CovenantBinding{covenant_id = covenant_id(funding_outpoint,[output])}; spend sigscript = settle leader call (auth sig + next_state_hash + proof_cov_id) + P2SH redeem push, captured once from silverscript-lang (no silverscript-lang dep in the kaspa workspace).",
+      "offline_dryrun_v200": "VALID settle (seq 0->1, owner-signed) ACCEPT (104898 units); non-incremented seq REJECT (VerifyError); wrong owner sig REJECT (VerifyError). Real v2.0.0 engine + real CovenantsContext.",
+      "live_settle": {
+        "genesis_txid": "27de5b3c3950491a4a58aa85eaa5e0a83bfdb7b5ca67bdff409231dc788573d8",
+        "settle_txid": "5731a2039a95780a3c0ea53b7dda4d404074b22d8d3014fdd247935f50acdfea",
+        "covenant_id_engine_per_instance": "2efb2915e5cc5cf076dbcf85865bd7fccbaaa609b53e7cd5a1ab6d447c6903ea",
+        "both_is_accepted": true,
+        "verified_via": "RpcApi submit_transaction (live) + api-tn10.kaspa.org (is_accepted=true for both). The settle spend being mined means consensus ran the silverscript settle (seq+1, checkSig owner, proof_cov_id==OpInputCovenantId(0)) and ACCEPTED."
+      },
+      "live_negative_control_silverscript_layer": {
+        "what": "Submitted a settle whose continuation output is P2SH(state0) (seq NOT incremented) to the LIVE node, with a realistic compute budget (so the rejection is the silverscript require, not a mass-limit error).",
+        "genesis_txid": "090247b889762685a0dc9458bc40d9d08876c6b8c8292d8c6dc772283dac82b3",
+        "rejected_settle_txid_attempted": "f11c8875e5b3e1fbf02f01a5f9269d9b98b5c53273484f26ec4e08a75f8de42b",
+        "node_error": "RPC Server (remote error) -> Rejected transaction f11c8875...: failed to verify the signature script: script ran, but verification failed",
+        "rest_status": "HTTP 404 (never entered the chain)",
+        "distinct_from_zk_reject": "This is the SILVERSCRIPT seq/continuity require failing ('script ran, but verification failed'), distinct from the tag-0x21 ZK-layer reject ('ZK Integrity: Verification failed') captured in the C-prior negative control.",
+        "txid": null
+      }
+    },
+
+    "files_changed_c5": {
+      "portrait_settlement_csci_settle_bin": "examples/portrait-settlement/src/bin/csci_settle.rs (NEW) — dryrun/combined/live/negctl for the silverscript covenant; engine-preflighted against v2.0.0.",
+      "portrait_settlement_cargo": "examples/portrait-settlement/Cargo.toml — registered csci_settle bin + kaspa-bip32/serde_json deps.",
+      "silverscript_capture_harness": "silverscript-lang tests/zz_csci_capture.rs (TEMP, in the silverscript repo — generates csci-capture.json via silverscript-lang's build_sig_script_for_covenant_decl; not for commit).",
+      "capture_json": "csci-capture.json (state0/state1 scripts + dummy settle sigscripts) — produced by the harness; consumed by csci_settle via KCP_CSCI_CAPTURE.",
+      "proof": "kii-csci-prover proof-export/succinct regenerated with KCP_COVENANT_ID=88a73a9f... (the deployed-covenant KovId)."
+    },
+
+    "honest_assessment_c5": "PARTIALLY MET, materially advanced. The covenant now SELF-ENFORCES its state-machine rules ON-CHAIN live (seq-monotonicity + committed-owner auth proven by a live settle ACCEPT and a live seq-violation REJECT). The tag-0x21 STARK verification is also enforced at consensus (proven live in C-prior, and re-proven offline bound to the new KovId). Combined enforcement of BOTH in ONE atomic tx is PROVEN against the real v2.0.0 engine (2-input design) but NOT broadcast live, and crucially is co-enforced rather than cryptographically cross-bound (silverscript checks the engine per-instance covenant_id; the STARK binds the sha256 KovId — different values). REMAINING to a fully-combined, cross-bound DoD: (1) silverc support for OpZkPrecompile so one silverscript redeem both verifies the proof and binds its journal, OR a journal that commits the engine per-instance covenant_id; (2) a live combined 2-input broadcast.  [SUPERSEDED by `cross_bound` below — the journal now commits the engine per-instance covenant_id, closing the co-enforced-vs-cross-bound gap for the silverscript layer; option (1)'s second branch is now realized.]"
+  },
+
+  "cross_bound": {
+    "_summary": "Closes the C5 co-enforced-vs-cross-bound gap IN-HOUSE (local-only; nothing sent to kaspanet; no compiler change). The STARK journal now commits the ENGINE PER-INSTANCE covenant_id (not the sha256 KovId), so the silverscript `require(proof_cov_id == OpInputCovenantId(0))` and the proof reference the SAME 32-byte id. Two-phase bootstrap (lock -> read per-instance covid -> prove bound to it -> spend). LIVE on testnet-10; engine rusty-kaspa v2.0.0 (90dbf07).",
+    "generated_utc": "2026-06-28T11:28:59Z",
+    "method": "per-instance covenant_id = covenant_id(funding_outpoint, [genesis_output]) — what OpInputCovenantId(0) returns when the locked covenant UTXO is spent. The CSCI vProg guest takes covenant_id as an input (KCP_COVENANT_ID); we set it to the per-instance covid AFTER the lock, regenerate the real STARK (RISC0_DEV_MODE=0) so journal[0..32] == that per-instance covid, then spend.",
+
+    "phase1_lock": {
+      "genesis_txid": "de20bb7603561a86e936b23bc3b6960ff526b3b93458d01d3ad8a1bba518821a",
+      "genesis_is_accepted": true,
+      "per_instance_covenant_id": "e1e562311cd5eed38395052b77c55237ad5d1f42b858b3297084018641c70d11",
+      "covenant_p2sh_spk": "aa2006056ab5c6a3ec30a920fbb3797c9bbb600bd134ba17... (P2SH(state0))"
+    },
+    "phase2_proof": {
+      "command": "RISC0_DEV_MODE=0 KCP_COVENANT_ID=e1e562311cd5eed38395052b77c55237ad5d1f42b858b3297084018641c70d11 cargo run --release -p csci-prover",
+      "journal_raw_104b_covid_prefix": "e1e562311cd5eed38395052b77c55237ad5d1f42b858b3297084018641c70d11 (journal[0..32] == the per-instance covid)",
+      "journal_sha256": "fd36e7bc22aeb30a22f37514939ee30bf0a5fcc191f1ecc693a32daf4e257bf1",
+      "image_id_vprog": "c6ce0eda6084608aa529dafc06503f21b956f023d62ed1b7c88a278eeb0c5832",
+      "control_id": "c9b08054994f542a6310b00d9b6fc6528ed7bb6f4ca5476a686847127cdfdc5b"
+    },
+    "phase3_cross_bound_settle": {
+      "settle_txid": "60738affe00221d06af26718084c6f66e5287b2527ab319c0e8e2d68169e01c3",
+      "spends_outpoint": "de20bb7603561a86e936b23bc3b6960ff526b3b93458d01d3ad8a1bba518821a:0",
+      "is_accepted": true,
+      "accepting_block_hash": "eebfc876c8b98fbe... (REST-confirmed)",
+      "preflight_check": "settle-bound mode reads the UTXO's ON-CHAIN covenant_id (e1e562...) and ASSERTS journal[0..32] == it before submitting; ACCEPT used_script_units=104898.",
+      "what_it_proves": "The silverscript require(proof_cov_id == OpInputCovenantId(0)) passes with proof_cov_id = e1e562... = OpInputCovenantId(0), AND the STARK journal commits the SAME e1e562.... Same 32-byte id on both sides → genuinely cross-bound (no longer two different values).",
+      "verified_via": "RpcApi submit_transaction (live) + api-tn10.kaspa.org (is_accepted=true) + spends the locked covenant UTXO."
+    },
+    "cross_binding_negative_control": {
+      "what": "Took the valid proof bound to covid_A (e1e562...) and attempted to spend a DIFFERENT covenant instance B. OpInputCovenantId(0) returns covid_B != covid_A, so the silverscript require must reject — proving the binding is to the SPECIFIC covenant identity (distinct from the seq-violation reject and the ZK-integrity reject already shown).",
+      "instance_b_genesis_txid": "a0cf8a2e634fb59c84564824206ccdf30e0bf4221ea52462e78296399cf52ede",
+      "instance_b_genesis_is_accepted": true,
+      "covid_A_journal": "e1e562311cd5eed38395052b77c55237ad5d1f42b858b3297084018641c70d11",
+      "covid_B_spent_instance": "12cfe226a4fa16afaa50ee51c015e8311dfec1e3022e208043f0b63f040b3321",
+      "local_engine_reject": "covenant engine rejected: VerifyError (the require(proof_cov_id == OpInputCovenantId(0)) fails: spliced covid_A != instance covid_B)",
+      "rejected_settle_txid_attempted": "60e9effc817bb449e78df7b8cc183ee7dc23b501dde970a81d1fe209ccfc6c83",
+      "node_error": "RPC Server (remote error) -> Rejected transaction 60e9effc...: failed to verify the signature script: script ran, but verification failed",
+      "rest_status": "HTTP 404 (never entered the chain)",
+      "txid": null
+    },
+
+    "gap_now_closed": "YES for the silverscript layer's covenant-id binding: the STARK journal commits the engine per-instance covenant_id, the exact value OpInputCovenantId(0) returns and the silverscript require checks. The cross-binding negative control proves a proof for one instance cannot satisfy another.",
+    "residual_honest": [
+      "ARCHITECTURE: cross-binding holds WITHIN the silverscript covenant input. The tag-0x21 ZK *verification* of the STARK still runs as a SEPARATE input (the verifier P2SH(redeem), proven live in C-prior and offline-combined). The cross-bound live settle above (settle-bound) is a 1-input silverscript spend; it proves the journal commits the same per-instance covid the silverscript checks, but it does NOT itself run OpZkPrecompile. A single tx that BOTH runs the tag-0x21 verifier AND has the silverscript check the proof's journal covid against OpInputCovenantId(0) is the 2-input combined design (engine-proven offline in `combined` mode); a LIVE combined 2-input broadcast that also carries the per-instance-bound proof was not performed.",
+      "SEMANTIC: the silverscript checks proof_cov_id (a witness arg) == OpInputCovenantId(0). It does NOT itself verify a STARK exists for that journal — that is the tag-0x21 verifier's job. So a spender who knows the runtime covid could pass the silverscript require WITHOUT a valid proof; the proof's necessity comes from the verifier input. Full single-script binding (one script that both verifies the proof and binds its journal covid) still needs silverc OpZkPrecompile support, which is intentionally OFF THE TABLE (no upstream path). The in-house closure achieved here is: the proof's journal is now bound to the per-instance covid, so when the verifier input IS present (2-input combined), both layers reference the same identity."
+    ]
+  },
+
+  "combined_live_and_single_redeem": {
+    "_summary": "Closes the two named residuals from `cross_bound`: (ITEM 1) the 2-input combined enforcement is now LIVE on TN10 in ONE transaction (no longer offline-only), cross-bound to the per-instance covid, with a live negative control; (ITEM 2) a single raw P2SH redeem doing BOTH layers was investigated honestly and REMAINS blocked on the v2.0.0 engine — reported with the exact limitation. Captured 2026-06-28; engine rusty-kaspa v2.0.0 (90dbf07). Local-only, nothing sent to kaspanet.",
+    "generated_utc": "2026-06-28T16:33:14Z",
+
+    "item1_combined_live": {
+      "what": "ONE transaction whose acceptance requires BOTH inputs to pass: input[0] = CsciInstrument silverscript covenant UTXO (seq/auth/cov-id binding), input[1] = tag-0x21 P2SH(redeem) verifier UTXO (OpZkPrecompile over the real STARK). Cross-bound: the covenant locked first, its per-instance covid read, the proof's journal commits that covid (verified before submit), and the verifier redeem is built from that proof.",
+      "per_instance_covenant_id": "039568671d98396a355220003474574e903b676cae947d8d8b002637b1bb12e8",
+      "covenant_genesis_txid": "c6912cdee6d0f2bb52aabdabdd9ef330c7d7b08f20c38c364e82b7993a324bad",
+      "verifier_lock_txid": "fab70e35e4380467ec5a384639e641a1e10de7f2868e499ebb9f793e28730608",
+      "combined_settle_txid": "abc2d13f10e4a8ad1de2f0bdce804853820efd49bd9d06b9bd28af647d5bf728",
+      "is_accepted": true,
+      "accepting_block_hash": "17214c587f506e700754e81bb91229b92794d06ebb5064cea4b595dbce2b796c",
+      "mass": 477206,
+      "n_inputs": 2,
+      "inputs_confirmed": "input[0] spends c6912cde...:0 (covenant), input[1] spends fab70e35...:0 (verifier) — both in the single mined tx (REST is_accepted=true).",
+      "offline_preflight": "both inputs ACCEPT via the real v2.0.0 engine + CovenantsContext before submit: input[0]=104898 units, input[1]=25000176 units.",
+      "mass_engineering": "compute mass = size*1 + spk*10 + 100*sum(compute_budget). The 222 KB seal costs ~223k size-mass; budgets sized tight (input[0]=14, input[1]=2510 budget units) to land mass=477206 < 500000. Fee 60M sompi (node requires ~47.7M for this mass).",
+      "verified_via": "RpcApi submit_transaction (live) + api-tn10.kaspa.org (is_accepted=true, n_inputs=2, accepting_block present)."
+    },
+    "item1_negative_control": {
+      "what": "Same combined tx shape but the proof journal (input[1]) is tampered (journal[0]^=1) so the tag-0x21 STARK verification MUST fail; the covenant input[0] is otherwise valid. The whole tx must be rejected → proves BOTH layers are required.",
+      "covenant_genesis_txid": "e717298c39cf4b9953d950dee79526e144679016914e1468a0316570a97eac1a",
+      "verifier_lock_txid": "13cf77bf4f9860bca76aaf54d314e182664c7c96402f6e2cd7734ec3a90ebdf9",
+      "rejected_settle_txid_attempted": "1f49c3dc466ff81e3ffb90612a54a2d45a6af772cbfe9151ac67186c9dc84a5c",
+      "node_error": "RPC Server (remote error) -> Rejected transaction 1f49c3dc...: failed to verify the signature script: ZK Integrity: Verification failed",
+      "rest_status": "HTTP 404 (never entered the chain)",
+      "combined_settle_txid": null
+    },
+    "item1_status": "CLOSED — both layers enforced in ONE live transaction on TN10 is now a real on-chain fact (abc2d13f...), with a live negative control proving the conjunction.",
+
+    "item2_single_redeem": {
+      "what": "Investigated whether ONE raw P2SH redeem, composed in-house at the raw-script level, can run BOTH (a) the tag-0x21 OpZkPrecompile verify AND (b) the silverscript covenant bindings, in a single input.",
+      "construction": "composed redeem = [CsciInstrument compiled script (524 B)] OP_VERIFY [image_id][control_id][hashfn][tag] OpZkPrecompile (596 B total). Within engine limits (max_scripts_size=1_000_000, max_script_element_size=1_000_000). Tried BOTH orderings: variant A = covenant-first ([covenant] OP_VERIFY [zk]); variant B = zk-first ([zk] OP_VERIFY [covenant]).",
+      "result": "REJECTED in BOTH layouts on the real v2.0.0 engine (covenant engine rejected: VerifyError).",
+      "exact_limitation": "silverc emits the covenant as a SELF-CONTAINED P2SH redeem: it runs a selector dispatch (leader/delegate) and the leader success path executes TERMINAL OP_DROPs that clear the stack down to a single bool. So (variant A) it does not preserve the tag-0x21 satisfier (claim/control_index/control_digests/seal/journal) beneath its result for the appended zk verify to consume; and (variant B) it does not tolerate the extra items a prior zk verify leaves on the stack. It also never emits OpZkPrecompile (portrait-emit carries `[PENDING: add OpZkPrecompile(0x21, journal) ...]`). Concatenating the raw bytes therefore breaks the engine's stack/selector semantics. NOT a size or budget limit — it is the covenant script's stack discipline + the absent surface opcode.",
+      "status": "REMAINS — a clean single-script binding needs the silverscript-surface OpZkPrecompile opcode, which is intentionally OFF THE TABLE (no upstream/kaspanet). This is reported truthfully, not faked. The 2-input combined LIVE tx (item 1) is the in-house way to enforce both, and it stands.",
+      "no_broadcast": "No single-redeem tx was broadcast (the engine rejected it offline); honestly no txid."
+    },
+
+    "files_changed_this_build": {
+      "csci_settle_bin": "examples/portrait-settlement/src/bin/csci_settle.rs — added modes combined-live, combined-negctl (item 1) and item2 (single composed redeem, both layouts).",
+      "provenance": "this section."
+    }
+  },
+
+  "real_instrument": {
+    "what_makes_it_real": [
+      "covenant_id is the REAL KovId of the covenant that locks the settled UTXO: blake2b256(redeem_script) = the exact 32-byte value the P2SH lock (OP_BLAKE2B <hash> OP_EQUAL) commits. Self-consistency verified: journal[0..32] == covid(image_id,control_id) == the P2SH commit.",
+      "new_state_hash is a genuine CsciState transition (50-byte encoding: KttState(42) || seq(8 LE)), seq 0 -> 1, owner = the funded TN10 wallet's real x-only pubkey, amount 500000 sompi. Pinned to kcp_csci::CsciState by crates/kcp-csci/tests/csci_smoke.rs::guest_state_and_rule_hash_match_library.",
+      "rule_hash = sha256('csci-v0-compliance-rule-allow-partial-transfer') — a genuine named rule.",
+      "the guest computes the transition INSIDE the zkVM and commits the 104-byte journal; the host now feeds it the real covenant_id (env KCP_COVENANT_ID) and the real owner pubkey."
+    ],
+    "covenant_id_kovid": "869bfb4d98a318f308775f6410b2bc0eaa80865e6f7d7b047e341ae9bcbf1663",
+    "covenant_id_derivation": "blake2b256(redeem), redeem = <image_id> <control_id> <hashfn=01> <tag=21> OpZkPrecompile(0xa6) = the engine's R0Fields::p2sh_scripts() redeem half. Derived by examples/portrait-settlement/src/bin/covid.rs via kcp_common::p2sh::redeem_script_hash.",
+    "new_state_hash": "62995096aff92337d2b62bca92bda41c5d6130c5f67208de39edec908d96bf0b",
+    "rule_hash": "59edbfe782213621b0f4407c19d7bb2718729e35cf3f21b38d928ef78e83da8d",
+    "seq": 1,
+    "owner_xonly_pubkey": "8ccda595c46ca04b0867e0e80f84ca0d10a6ae40d871346c189b4fa4c571c6c8",
+    "amount_sompi": 500000
+  },
+
+  "real_proof": {
+    "source": "kii-csci-prover (RISC0_DEV_MODE=0, real STARK), two-pass: pass 1 discovers image_id+control_id, covid derives covenant_id, pass 2 binds it.",
+    "seal_bytes": 222668,
+    "claim": "abe74097217837a8a8d7ca085b95d8b8898656fdecf05b0623d9cd297629ab93",
+    "journal_sha256_next_state_commitment": "2c340c7eef312f1f05138884519ff3824e30af17f919ce02fa1cc7c47f1be290",
+    "journal_raw_104b": "869bfb4d98a318f308775f6410b2bc0eaa80865e6f7d7b047e341ae9bcbf166362995096aff92337d2b62bca92bda41c5d6130c5f67208de39edec908d96bf0b59edbfe782213621b0f4407c19d7bb2718729e35cf3f21b38d928ef78e83da8d0100000000000000",
+    "image_id_vprog": "c6ce0eda6084608aa529dafc06503f21b956f023d62ed1b7c88a278eeb0c5832",
+    "control_id": "c9b08054994f542a6310b00d9b6fc6528ed7bb6f4ca5476a686847127cdfdc5b",
+    "control_index": 7,
+    "control_digests_bytes": 256
+  },
+
+  "image_id_reproducibility": {
+    "image_id": "c6ce0eda6084608aa529dafc06503f21b956f023d62ed1b7c88a278eeb0c5832",
+    "control_id_note": "control_id (c9b08054...) is the RISC Zero recursion-program identity; it is stable across guest changes (observed identical before and after the guest's 50-byte-state fix) and across runs.",
+    "determinism_evidence": "Rebuilt the guest clean (touch + cargo build) across three independent runs (dev, real pass-1, real pass-2) — all produced image_id c6ce0eda....",
+    "toolchain": {
+      "rzup": "0.5.0",
+      "cargo_risczero_and_r0vm": "3.0.5",
+      "risc0_rust_toolchain": "v1.91.1 (~/.risc0/toolchains/v1.91.1-rust-*)",
+      "risc0_zkvm_and_build": "3.0.5 (pinned in kii-csci-prover Cargo.lock and methods/csci-guest Cargo.lock)",
+      "guest_target": "riscv32im-risc0-zkvm-elf"
+    },
+    "rebuild_command": "cd kii-csci-prover && touch methods/csci-guest/src/main.rs && RISC0_DEV_MODE=1 cargo run --release -p csci-prover | grep 'image id'",
+    "covenant_commits_image_id": "The redeem (71 bytes) embeds image_id; the P2SH lock commits blake2b256(redeem). Therefore the covenant accepts a spend only for a tag-0x21 proof whose image_id == c6ce0eda... — confirmed offline by portrait-settlement [3/3] (wrong image id REJECTED) and on-chain by the settle acceptance.",
+    "see": "examples/portrait-settlement/REPRODUCE.md"
+  },
+
+  "onchain": {
+    "network": "testnet-10",
+    "node": "ws://127.0.0.1:17210 (server v2.0.0, is_synced=true, covenants ACTIVE)",
+    "wallet": "kaspatest:qzxvmfv4c3k2qjcgvlswsruyegx3pf4wgrv8zdrvrzd5lfx9w8rvsnv3lqpqk",
+    "p2sh_covenant_address": "kaspatest:pzrfh76dnz333ucgwa0kgy9jhs824qyxtehh67cy0c6p46duhutxx3eh0m94m",
+    "p2sh_scriptpubkey": "aa20869bfb4d98a318f308775f6410b2bc0eaa80865e6f7d7b047e341ae9bcbf166387",
+    "redeem_script_bytes": 71,
+    "lock": {
+      "txid": "1f14b628599431cd50f5d1f26d0f388eae0ffe7beba9ea505ac778a6b82f33db",
+      "output_index": 0,
+      "value_sompi": 200000000,
+      "is_accepted": true,
+      "accepting_block_hash": "27380fe33a7bf252... (REST-confirmed)"
+    },
+    "settle": {
+      "txid": "11b4d7d91feb26e71f57a8e754df9abdd3baa3788064e9163bbe2511ad960bfe",
+      "spends_outpoint": "1f14b628599431cd50f5d1f26d0f388eae0ffe7beba9ea505ac778a6b82f33db:0",
+      "mass": 478633,
+      "is_accepted": true,
+      "accepting_block_hash": "d8884b3a63b64bd183008f89bdbaf139b98e03cbe275337b3668139069db2891",
+      "output_sompi": 150000000,
+      "note": "Accepted by consensus ONLY because OpZkPrecompile verified the real STARK and bound covenant_id=869bfb4d... journal=2c340c7e... image_id=c6ce0eda... control_id=c9b08054.... covenant_id == blake2b256(this covenant's redeem), so the proof settles the very covenant that locked the UTXO.",
+      "verified_via": "RpcApi submit_transaction (live) + api-tn10.kaspa.org (is_accepted=true) + P2SH UTXO poll (settle UTXO spent; only the negctl UTXO remains)."
+    },
+    "negative_control": {
+      "type": "ON-CHAIN — submitted to the live node with the local preflight disabled (spend_p2sh_tx_with_sigops skip_preflight=true).",
+      "negctl_lock_txid": "d8610fdfb61caebe20d39b16f355d963c9eadb3b36443f68314d5baae2afe99c",
+      "negctl_lock_is_accepted": true,
+      "tamper": "journal[0] ^= 0x01 (next-state commitment 2c34... -> 2d34...).",
+      "node_rejection_txid_attempted": "e44d4f7bf5ac33d498dda6e6750460336beb380618c6c35fdd7221e0ca4d7d32",
+      "node_error": "RPC Server (remote error) -> Rejected transaction e44d4f7bf5ac33d498dda6e6750460336beb380618c6c35fdd7221e0ca4d7d32: failed to verify the signature script: ZK Integrity: Verification failed",
+      "rest_status_of_rejected_tx": "HTTP 404 (never entered the chain)",
+      "negctl_utxo_status": "UNSPENT — the P2SH address still shows 1 UTXO (the negctl lock); the tampered spend never consumed it.",
+      "txid": null,
+      "_why_null": "A rejected transaction has no on-chain txid. The evidence of consensus enforcement is the live node's reject error + the 404 + the unspent UTXO."
+    }
+  },
+
+  "fixes_made": {
+    "guest_real_state": "kii-csci-prover/methods/csci-guest/src/main.rs: computes the genuine 50-byte CsciState (KttState 42 + seq 8 LE) instead of a 42-byte state; new_state_hash now matches kcp_csci::CsciState::state_hash().",
+    "guest_real_covenant_id": "guest reads covenant_id as input (already did); host (kii-csci-prover/host/src/main.rs) now passes a real covenant_id via KCP_COVENANT_ID and the real owner pubkey, exports covenant_id.hex, and prints all inputs.",
+    "covid_bin": "examples/portrait-settlement/src/bin/covid.rs derives covenant_id = blake2b256(redeem) from a proof dir.",
+    "negctl_onchain": "crates/kcp-common/src/p2sh.rs: spend_p2sh_tx_with_sigops gained skip_preflight; settle.rs now locks a 2nd P2SH UTXO and submits the tampered spend to the live node to capture the node's rejection.",
+    "guest_library_agreement_test": "crates/kcp-csci/tests/csci_smoke.rs::guest_state_and_rule_hash_match_library pins guest new_state_hash/rule_hash to the library types.",
+    "pubkey_example": "crates/kcp-common/examples/pubkey.rs prints a wallet's x-only pubkey.",
+    "prior_run_pieces": "kcp-common p2sh covenant flags + explicit sigop budget + journal-hash fallback (from the first Phase A run) are retained."
+  },
+
+  "honest_caveats": [
+    "The covenant locking script is a generic P2SH wrapping the tag-0x21 verifier (image_id+control_id pinned). The CSCI-specific .sil locking script (seq monotonicity / state-continuity enforced ON-CHAIN) is not yet authored; seq/continuity are currently enforced inside the vProg, not by silverscript. The proof IS bound to the covenant program identity, but the covenant does not yet itself re-derive/enforce the CSCI state machine on-chain.",
+    "covenant_id = blake2b256(redeem) is the P2SH program identity (KIP-20-style), not a silverscript-bytecode KovId, because the CSCI .sil does not exist yet. This is documented and self-consistent with what the chain commits.",
+    "Genesis prev state (amount 1_000_000, seq 0) is a chosen starting point, not itself anchored on-chain by a prior settle (this is the first transition of the instance)."
+  ],
+
+  "onchain_settle_txid": "11b4d7d91feb26e71f57a8e754df9abdd3baa3788064e9163bbe2511ad960bfe",
+  "onchain_lock_txid": "1f14b628599431cd50f5d1f26d0f388eae0ffe7beba9ea505ac778a6b82f33db",
+  "negative_control_txid": null,
+  "negative_control_node_error": "Rejected transaction e44d4f7bf5ac33d498dda6e6750460336beb380618c6c35fdd7221e0ca4d7d32: failed to verify the signature script: ZK Integrity: Verification failed"
+}

@@ -1,0 +1,13 @@
+[package]
+name = "portrait-lens"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+# Lens is DEP-FREE by default: it depends only on the in-tree syntax + sema
+# crates. z3 is invoked as an EXTERNAL RUNTIME BINARY via std::process (see
+# `solve.rs`), never linked as a Cargo dependency, so `cargo build`/`cargo test`
+# stay green on any machine regardless of whether z3 is installed.
+[dependencies]
+portrait-syntax = { path = "../portrait-syntax" }
+portrait-sema = { path = "../portrait-sema" }

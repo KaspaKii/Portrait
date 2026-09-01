@@ -1,0 +1,70 @@
+// Transferable-record covenant — on-chain enforcement of TR-1, TR-2, and
+// ownership/authorisation invariants for the kcp-transferable-record pattern.
+//
+// ## State shape
+//
+//   record_id    (byte[32]) — SHA-256 of the canonical genesis body; fixed for
+//                             the lifetime of the record.
+//   seq          (int)      — transfer sequence number; genesis = 0, first
+//                             transfer = 1, strictly incrementing by 1.
+//   controllerPk (byte[32]) — x-only Schnorr pubkey of the CURRENT controller.
+//
+// ## Invariants enforced on-chain
+//
+//   TR-1 (seq monotone):    newState.seq == prevState.seq + 1
+//   TR-2 (record identity): newState.record_id == prevState.record_id
+//   TR-3 (ownership):       the transfer is authorised by the CURRENT controller:
+//                             require(checkSig(s, prevStates[0].controllerPk))
+//                           The new controller (newStates[0].controllerPk) is
+//                           unconstrained — that IS the transfer.
+//
+// ## Single-live-controlling-record
+//
+//   from=1, to=1: structurally enforces one-input → one-output. Fan-out (one
+//   record split into many) and duplication are rejected by the covenant binding
+//   shape at the engine level.  No extra assertion is needed for "cannot
+//   duplicate"; the `from=1, to=1` binding precludes it.
+//
+// ## Design notes
+//
+//   Genesis creation is off-chain (the initial controller creates the UTXO
+//   directly). This covenant enforces each subsequent transfer step only.
+//   There is no terminal/CLOSE state in the transferable-record model; a record
+//   can be transferred indefinitely.
+//
+// silverscript@2c46231, validated against rusty-kaspa v2.0.0 (silverscript workspace).
+
+contract TransferableRecord(
+    byte[32] genesisRecordId,
+    int      genesisSeq,
+    byte[32] genesisControllerPk
+) {
+    byte[32] record_id    = genesisRecordId;
+    int      seq          = genesisSeq;
+    byte[32] controllerPk = genesisControllerPk;
+
+    // TR-3: ownership — the CURRENT controller must sign.
+    function checkOwnership(State[] prevStates, sig s) {
+        require(checkSig(s, prevStates[0].controllerPk));
+    }
+
+    // TR-1: seq must increment by exactly 1.
+    function checkSeq(State[] prevStates, State[] newStates) {
+        require(newStates[0].seq == prevStates[0].seq + 1);
+    }
+
+    // TR-2: record_id must be preserved.
+    function checkRecordId(State[] prevStates, State[] newStates) {
+        require(newStates[0].record_id == prevStates[0].record_id);
+    }
+
+    // Single-input single-output transfer transition.
+    // from=1, to=1: exactly one covenant input and one covenant output.
+    // The new controllerPk is unconstrained — it is set by the caller in newStates.
+    #[covenant(binding = cov, from = 1, to = 1)]
+    function transfer(State[] prevStates, State[] newStates, sig s) {
+        checkOwnership(prevStates, s);
+        checkSeq(prevStates, newStates);
+        checkRecordId(prevStates, newStates);
+    }
+}

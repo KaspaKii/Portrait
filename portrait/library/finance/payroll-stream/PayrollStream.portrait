@@ -1,0 +1,134 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  PayrollStream — a streaming-payroll / per-period wage-release covenant.
+//
+//  THE POINT OF THIS FILE: the first pattern in this library that combines a
+//  temporal rate-limit (Subscription's `temporal_guard`) AND a per-release cap
+//  (SpendingLimitVault's `spending_cap`) on ONE value-conserved balance. An
+//  employer prefunds `balance`; the employee pulls a wage once per pay-period,
+//  rate-limited by a coarse time gate and capped per release. This is the
+//  on-chain shape of a rate-limited, capped salary stream.
+//
+//  State:
+//    · employee   — committed pull authority (the wage recipient);
+//    · employer   — committed payer key (carried; for reference);
+//    · period     — rate-limit window (minimum buckets between releases);
+//    · last_paid  — coarse time bucket of the last release (genesis anchor);
+//    · limit      — committed per-release wage cap (named `limit` precisely so
+//                   `spending_cap` fires on `amount <= limit`);
+//    · balance    — prefunded payroll balance (value-conserved by field name).
+//
+//  Transition:
+//    · release(amount, now_bucket) — employee-auth against the COMMITTED employee
+//                   key; gated on the rate limit
+//                   `now_bucket >= last_paid + period` (temporal_guard, the
+//                   committed-window form asserts_temporal_gate accepts — both
+//                   `last_paid` and `period` are committed state); `amount >= 0`
+//                   (non_negative_amount); `amount <= limit` (spending_cap, the
+//                   per-release wage cap); `amount <= balance` (cannot overdraw);
+//                   `balance` decreased by a single additive subtraction
+//                   (value_conserved); `last_paid` advanced to `now_bucket`.
+//
+//  HONEST SCOPE — CONSENSUS CLTV RATE-LIMIT + CAP, NOT LINEAR ACCRUAL
+//  (per-period window now consensus-enforced). The cadence window is enforced by
+//  TWO gates on `release`: (1) the consensus `after(last_paid + period)` clause,
+//  which lowers to `require(tx.time >= prev_states[0].last_paid +
+//  prev_states[0].period)` → OpCheckLockTimeVerify, forcing the spending tx to
+//  commit a lock_time at/after the window sum on a non-final input; and (2) the
+//  caller-asserted `now_bucket >= last_paid + period` compare, RETAINED because it
+//  is what anchors the successor `last_paid` monotonically forward (the CLTV gate
+//  bounds tx time but does not itself constrain the recorded anchor). The CLTV
+//  opcode is HALF the guarantee — the SEPARATE finalization rule
+//  (`block_daa_score > last_paid + period`) is the load-bearing half; the covenant
+//  does NOT read wall-clock time. True LINEAR pro-rata accrual (`amount <= total * (now - start) /
+//  duration`) needs a multiplicative wall-clock schedule term and division — both
+//  out of subset — so it is NOT enforced; PayrollStream honestly enforces the
+//  per-period rate-limit + per-release cap instead (the same caveat
+//  StreamingVesting documents). The cap is per-RELEASE, not a windowed aggregate.
+//
+//  HONEST SCOPE (M1): `amount` is a caller-asserted integer compared against
+//  committed state (`limit`, `balance`) and conserved against `balance`; the
+//  actual coin movement (paying the employee) is the spending wallet's
+//  responsibility, complemented here by the structural invariants the covenant
+//  rejects on (committed-key authorisation + temporal gate + per-release cap +
+//  conservation). The covenant does NOT itself read UTXO coin values.
+//
+//  Emission note: the constructor declares employee, employer, period, last_paid,
+//  limit, balance in state-field order. `portrait engrave` lowers this to a
+//  single-transition singleton covenant that `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app PayrollStream {
+  role payroll {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey employee;   // committed pull authority (the wage recipient)
+    param pubkey employer;   // committed payer key (carried; for reference)
+    param int    period;     // rate limit: minimum buckets between releases
+    param int    last_paid;  // coarse time bucket of the last release (genesis anchor)
+    param int    limit;      // committed per-release wage cap (spending_cap)
+    param int    balance;    // prefunded payroll balance (value-conserved by name)
+
+    state {
+      pubkey employee;
+      pubkey employer;
+      int    period;
+      int    last_paid;
+      int    limit;
+      int    balance;
+    }
+
+    // Wage release: the employee pulls one period's wage. Authorised against the
+    // COMMITTED employee key; gated on the rate limit (one release per period);
+    // capped per release by the committed `limit`; balance decreased by a single
+    // additive subtraction (value_conserved); the cadence anchor advanced to now.
+    #[covenant(mode = transition)]
+    entrypoint function release(
+      sig auth,
+      int amount,
+      int now_bucket
+    ) : (pubkey employee, pubkey employer, int period, int last_paid, int limit, int balance) {
+      requires checkSig(auth, employee);              // only the committed employee may pull
+      requires now_bucket >= last_paid + period;       // rate limit: one release per period (temporal_guard)
+      after(last_paid + period);                       // SCRIPT-ENFORCED (B1): consensus CLTV gate on
+                                                       // the committed window sum (OpCheckLockTimeVerify)
+      requires amount >= 0;                            // non-negative wage (non_negative_amount)
+      requires amount <= limit;                        // per-release wage cap (spending_cap)
+      requires amount <= balance;                      // cannot overdraw the payroll balance
+      return PayrollStream {
+        employee:  employee,                           // pull authority carried unchanged
+        employer:  employer,                           // payer carried unchanged
+        period:    period,                             // rate-limit window carried unchanged
+        last_paid: now_bucket,                         // advance the cadence anchor to now
+        limit:     limit,                              // committed cap carried unchanged
+        balance:   balance - amount                    // single additive subtraction (value_conserved)
+      };
+    }
+  }
+
+  lifecycle {
+    live -> live via payroll.release;
+  }
+
+  invariant value_conserved;
+  // Capability (C2): release authority is checked against the COMMITTED employee
+  // key. Any state-mutating transition added here that omits a committed-key
+  // checkSig is rejected by `portrait check`.
+  invariant authorized;
+  // Refinement (C3): the released `amount` is bounded non-negative.
+  invariant non_negative_amount;
+  // Refinement (D3, spending_cap): the released `amount` is bounded by the
+  // committed per-release `limit`. A future edit that drops `amount <= limit`
+  // fails the checker. STRUCTURAL cap-require match, NOT a proof the cap is sound.
+  invariant spending_cap;
+  // Refinement (D3, temporal_guard): `release` gates on the committed rate-limit
+  // window via BOTH the consensus `after(last_paid + period)` CLTV clause AND the
+  // caller-asserted `now_bucket >= last_paid + period` compare (the latter anchors
+  // the successor `last_paid`). Either alone satisfies the role-level check; a
+  // future edit that drops the window entirely (permitting faster-than-period
+  // releases) fails the checker.
+  invariant temporal_guard;
+  invariant no_undeclared_state;
+}

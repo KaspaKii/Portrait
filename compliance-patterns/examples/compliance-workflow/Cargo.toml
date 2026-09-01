@@ -1,0 +1,22 @@
+[package]
+name = "compliance-workflow"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Standalone — NOT part of the kaspa-compliance-patterns workspace, so that
+# downstream users can copy `examples/compliance-workflow/` into a new directory
+# and have it just work.
+[workspace]
+
+[[bin]]
+name = "compliance-workflow"
+path = "src/main.rs"
+
+[dependencies]
+kcp-paired-attestation  = { path = "../../crates/kcp-paired-attestation" }
+kcp-sealed-lineage      = { path = "../../crates/kcp-sealed-lineage" }
+kcp-transferable-record = { path = "../../crates/kcp-transferable-record" }
+kcp-ktt-token           = { path = "../../crates/kcp-ktt-token" }
+hex       = "0.4"
+serde_json = "1"

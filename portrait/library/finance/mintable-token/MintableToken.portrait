@@ -1,0 +1,89 @@
+pragma portrait ^0.1.0;
+
+// ─────────────────────────────────────────────────────────────────────────
+//  MintableToken — a single-issuer supply counter whose mint is an EXPLICIT,
+//  SIGNED, CHECKED-MODEL supply-change capability.
+//
+//  THE POINT OF THIS FILE: give the `#[covenant(mode = transition,
+//  supply_change = issuer)]` capability a real, minimal user. `mint` raises the
+//  committed `supply` counter and returns a successor covenant carrying the new
+//  total. Because a supply change legitimately does NOT conserve value, the
+//  entry is declared with `supply_change = issuer` — which:
+//
+//    · WAIVES the entry from value-conservation checking (C1 /
+//      `conservation_split`): `supply: supply + amount` is a deliberate,
+//      annotated increase, not a leak the checker should reject; AND
+//    · is CHECKED by the compiler as a capability — the named authority
+//      `issuer` must be a COMMITTED key (it is a genesis param / state field)
+//      AND must be GUARANTEED to sign on every satisfying path (the mandatory
+//      `requires checkSig(auth, issuer)` below). Drop that checkSig, move it
+//      into a `||` arm, or name a non-committed authority, and the checker
+//      REJECTS the pattern — the capability is not a free pass.
+//
+//  Committed state:
+//    · issuer — committed authority for the supply change (the sole key that
+//               may mint; carried unchanged across the transition);
+//    · supply — the value-bearing supply counter, grown by `mint`.
+//
+//  Transition:
+//    · mint(auth, amount) — issuer-authorised against the COMMITTED issuer key;
+//                           `supply += amount`; `amount >= 0`.
+//
+//  HONEST SCOPE — `supply_change` IS A CHECKED-MODEL CAPABILITY, NOT AN
+//  ON-CHAIN MINTED-SUPPLY GUARANTEE. The annotation and its checker enforce
+//  that a NAMED COMMITTED authority signs the supply change and that the model
+//  is deliberately waived from conservation. It does NOT — and a UTXO covenant
+//  CANNOT — inflate real coin: `supply` is the covenant's own committed
+//  integer, not a mint of L1 KAS. The guarantee is "the recorded supply
+//  counter only moves under the committed issuer's signature", not "new coin
+//  was created". Actual coin movement stays the spending wallet's
+//  responsibility (WALLET-ASSUMED), exactly as for every other value leg in
+//  this library.
+//
+//  Emission note: Portrait initialises each state field from the constructor
+//  param matched BY NAME — a state field with no same-named param is a
+//  compile error, never a silent 0 — so the constructor declares issuer,
+//  supply. `portrait engrave` lowers this to a singleton covenant that
+//  `silverc` accepts (exit 0).
+//
+//  Maturity: pre-production, unaudited, testnet-only.
+// ─────────────────────────────────────────────────────────────────────────
+
+app MintableToken {
+  role token {
+    // Genesis state (one constructor param per state field, in field order).
+    param pubkey issuer;   // committed issuer key (sole supply-change authority)
+    param int    supply;   // value-bearing supply counter
+
+    state {
+      pubkey issuer;
+      int    supply;
+    }
+
+    // Mint new supply. Issuer-authorised against the COMMITTED issuer key. The
+    // supply counter grows by a single additive term; issuer is carried
+    // unchanged. The `supply_change = issuer` capability waives conservation
+    // for this deliberate increase AND is checked: `issuer` is committed and
+    // the mandatory `checkSig(auth, issuer)` guarantees it signs.
+    #[covenant(mode = transition, supply_change = issuer)]
+    entrypoint function mint(
+      sig auth,
+      int amount
+    ) : (pubkey issuer, int supply) {
+      requires checkSig(auth, issuer);   // committed-issuer authorisation (guaranteed)
+      requires amount >= 0;              // non-negative mint
+      return MintableToken {
+        issuer: issuer,                  // issuer carried unchanged
+        supply: supply + amount          // supply counter grows by the minted amount
+      };
+    }
+  }
+
+  lifecycle { live -> live via token.mint; }
+
+  // `authorized` opts the pattern into the LOW-2 no-auth fail-safe: the
+  // supply-mutating transition must carry a committed-key checkSig (it does).
+  // NOT `value_conserved` — the mint legitimately changes supply and is
+  // annotation-exempt from conservation.
+  invariant authorized;
+}
